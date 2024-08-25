@@ -1,6 +1,7 @@
 use anyhow::bail;
 
 #[allow(non_camel_case_types)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
     LEFT_PAREN,
@@ -51,33 +52,8 @@ pub enum TokenType {
     EOF,
 }
 
-pub struct Token {
-    pub token_type: TokenType,
-    pub value: String,
-}
-
-impl Token {
-    pub fn new(input: &str) -> anyhow::Result<Token> {
-        let token_type = TokenType::parse(input)?;
-        let value = token_type.get_value();
-
-        Ok(Token { token_type, value })
-    }
-}
-
-impl ToString for Token {
-    fn to_string(&self) -> String {
-        format!(
-            "{} {} {}",
-            self.token_type.to_string(),
-            self.token_type.get_lexeme(),
-            self.value
-        )
-    }
-}
-
 impl TokenType {
-    fn get_value(&self) -> String {
+    pub fn get_value(&self) -> String {
         use TokenType::*;
         let value = match self {
             STRING(v) => v.to_string(),
@@ -130,7 +106,7 @@ impl TokenType {
         }
         .into()
     }
-    fn parse(input: &str) -> anyhow::Result<Self> {
+    pub fn parse(input: &str) -> anyhow::Result<Self> {
         use TokenType::*;
         let res = match input {
             "(" => LEFT_PAREN,
@@ -171,7 +147,7 @@ impl TokenType {
             "VAR" => VAR,
             "WHILE" => WHILE,
             "EOF" => EOF,
-            "$" | "#" => bail!("Unexpected character: {}", input),
+            "$" | "#" | "@" | "%" => bail!("Unexpected character: {}", input),
             _ => IDENTIFIER(input.into()),
         };
         Ok(res)
