@@ -1,4 +1,7 @@
+use std::str::Chars;
+
 use crate::{
+    sub_tokens::SlashType,
     token::Token,
     token_type::{ParseOutput, PartialParseOutput, TokenType},
 };
@@ -15,9 +18,8 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
     let mut input = String::new();
 
     loop {
-		// println!("input: {:?}", input);
         if input.len() == 0 {
-            let Some(c) = chars.next() else {
+            let Some(c) = find_first_non_whitespace(&mut chars) else {
                 break;
             };
             input.push(c);
@@ -39,7 +41,7 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
                 let token = match next_char {
                     None => {
                         let token = Token::new(v);
-						input.clear();
+                        input.clear();
                         token
                     }
                     Some(new_char) => {
@@ -53,6 +55,7 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
                             }
                             PartialParseOutput::Token(t) => {
                                 let token = Token::new(t);
+
                                 input.clear();
                                 token.into()
                             }
@@ -66,7 +69,12 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
                         }
                     }
                 };
-                result.push(format!("{}", token.to_string()));
+                if token.token_type == TokenType::SLASH(SlashType::COMMENT) {
+                    chars = "".chars();
+                }
+                if !token.token_type.is_ignored() {
+                    result.push(format!("{}", token.to_string()));
+                }
             }
         }
     }
@@ -75,4 +83,13 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
         return TokenizerResult::INVALID(result);
     }
     TokenizerResult::VALID(result)
+}
+
+fn find_first_non_whitespace(chars: &mut Chars<'_>) -> Option<char> {
+    while let Some(c) = chars.next() {
+        if !c.is_whitespace() {
+            return Some(c);
+        }
+    }
+    None
 }

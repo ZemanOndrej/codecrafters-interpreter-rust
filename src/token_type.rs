@@ -13,7 +13,8 @@ pub enum TokenType {
     MINUS,
     PLUS,
     SEMICOLON,
-    SLASH,
+    SLASH(SlashType),
+    // COMMENT,
     STAR,
 
     // One or two character tokens.
@@ -59,13 +60,20 @@ pub enum ParseOutput {
 }
 
 pub enum PartialParseOutput {
-	Token(TokenType),
+    Token(TokenType),
     Partial(TokenType),
-	Mismatched(TokenType),
+    Mismatched(TokenType),
 }
 
-
 impl TokenType {
+    pub fn is_ignored(&self) -> bool {
+        use TokenType::*;
+        match self {
+            SLASH(SlashType::COMMENT) => true,
+            _ => false,
+        }
+    }
+
     pub fn get_value(&self) -> String {
         use TokenType::*;
         let value = match self {
@@ -86,7 +94,8 @@ impl TokenType {
             MINUS => "-".to_string(),
             PLUS => "+".to_string(),
             SEMICOLON => ";".to_string(),
-            SLASH => "/".to_string(),
+            SLASH(n) => n.get_lexeme(),
+            // COMMENT => "//".to_string(),
             STAR => "*".to_string(),
             BANG(n) => n.get_lexeme(),
             // BANG_EQUAL => "!=".to_string(),
@@ -122,6 +131,7 @@ impl TokenType {
         use ParseOutput::*;
         use TokenType::*;
         match input {
+			" " | "\r" | "\t" => return Token(TokenType::EOF),
             "$" | "#" | "@" | "%" => {
                 return ParseOutput::Invalid(format!("Unexpected character: {}", input))
             }
@@ -134,7 +144,7 @@ impl TokenType {
             "-" => Token(MINUS),
             "+" => Token(PLUS),
             ";" => Token(SEMICOLON),
-            "/" => Token(SLASH),
+            "/" => Partial(SLASH(SlashType::SLASH)),
             "*" => Token(STAR),
             "!" => Partial(BANG(BangType::BANG)),
             // "!=" => Token(BANG(BangType::BANG_EQUAL)),
@@ -165,7 +175,7 @@ impl TokenType {
             _ => Token(IDENTIFIER(input.into())),
         }
     }
-    pub fn parse_partial(input: &str,partial: TokenType ) -> PartialParseOutput {
+    pub fn parse_partial(input: &str, partial: TokenType) -> PartialParseOutput {
         use PartialParseOutput::*;
         use TokenType::*;
         match input {
@@ -173,7 +183,7 @@ impl TokenType {
             "==" => Token(EQUAL(EqualType::EQUAL_EQUAL)),
             ">=" => Token(GREATER(GreaterType::GREATER_EQUAL)),
             "<=" => Token(LESS(LessType::LESS_EQUAL)),
-
+            "//" => Token(SLASH(SlashType::COMMENT)),
 
             _ => Mismatched(partial),
         }
@@ -193,7 +203,7 @@ impl ToString for TokenType {
             MINUS => "MINUS".to_string(),
             PLUS => "PLUS".to_string(),
             SEMICOLON => "SEMICOLON".to_string(),
-            SLASH => "SLASH".to_string(),
+            SLASH(n) => n.to_string(),
             STAR => "STAR".to_string(),
             BANG(n) => n.to_string(),
             // BANG_EQUAL => "BANG_EQUAL".to_string(),
