@@ -1,4 +1,4 @@
-use codecrafters_interpreter::process_file_contents;
+use codecrafters_interpreter::process_file_content;
 use std::env;
 use std::fs;
 
@@ -22,7 +22,7 @@ fn main() {
                 String::new()
             });
 
-            process_file_contents(file_contents);
+            process_file_content(file_contents);
         }
         _ => {
             eprintln!("Unknown command: {}", command);
