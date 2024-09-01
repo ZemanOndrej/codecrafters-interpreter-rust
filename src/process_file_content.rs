@@ -1,5 +1,5 @@
-use std::process::exit;
 use crate::tokenize::{tokenize, TokenizerResult};
+use std::process::exit;
 
 pub fn process_file_content(file_contents: String) {
     let lines = file_contents.lines();
