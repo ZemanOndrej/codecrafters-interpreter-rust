@@ -29,7 +29,7 @@ pub enum TokenType {
     // Literals.
     IDENTIFIER(String),
     STRING(String),
-    NUMBER,
+    NUMBER(f64),
 
     // Keywords.
     AND,
@@ -78,6 +78,13 @@ impl TokenType {
         use TokenType::*;
         let value = match self {
             STRING(v) => v.to_string(),
+            NUMBER(v) => {
+                if v.fract() == 0.0 {
+                    format!("{:.1}", v) // Format with one decimal place
+                } else {
+                    v.to_string() // Preserve all decimal places
+                }
+            }
             _ => "null".to_string(),
         };
         value
@@ -105,7 +112,7 @@ impl TokenType {
             LESS(n) => n.get_lexeme(),
             // LESS_EQUAL => "<=".to_string(),
             STRING(v) => format!("\"{}\"", v),
-            NUMBER => "NUMBER".to_string(),
+            NUMBER(v) => v.to_string(),
             AND => "AND".to_string(),
             CLASS => "CLASS".to_string(),
             ELSE => "ELSE".to_string(),
@@ -130,8 +137,13 @@ impl TokenType {
     pub fn parse(input: &str) -> ParseOutput {
         use ParseOutput::*;
         use TokenType::*;
+
+        if let Ok(c) = input.parse::<f64>() {
+            return Partial(NUMBER(c));
+        }
+
         match input {
-			" " | "\r" | "\t" => return Token(TokenType::EOF),
+            " " | "\r" | "\t" => return Token(TokenType::EOF),
             "$" | "#" | "@" | "%" => {
                 return ParseOutput::Invalid(format!("Unexpected character: {}", input))
             }
@@ -153,7 +165,7 @@ impl TokenType {
             ">" => Partial(GREATER(GreaterType::GREATER)),
             // ">=" => Token(GREATER(GreaterType::GREATER_EQUAL)),
             "<" => Partial(LESS(LessType::LESS)),
-			"\"" => Partial(STRING("".into())),
+            "\"" => Partial(STRING("".into())),
             // "<=" => Token(LESS(LessType::LESS_EQUAL)),
             // "STRING" => STRING(input[1..input.len() - 1].into()),
             // "NUMBER" => NUMBER,
@@ -215,7 +227,7 @@ impl ToString for TokenType {
             // LESS_EQUAL => "LESS_EQUAL".to_string(),
             IDENTIFIER(_) => "IDENTIFIER".to_string(),
             STRING(_) => "STRING".to_string(),
-            NUMBER => "NUMBER".to_string(),
+            NUMBER(_) => "NUMBER".to_string(),
             AND => "AND".to_string(),
             CLASS => "CLASS".to_string(),
             ELSE => "ELSE".to_string(),
