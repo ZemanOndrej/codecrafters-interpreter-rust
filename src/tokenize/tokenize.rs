@@ -6,7 +6,7 @@ use crate::{
     token_type::{ParseOutput, PartialParseOutput, TokenType},
 };
 
-use super::{handle_number_literal, handle_string_literal};
+use super::{handle_identifier, handle_number_literal, handle_string_literal};
 
 pub enum TokenizerResult {
     INVALID(Vec<String>),
@@ -40,8 +40,9 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
             }
             ParseOutput::Partial(v) => {
                 let token = match v {
+                    TokenType::IDENTIFIER(v) => handle_identifier(v, &mut chars, &mut input),
                     TokenType::STRING(v) => handle_string_literal(v, &mut chars, &mut input),
-					TokenType::NUMBER(v)=> handle_number_literal(v, &mut chars, &mut input),
+                    TokenType::NUMBER(v) => handle_number_literal(v, &mut chars, &mut input),
                     _ => {
                         let next_char = chars.next();
 

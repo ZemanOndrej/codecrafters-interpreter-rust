@@ -2,7 +2,7 @@ use crate::{token::Token, token_type::TokenType};
 use std::str::Chars;
 
 pub fn handle_number_literal(
-    number: f64,
+    number: String,
     chars: &mut Chars<'_>,
     input: &mut String,
 ) -> Result<Token, String> {
@@ -28,7 +28,7 @@ pub fn handle_number_literal(
         }
     }
 
-    let Ok(number) = number.parse::<f64>() else {
+    let Ok(_) = number.parse::<f64>() else {
         return Err("Invalid number.".to_string());
     };
 

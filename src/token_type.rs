@@ -29,7 +29,7 @@ pub enum TokenType {
     // Literals.
     IDENTIFIER(String),
     STRING(String),
-    NUMBER(f64),
+    NUMBER(String),
 
     // Keywords.
     AND,
@@ -79,8 +79,12 @@ impl TokenType {
         let value = match self {
             STRING(v) => v.to_string(),
             NUMBER(v) => {
-                if v.fract() == 0.0 {
-                    format!("{:.1}", v) // Format with one decimal place
+                let Ok(number) = v.parse::<f64>() else {
+                    panic!("Invalid TokenType number with value {}.", v)
+                };
+
+                if number.fract() == 0.0 {
+                    format!("{:.1}", number) // Format with one decimal place
                 } else {
                     v.to_string() // Preserve all decimal places
                 }
@@ -138,8 +142,8 @@ impl TokenType {
         use ParseOutput::*;
         use TokenType::*;
 
-        if let Ok(c) = input.parse::<f64>() {
-            return Partial(NUMBER(c));
+        if let Ok(_) = input.parse::<f64>() {
+            return Partial(NUMBER(input.to_string()));
         }
 
         match input {
@@ -185,7 +189,7 @@ impl TokenType {
             // "TRUE" => TRUE,
             // "VAR" => VAR,
             // "WHILE" => WHILE,
-            _ => Token(IDENTIFIER(input.into())),
+            _ => Partial(IDENTIFIER(input.into())),
         }
     }
     pub fn parse_partial(input: &str, partial: TokenType) -> PartialParseOutput {
