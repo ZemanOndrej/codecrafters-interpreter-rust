@@ -1,8 +1,8 @@
-{
-// This is a complex test case
-str1 = "Test"
-str2 = "Case"
-num1 = 100
-num2 = 200.00
-result = (str1 == str2) != ((num1 + num2) >= 300)
+var result = (a + b) > 7 or "Success" != "Failure" or x >= 5
+while (result) {
+    var counter = 0
+    counter = counter + 1
+    if (counter == 10) {
+        return nil
+    }
 }

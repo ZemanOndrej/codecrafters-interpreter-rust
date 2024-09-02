@@ -78,15 +78,20 @@ impl TokenType {
         use TokenType::*;
         let value = match self {
             STRING(v) => v.to_string(),
-            NUMBER(v) => {
-                let Ok(number) = v.parse::<f64>() else {
-                    panic!("Invalid TokenType number with value {}.", v)
+            NUMBER(value) => {
+                let value = if value.contains('.') {
+                    value.trim_end_matches("0")
+                }else{
+					value
+				};
+                let Ok(number) = value.parse::<f64>() else {
+                    panic!("Invalid TokenType number with value {}.", value)
                 };
 
                 if number.fract() == 0.0 {
                     format!("{:.1}", number) // Format with one decimal place
                 } else {
-                    v.to_string() // Preserve all decimal places
+                    value.to_string() // Preserve all decimal places
                 }
             }
             _ => "null".to_string(),
@@ -117,23 +122,23 @@ impl TokenType {
             // LESS_EQUAL => "<=".to_string(),
             STRING(v) => format!("\"{}\"", v),
             NUMBER(v) => v.to_string(),
-            AND => "AND".to_string(),
-            CLASS => "CLASS".to_string(),
-            ELSE => "ELSE".to_string(),
-            FALSE => "FALSE".to_string(),
-            FUN => "FUN".to_string(),
-            FOR => "FOR".to_string(),
-            IF => "IF".to_string(),
-            NIL => "NIL".to_string(),
-            OR => "OR".to_string(),
-            PRINT => "PRINT".to_string(),
-            RETURN => "RETURN".to_string(),
-            SUPER => "SUPER".to_string(),
-            THIS => "THIS".to_string(),
-            TRUE => "TRUE".to_string(),
-            VAR => "VAR".to_string(),
-            WHILE => "WHILE".to_string(),
-            EOF => "EOF".to_string(),
+            AND => "and".to_string(),
+            CLASS => "class".to_string(),
+            ELSE => "else".to_string(),
+            FALSE => "false".to_string(),
+            FUN => "fun".to_string(),
+            FOR => "for".to_string(),
+            IF => "if".to_string(),
+            NIL => "nil".to_string(),
+            OR => "or".to_string(),
+            PRINT => "print".to_string(),
+            RETURN => "return".to_string(),
+            SUPER => "super".to_string(),
+            THIS => "this".to_string(),
+            TRUE => "true".to_string(),
+            VAR => "var".to_string(),
+            WHILE => "while".to_string(),
+            EOF => "eof".to_string(),
             IDENTIFIER(v) => v.to_string(),
         }
     }

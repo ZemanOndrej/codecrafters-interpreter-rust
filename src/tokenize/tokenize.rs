@@ -6,7 +6,7 @@ use crate::{
     token_type::{ParseOutput, PartialParseOutput, TokenType},
 };
 
-use super::{handle_identifier, handle_number_literal, handle_string_literal};
+use super::{handle_identifier, handle_keyword, handle_number_literal, handle_string_literal};
 
 pub enum TokenizerResult {
     INVALID(Vec<String>),
@@ -91,9 +91,15 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
                         input.clear();
                     }
                     Ok(token) => {
-                        if token.token_type == TokenType::SLASH(SlashType::COMMENT) {
-                            chars = "".chars();
-                        }
+                        let token = match token.token_type {
+                            TokenType::SLASH(SlashType::COMMENT) => {
+                                chars = "".chars();
+								token
+                            }
+                            TokenType::IDENTIFIER(_) => handle_keyword(token),
+                            _ => token
+                        };
+
                         if !token.token_type.is_ignored() {
                             result.push(format!("{}", token.to_string()));
                         }
