@@ -9,7 +9,9 @@ pub fn parse(results: Vec<Token>) {
     while let Some(token) = iterator.next() {
         use TokenType::*;
         match &token.token_type {
-            FALSE | TRUE | NUMBER(_) | NIL => stack.push(Expression::Literal(token.clone())),
+            FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => {
+                stack.push(Expression::Literal(token.clone()))
+            }
 
             PLUS | MINUS | STAR | SLASH(SlashType::SLASH) => {
                 let left = stack.pop().unwrap();
