@@ -78,12 +78,13 @@ impl TokenType {
         use TokenType::*;
         let value = match self {
             STRING(v) => v.to_string(),
+            // TRUE | FALSE | NIL => self.get_lexeme(),
             NUMBER(value) => {
                 let value = if value.contains('.') {
                     value.trim_end_matches("0")
-                }else{
-					value
-				};
+                } else {
+                    value
+                };
                 let Ok(number) = value.parse::<f64>() else {
                     panic!("Invalid TokenType number with value {}.", value)
                 };
@@ -138,7 +139,7 @@ impl TokenType {
             TRUE => "true".to_string(),
             VAR => "var".to_string(),
             WHILE => "while".to_string(),
-            EOF => "eof".to_string(),
+            EOF => "".to_string(),
             IDENTIFIER(v) => v.to_string(),
         }
     }

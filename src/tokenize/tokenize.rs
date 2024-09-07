@@ -9,8 +9,8 @@ use crate::{
 use super::{handle_identifier, handle_keyword, handle_number_literal, handle_string_literal};
 
 pub enum TokenizerResult {
-    INVALID(Vec<String>),
-    VALID(Vec<String>),
+    INVALID(Vec<Token>),
+    VALID(Vec<Token>),
 }
 
 pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
@@ -35,7 +35,7 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
             }
             ParseOutput::Token(t) => {
                 let token = Token::new(t);
-                result.push(format!("{}", token.to_string()));
+                result.push(token);
                 input.clear();
             }
             ParseOutput::Partial(v) => {
@@ -94,14 +94,14 @@ pub fn tokenize(i: usize, input: &str) -> TokenizerResult {
                         let token = match token.token_type {
                             TokenType::SLASH(SlashType::COMMENT) => {
                                 chars = "".chars();
-								token
+                                token
                             }
                             TokenType::IDENTIFIER(_) => handle_keyword(token),
-                            _ => token
+                            _ => token,
                         };
 
                         if !token.token_type.is_ignored() {
-                            result.push(format!("{}", token.to_string()));
+                            result.push(token);
                         }
                     }
                 }

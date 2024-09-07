@@ -1,6 +1,6 @@
-use codecrafters_interpreter::process_file_content;
+use codecrafters_interpreter::operation::Operation;
+use codecrafters_interpreter::{handle_parse, handle_tokenize};
 use std::env;
-use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,21 +9,15 @@ fn main() {
         return;
     }
 
-    let command = &args[1];
+    let command = Operation::from_str(args[1].as_str()).unwrap();
     let filename = &args[2];
 
-    match command.as_str() {
-        "tokenize" => {
-            // You can use print statements as follows for debugging, they'll be visible when running tests.
-            eprintln!("Logs from your program will appear here!");
-
-            let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
-                eprintln!("Failed to read file {}", filename);
-                String::new()
-            });
-
-            process_file_content(file_contents);
-        }
+    use Operation::*;
+    // You can use print statements as follows for debugging, they'll be visible when running tests.
+    eprintln!("Logs from your program will appear here!");
+    match command {
+        Parse => handle_parse(filename),
+        Tokenize => handle_tokenize(filename),
         _ => {
             eprintln!("Unknown command: {}", command);
             return;
