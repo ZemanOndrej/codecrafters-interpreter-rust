@@ -13,8 +13,18 @@ pub fn handle_parse(input: String) -> Vec<String> {
 
     let result: Vec<_> = tokens_per_line
         .into_iter()
-        .map(|result| match result {
-            TokenizerResult::VALID(tokens) => parse(tokens),
+        .enumerate()
+        .map(|(line_i, result)| match result {
+            TokenizerResult::VALID(tokens) => {
+                let result = parse(tokens);
+                match result {
+                    Ok(expr) => expr,
+                    Err(e) => {
+                        eprintln!("[line {}] {}", line_i + 1, e);
+                        exit(65);
+                    }
+                }
+            }
             _ => {
                 panic!("Invalid tokens");
             }
@@ -37,11 +47,7 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test]
-    fn test_handle_parse() {
-        test("\"hello\" != \"world\"", "(!= hello world)");
-    }
-
+    #[test_case("\"hello\" != \"world\"", "(!= hello world)")]
     #[test_case("94 <= 104", "(<= 94.0 104.0)")]
     #[test_case("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")]
     #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
