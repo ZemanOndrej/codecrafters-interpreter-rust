@@ -48,7 +48,9 @@ fn parse_token(
         | STAR
         | SLASH(SlashType::SLASH)
         | LESS(LessType::LESS)
+        | LESS(LessType::LESS_EQUAL)
         | GREATER(GreaterType::GREATER)
+        | GREATER(GreaterType::GREATER_EQUAL)
         | EQUAL(EqualType::EQUAL)
         | EQUAL(EqualType::EQUAL_EQUAL) => {
             let left = stack.pop().unwrap();

@@ -39,9 +39,10 @@ mod tests {
 
     #[test]
     fn test_handle_parse() {
-        test("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")
+        test("94 <= 104", "(<= 94.0 104.0)")
     }
 
+    #[test_case("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")]
     #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
     #[test_case("!(false)", "(! (group false))")]
     #[test_case("(!!(false))", "(group (! (! (group false))))")]
