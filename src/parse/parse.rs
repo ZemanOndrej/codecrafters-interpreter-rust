@@ -1,6 +1,4 @@
-use crate::{
-    sub_tokens::SlashType, token::Token, token_type::TokenType, tokenize::TokenizerResult,
-};
+use crate::{sub_tokens::SlashType, token::Token, token_type::TokenType};
 
 pub fn parse(results: Vec<Token>) {
     let mut stack = Vec::new();
@@ -8,6 +6,7 @@ pub fn parse(results: Vec<Token>) {
     let mut iterator = results.iter();
     while let Some(token) = iterator.next() {
         use TokenType::*;
+        // dbg!(&token);
         match &token.token_type {
             FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => {
                 stack.push(Expression::Literal(token.clone()))
@@ -28,18 +27,16 @@ pub fn parse(results: Vec<Token>) {
                 ));
             }
 
-            // LEFT_PAREN => {
-            //     stack.push(Expression::Grouping(Box::new(Expression::Literal(0.0))));
-            // }
-            // RIGHT_PAREN => {
-            //     let right = stack.pop().unwrap();
-            //     let left = stack.pop().unwrap();
-            //     stack.push(Expression::Grouping(Box::new(Expression::Binary(
-            //         Box::new(left),
-            //         token,
-            //         Box::new(right),
-            //     ))));
-            // }
+            LEFT_PAREN => {
+                stack.push(Expression::Grouping(Box::new(Expression::Literal(
+                    token.clone(),
+                ))));
+            }
+            RIGHT_PAREN => {
+                let right = stack.pop().unwrap();
+                stack.pop().unwrap();
+                stack.push(Expression::Grouping(right.into()));
+            }
             EOF => {
                 break;
             }
@@ -53,11 +50,12 @@ pub fn parse(results: Vec<Token>) {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum Expression {
     Literal(Token),
     Binary(Box<Expression>, Token, Box<Expression>),
     Unary(Token, Box<Expression>),
-    // Grouping(Box<Expression>),
+    Grouping(Box<Expression>),
 }
 
 impl ToString for Expression {
@@ -77,7 +75,8 @@ impl ToString for Expression {
             ),
             Unary(op, right) => {
                 format!("({} {})", op.token_type.get_lexeme(), right.to_string())
-            } // Expression::Grouping(expr) => format!("({})", expr.to_string()),
+            }
+            Grouping(expr) => format!("(group {})", expr.to_string()),
         }
     }
 }

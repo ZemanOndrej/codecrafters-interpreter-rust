@@ -9,7 +9,10 @@ fn main() {
         return;
     }
 
-    let command = Operation::from_str(args[1].as_str()).unwrap();
+    let Some(command) = Operation::from_str(args[1].as_str()) else {
+        eprintln!("Unknown command: {}", args[1]);
+        return;
+    };
     let filename = &args[2];
 
     use Operation::*;
@@ -18,9 +21,5 @@ fn main() {
     match command {
         Parse => handle_parse(filename),
         Tokenize => handle_tokenize(filename),
-        _ => {
-            eprintln!("Unknown command: {}", command);
-            return;
-        }
     }
 }

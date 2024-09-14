@@ -58,7 +58,7 @@ pub enum ParseOutput {
     Invalid(String),
     Partial(TokenType),
 }
-
+#[derive(Debug, Clone, PartialEq)]
 pub enum PartialParseOutput {
     Token(TokenType),
     Partial(TokenType),
