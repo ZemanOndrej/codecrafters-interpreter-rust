@@ -50,6 +50,7 @@ fn parse_token(
         | LESS(LessType::LESS)
         | LESS(LessType::LESS_EQUAL)
         | GREATER(GreaterType::GREATER)
+        | BANG(BangType::BANG_EQUAL)
         | GREATER(GreaterType::GREATER_EQUAL)
         | EQUAL(EqualType::EQUAL)
         | EQUAL(EqualType::EQUAL_EQUAL) => {
