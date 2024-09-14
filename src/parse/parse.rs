@@ -1,53 +1,82 @@
-use crate::{sub_tokens::SlashType, token::Token, token_type::TokenType};
+use crate::{
+    sub_tokens::{BangType, SlashType},
+    token::Token,
+    token_type::TokenType,
+};
 
-pub fn parse(results: Vec<Token>) {
+pub fn parse(results: Vec<Token>) -> Vec<Expression> {
     let mut stack = Vec::new();
 
     let mut iterator = results.iter();
     while let Some(token) = iterator.next() {
-        use TokenType::*;
-        // dbg!(&token);
-        match &token.token_type {
-            FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => {
-                stack.push(Expression::Literal(token.clone()))
-            }
+        let expr = parse_token(token, &mut iterator, &mut stack);
+        let Some(expr) = expr else {
+            continue;
+        };
+        stack.push(expr);
+    }
 
-            PLUS | MINUS | STAR | SLASH(SlashType::SLASH) => {
-                let left = stack.pop().unwrap();
-                let right = iterator.next().unwrap();
+    stack
+}
 
-                let right = match right.token_type {
-                    NUMBER(_) => Expression::Literal(right.clone()),
-                    _ => panic!("Invalid token type"),
-                };
-                stack.push(Expression::Binary(
-                    Box::new(left),
-                    token.clone(),
-                    Box::new(right),
-                ));
-            }
+fn parse_token(
+    token: &Token,
+    input: &mut std::slice::Iter<'_, Token>,
+    stack: &mut Vec<Expression>,
+) -> Option<Expression> {
+    use TokenType::*;
+    dbg!(&token);
+    let expr = match &token.token_type {
+        BANG(BangType::BANG) => {
+            let right = parse_token(input.next().unwrap(), input, stack)?;
 
-            LEFT_PAREN => {
-                stack.push(Expression::Grouping(Box::new(Expression::Literal(
-                    token.clone(),
-                ))));
-            }
-            RIGHT_PAREN => {
-                let right = stack.pop().unwrap();
-                stack.pop().unwrap();
-                stack.push(Expression::Grouping(right.into()));
-            }
-            EOF => {
-                break;
-            }
-            _ => {
-                panic!("Invalid token type");
-            }
+            Expression::Unary(token.clone(), Box::new(right)).into()
         }
-    }
-    for i in stack.iter() {
-        println!("{}", i.to_string());
-    }
+        FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => Expression::Literal(token.clone()).into(),
+        MINUS => {
+            let right = parse_token(input.next().unwrap(), input, stack)?;
+
+            let left = stack.pop();
+            let value = match left {
+                Some(left) => Expression::Binary(Box::new(left), token.clone(), Box::new(right)),
+                None => Expression::Unary(token.clone(), Box::new(right)),
+            };
+            value.into()
+        }
+
+        PLUS | STAR | SLASH(SlashType::SLASH) => {
+            let left = stack.pop().unwrap();
+            let right = parse_token(input.next().unwrap(), input, stack)?;
+            Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()
+        }
+
+        LEFT_PAREN => {
+            loop {
+                let next = input.next();
+                let Some(next) = next else {
+                    panic!("Invalid brackets");
+                };
+                if next.token_type == RIGHT_PAREN {
+                    break;
+                }
+                let value = parse_token(next, input, stack).unwrap();
+                stack.push(value);
+            }
+            let inner = stack.pop().unwrap();
+            let r = Expression::Grouping(Box::new(inner)).into();
+            r
+        }
+        RIGHT_PAREN => {
+            let right = stack.pop().unwrap();
+            stack.pop().unwrap();
+            Expression::Grouping(right.into()).into()
+        }
+        EOF => None,
+        _ => {
+            panic!("Invalid token type");
+        }
+    };
+    expr
 }
 
 #[derive(Debug, Clone)]

@@ -1,6 +1,6 @@
 use codecrafters_interpreter::operation::Operation;
 use codecrafters_interpreter::{handle_parse, handle_tokenize};
-use std::env;
+use std::{env, fs};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,8 +18,17 @@ fn main() {
     use Operation::*;
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     eprintln!("Logs from your program will appear here!");
+
+    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
+        eprintln!("Failed to read file {}", filename);
+        String::new()
+    });
+
     match command {
-        Parse => handle_parse(filename),
-        Tokenize => handle_tokenize(filename),
+        Parse => {
+            handle_parse(file_contents);
+            ()
+        }
+        Tokenize => handle_tokenize(file_contents),
     }
 }

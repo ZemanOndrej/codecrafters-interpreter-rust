@@ -1,13 +1,8 @@
-use crate::{handle_tokenize::tokenize_file, parse::parse, tokenize::TokenizerResult};
-use std::{fs, process::exit};
+use crate::{handle_tokenize::tokenize_multiline, parse::parse, tokenize::TokenizerResult};
+use std::process::exit;
 
-pub fn handle_parse(filename: &String) {
-    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
-        eprintln!("Failed to read file {}", filename);
-        String::new()
-    });
-
-    let tokens_per_line = tokenize_file(file_contents);
+pub fn handle_parse(input: String) -> Vec<String> {
+    let tokens_per_line = tokenize_multiline(input);
 
     if tokens_per_line.iter().any(|r| match r {
         TokenizerResult::INVALID(_) => true,
@@ -15,12 +10,59 @@ pub fn handle_parse(filename: &String) {
     }) {
         exit(65)
     }
-    for result in tokens_per_line {
-        match result {
+
+    let result: Vec<_> = tokens_per_line
+        .into_iter()
+        .map(|result| match result {
             TokenizerResult::VALID(tokens) => parse(tokens),
             _ => {
-				panic!("Invalid tokens");
-			}
+                panic!("Invalid tokens");
+            }
+        })
+        .collect();
+
+    for i in result.iter() {
+        for expr in i.iter() {
+            println!("{}", expr.to_string());
         }
+    }
+    return result
+        .iter()
+        .flat_map(|x| x.iter().map(|y| y.to_string()))
+        .collect();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ntest::test_case;
+
+    #[test]
+    fn test_handle_parse() {
+        test("(!!(false))", "(group (! (! (group false))))")
+    }
+    #[test]
+    fn test_handle_parse_unary() {
+        test("!(false)", "(! (group false))")
+    }
+    #[test]
+    fn test_handle_parse_group() {
+        test("(\"foo\")", "(group foo)")
+    }
+    #[test]
+    fn test_handle_parse_group_add() {
+        test("(2+1)", "(group (+ 2.0 1.0))")
+    }
+
+    #[test_case("1 + 2", "(+ 1.0 2.0)")]
+    #[test_case("(\"foo\")", "(group foo)")]
+    fn test_handle_parse(input: &str, expected: &str) {
+        test(input, expected)
+    }
+
+    fn test(input: &str, expected: &str) {
+        let file_contents = String::from(input);
+        let result = handle_parse(file_contents);
+        assert_eq!(result, vec![expected]);
     }
 }

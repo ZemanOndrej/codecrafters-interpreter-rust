@@ -3,15 +3,10 @@ use crate::{
     token_type::TokenType,
     tokenize::{tokenize, TokenizerResult},
 };
-use std::{fs, process::exit};
+use std::process::exit;
 
-pub fn handle_tokenize(filename: &String) {
-    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
-        eprintln!("Failed to read file {}", filename);
-        String::new()
-    });
-
-    let tokens_per_line = tokenize_file(file_contents);
+pub fn handle_tokenize(input: String) {
+    let tokens_per_line = tokenize_multiline(input);
 
     for result in tokens_per_line.iter() {
         match result {
@@ -34,7 +29,7 @@ fn print_output(tokens: &[Token]) {
     }
 }
 
-pub fn tokenize_file(file_contents: String) -> Vec<TokenizerResult> {
+pub fn tokenize_multiline(file_contents: String) -> Vec<TokenizerResult> {
     let lines = file_contents.lines();
     let mut results: Vec<_> = lines
         .enumerate()
