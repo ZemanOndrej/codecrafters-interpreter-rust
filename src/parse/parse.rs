@@ -1,5 +1,5 @@
 use crate::{
-    sub_tokens::{BangType, SlashType},
+    sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
     token_type::TokenType,
 };
@@ -44,7 +44,13 @@ fn parse_token(
             value.into()
         }
 
-        PLUS | STAR | SLASH(SlashType::SLASH) => {
+        PLUS
+        | STAR
+        | SLASH(SlashType::SLASH)
+        | LESS(LessType::LESS)
+        | GREATER(GreaterType::GREATER)
+        | EQUAL(EqualType::EQUAL)
+        | EQUAL(EqualType::EQUAL_EQUAL) => {
             let left = stack.pop().unwrap();
             let right = parse_token(input.next().unwrap(), input, stack)?;
             Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()

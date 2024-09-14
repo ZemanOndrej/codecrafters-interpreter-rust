@@ -39,21 +39,12 @@ mod tests {
 
     #[test]
     fn test_handle_parse() {
-        test("(!!(false))", "(group (! (! (group false))))")
-    }
-    #[test]
-    fn test_handle_parse_unary() {
-        test("!(false)", "(! (group false))")
-    }
-    #[test]
-    fn test_handle_parse_group() {
-        test("(\"foo\")", "(group foo)")
-    }
-    #[test]
-    fn test_handle_parse_group_add() {
-        test("(2+1)", "(group (+ 2.0 1.0))")
+        test("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")
     }
 
+    #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
+    #[test_case("!(false)", "(! (group false))")]
+    #[test_case("(!!(false))", "(group (! (! (group false))))")]
     #[test_case("1 + 2", "(+ 1.0 2.0)")]
     #[test_case("(\"foo\")", "(group foo)")]
     fn test_handle_parse(input: &str, expected: &str) {
