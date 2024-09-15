@@ -2,6 +2,7 @@
 pub enum Operation {
     Tokenize,
     Parse,
+    Evaluate,
 }
 
 impl std::fmt::Display for Operation {
@@ -9,6 +10,7 @@ impl std::fmt::Display for Operation {
         match self {
             Self::Tokenize => write!(f, "tokenize"),
             Self::Parse => write!(f, "parse"),
+            Self::Evaluate => write!(f, "evaluate"),
         }
     }
 }
@@ -18,6 +20,7 @@ impl Operation {
         match s.to_lowercase().as_str() {
             "tokenize" => Some(Self::Tokenize),
             "parse" => Some(Self::Parse),
+            "evaluate" => Some(Self::Evaluate),
             _ => None,
         }
     }

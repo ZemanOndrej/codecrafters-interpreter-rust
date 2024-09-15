@@ -1,45 +1,46 @@
-use crate::{handle_tokenize::tokenize_multiline, parse::parse, tokenize::TokenizerResult};
+use super::handle_tokenize::tokenize_multiline;
+use crate::{
+    parse::{parse_tokens, Expression},
+    token::Token,
+    tokenize::TokenizerResult,
+};
 use std::process::exit;
 
 pub fn handle_parse(input: String) -> Vec<String> {
+    let result = parse(input);
+    return result.iter().flat_map(|x| x.iter().map(|y| y.to_string())).collect();
+}
+
+pub fn parse(input: String) -> Vec<Vec<Expression>> {
     let tokens_per_line = tokenize_multiline(input);
 
-    if tokens_per_line.iter().any(|r| match r {
-        TokenizerResult::INVALID(_) => true,
-        _ => false,
-    }) {
-        exit(65)
-    }
-
-    let result: Vec<_> = tokens_per_line
+    let result: Result<Vec<Vec<Token>>, ()> = tokens_per_line
         .into_iter()
-        .enumerate()
-        .map(|(line_i, result)| match result {
-            TokenizerResult::VALID(tokens) => {
-                let result = parse(tokens);
-                match result {
-                    Ok(expr) => expr,
-                    Err(e) => {
-                        eprintln!("[line {}] {}", line_i + 1, e);
-                        exit(65);
-                    }
-                }
-            }
-            _ => {
-                panic!("Invalid tokens");
-            }
+        .map(|v| match v {
+            TokenizerResult::VALID(tokens) => Ok(tokens),
+            TokenizerResult::INVALID(_) => Err(()),
         })
         .collect();
 
-    for i in result.iter() {
-        for expr in i.iter() {
-            println!("{}", expr.to_string());
-        }
-    }
-    return result
-        .iter()
-        .flat_map(|x| x.iter().map(|y| y.to_string()))
+    let Ok(tokens) = result else {
+        exit(65);
+    };
+
+    let result: Vec<_> = tokens
+        .into_iter()
+        .enumerate()
+        .map(|(line_i, result)| {
+            let result = parse_tokens(result);
+            match result {
+                Ok(expr) => expr,
+                Err(e) => {
+                    eprintln!("[line {}] {}", line_i + 1, e);
+                    exit(65);
+                }
+            }
+        })
         .collect();
+    result
 }
 
 #[cfg(test)]

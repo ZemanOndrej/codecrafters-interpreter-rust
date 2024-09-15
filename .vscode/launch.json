@@ -39,6 +39,24 @@
 			},
 			"args": ["parse", "test.lox"],
 			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug evaluate",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=codecrafters-interpreter",
+					"--package=codecrafters-interpreter"
+				],
+				"filter": {
+					"name": "codecrafters-interpreter",
+					"kind": "bin"
+				}
+			},
+			"args": ["evaluate", "test.lox"],
+			"cwd": "${workspaceFolder}"
 		}
 	]
 }

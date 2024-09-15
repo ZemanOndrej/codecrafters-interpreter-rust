@@ -1,5 +1,4 @@
-use codecrafters_interpreter::operation::Operation;
-use codecrafters_interpreter::{handle_parse, handle_tokenize};
+use codecrafters_interpreter::handlers::{handle_evaluate, handle_parse, handle_tokenize, Operation};
 use std::{env, fs};
 
 fn main() {
@@ -26,9 +25,12 @@ fn main() {
 
     match command {
         Parse => {
-            handle_parse(file_contents);
-            ()
+            let result = handle_parse(file_contents);
+            for expr in result.iter() {
+                println!("{}", expr.to_string());
+            }
         }
         Tokenize => handle_tokenize(file_contents),
+        Evaluate => handle_evaluate(file_contents),
     }
 }

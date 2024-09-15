@@ -4,7 +4,7 @@ use crate::{
     token_type::TokenType,
 };
 
-pub fn parse(results: Vec<Token>) -> Result<Vec<Expression>, String> {
+pub fn parse_tokens(results: Vec<Token>) -> Result<Vec<Expression>, String> {
     let mut stack = Vec::new();
 
     let mut iterator = results.iter();
