@@ -1,3 +1,4 @@
+use super::Expression;
 use crate::{
     sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
@@ -98,39 +99,5 @@ fn parse_token(
 }
 
 pub fn create_error(token: &Token) -> String {
-    format!(
-        "Error at '{}': Expect expression.",
-        token.token_type.get_lexeme()
-    )
-}
-
-#[derive(Debug, Clone)]
-pub enum Expression {
-    Literal(Token),
-    Binary(Box<Expression>, Token, Box<Expression>),
-    Unary(Token, Box<Expression>),
-    Grouping(Box<Expression>),
-}
-
-impl ToString for Expression {
-    fn to_string(&self) -> String {
-        use Expression::*;
-        use TokenType::*;
-        match self {
-            Literal(v) => match &v.token_type {
-                TRUE | FALSE | NIL => v.token_type.get_lexeme(),
-                t => t.get_value(),
-            },
-            Binary(left, op, right) => format!(
-                "({} {} {})",
-                op.token_type.get_lexeme(),
-                left.to_string(),
-                right.to_string()
-            ),
-            Unary(op, right) => {
-                format!("({} {})", op.token_type.get_lexeme(), right.to_string())
-            }
-            Grouping(expr) => format!("(group {})", expr.to_string()),
-        }
-    }
+    format!("Error at '{}': Expect expression.", token.token_type.get_lexeme())
 }

@@ -31,6 +31,11 @@ fn main() {
             }
         }
         Tokenize => handle_tokenize(file_contents),
-        Evaluate => handle_evaluate(file_contents),
+        Evaluate => {
+            let result = handle_evaluate(file_contents);
+            for expr in result.iter() {
+                println!("{}", expr.to_string());
+            }
+        }
     }
 }

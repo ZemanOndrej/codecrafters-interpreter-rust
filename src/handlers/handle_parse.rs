@@ -55,6 +55,7 @@ mod tests {
     #[test_case("!(false)", "(! (group false))")]
     #[test_case("(!!(false))", "(group (! (! (group false))))")]
     #[test_case("1 + 2", "(+ 1.0 2.0)")]
+    #[test_case("50 == 45", "(== 50.0 45.0)")]
     #[test_case("(\"foo\")", "(group foo)")]
     fn test_handle_parse(input: &str, expected: &str) {
         test(input, expected)
