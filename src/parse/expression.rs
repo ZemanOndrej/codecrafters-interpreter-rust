@@ -1,4 +1,8 @@
-use crate::{sub_tokens::BangType, token::Token, token_type::TokenType};
+use crate::{
+    sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
+    token::Token,
+    token_type::TokenType,
+};
 
 #[derive(Debug, Clone)]
 pub enum Expression {
@@ -82,7 +86,29 @@ impl Expression {
                     value_type: t.clone().into(),
                 },
             },
-            Binary(expression, token, expression1) => todo!(),
+            Binary(expression, token, expression1) => {
+                let left = expression.evaluate();
+                let right = expression1.evaluate();
+                let left = left.value.parse::<f64>().unwrap();
+                let right = right.value.parse::<f64>().unwrap();
+                let result = match token.token_type {
+                    PLUS => left + right,
+                    MINUS => left - right,
+                    STAR => left * right,
+                    SLASH(SlashType::SLASH) => left / right,
+                    GREATER(GreaterType::GREATER) => (left > right) as i32 as f64,
+                    GREATER(GreaterType::GREATER_EQUAL) => (left >= right) as i32 as f64,
+                    LESS(LessType::LESS) => (left < right) as i32 as f64,
+                    LESS(LessType::LESS_EQUAL) => (left <= right) as i32 as f64,
+                    EQUAL(EqualType::EQUAL_EQUAL) => (left == right) as i32 as f64,
+                    BANG(BangType::BANG_EQUAL) => (left != right) as i32 as f64,
+                    _ => panic!("Invalid binary operator"),
+                };
+                EvaluatedExpression {
+                    value: result.to_string(),
+                    value_type: ValueType::NUMBER,
+                }
+            }
             Unary(token, expression) => {
                 let evalueated_expr = expression.evaluate();
                 match token.token_type {

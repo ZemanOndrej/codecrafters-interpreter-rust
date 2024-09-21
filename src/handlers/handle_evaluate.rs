@@ -22,10 +22,11 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("!\"test\"", "false")]
+    #[test_case("(18 * 3 / (3 * 6))", "3")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
+    #[test_case("!\"test\"", "false")]
     #[test_case("!(73.40)", "false")]
     #[test_case("-(73)", "-73")]
     #[test_case("(\"hello world!\")", "hello world!")]
