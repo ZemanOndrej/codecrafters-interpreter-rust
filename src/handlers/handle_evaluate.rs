@@ -21,16 +21,15 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test]
-    fn test_handle_evaluate() {
-        // test()
+    #[test_case("(\"hello world!\")", "hello world!")]
+    fn test_handle_evaluate(input: &str, expected: &str) {
+        test(input, expected)
     }
-
     #[test_case("10.4000", "10.4")]
     #[test_case("50", "50")]
     #[test_case("\"hello world!\"", "hello world!")]
     #[test_case("true", "true")]
-    fn test_handle_evaluate(input: &str, expected: &str) {
+    fn test_all_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
 

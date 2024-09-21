@@ -42,16 +42,14 @@ impl Expression {
                 NUMBER(_) => {
                     let value = t.token_type.get_value();
                     let value = value.trim_end_matches("0");
-                    let value = value.trim_end_matches(".0");
                     let value = value.trim_end_matches(".");
-
                     value.to_string()
                 }
                 t => t.get_value(),
             },
             Binary(expression, token, expression1) => todo!(),
             Unary(token, expression) => todo!(),
-            Grouping(expression) => todo!(),
+            Grouping(expression) => expression.evaluate(),
         }
     }
 }
