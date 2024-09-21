@@ -12,6 +12,7 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
     return parsed_input
         .iter()
         .flat_map(|x| x.iter().map(|y| y.evaluate()))
+        .map(|x| x.value)
         .collect();
 }
 
@@ -21,10 +22,13 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("(\"hello world!\")", "hello world!")]
+    #[test_case("!\"test\"", "false")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
+    #[test_case("!(73.40)", "false")]
+    #[test_case("-(73)", "-73")]
+    #[test_case("(\"hello world!\")", "hello world!")]
     #[test_case("10.4000", "10.4")]
     #[test_case("50", "50")]
     #[test_case("\"hello world!\"", "hello world!")]
