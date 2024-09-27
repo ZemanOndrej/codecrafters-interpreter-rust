@@ -1,8 +1,11 @@
 use crate::{
+    parse::ValueType,
     sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
     token_type::TokenType,
 };
+
+use super::EvaluatedExpression;
 
 #[derive(Debug, Clone)]
 pub enum Expression {
@@ -34,19 +37,6 @@ impl ToString for Expression {
             Grouping(expr) => format!("(group {})", expr.to_string()),
         }
     }
-}
-
-pub struct EvaluatedExpression {
-    pub value: String,
-    pub value_type: ValueType,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ValueType {
-    NUMBER,
-    STRING,
-    BOOL,
-    NIL,
 }
 
 impl Into<ValueType> for TokenType {
@@ -92,10 +82,7 @@ impl Expression {
                 match left.value_type {
                     ValueType::STRING => match token.token_type {
                         PLUS => {
-                            return EvaluatedExpression {
-                                value: format!("{}{}", left.value, right.value),
-                                value_type: ValueType::STRING,
-                            };
+                            return format!("{}{}", left.value, right.value).into();
                         }
                         _ => panic!("Invalid binary operator for string"),
                     },
@@ -111,10 +98,7 @@ impl Expression {
                 match token.token_type {
                     MINUS => {
                         let right = evalueated_expr.value.parse::<f64>().unwrap();
-                        EvaluatedExpression {
-                            value: (-right).to_string(),
-                            value_type: ValueType::NUMBER,
-                        }
+                        (-right).into()
                     }
                     BANG(BangType::BANG) => {
                         let bool_value = if evalueated_expr.value_type == ValueType::NIL {
@@ -130,10 +114,7 @@ impl Expression {
                         } else {
                             true
                         };
-                        EvaluatedExpression {
-                            value: (!bool_value).to_string(),
-                            value_type: ValueType::BOOL,
-                        }
+                        (!bool_value).into()
                     }
                     _ => panic!("Invalid unary operator"),
                 }
@@ -147,20 +128,18 @@ fn handle_number_binary_operation(right: EvaluatedExpression, token: &Token, lef
     use TokenType::*;
     let right = right.value.parse::<f64>().unwrap();
     let result = match token.token_type {
-        PLUS => left + right,
-        MINUS => left - right,
-        STAR => left * right,
-        SLASH(SlashType::SLASH) => left / right,
-        GREATER(GreaterType::GREATER) => (left > right) as i32 as f64,
-        GREATER(GreaterType::GREATER_EQUAL) => (left >= right) as i32 as f64,
-        LESS(LessType::LESS) => (left < right) as i32 as f64,
-        LESS(LessType::LESS_EQUAL) => (left <= right) as i32 as f64,
-        EQUAL(EqualType::EQUAL_EQUAL) => (left == right) as i32 as f64,
-        BANG(BangType::BANG_EQUAL) => (left != right) as i32 as f64,
+        PLUS => (left + right).into(),
+        MINUS => (left - right).into(),
+        STAR => (left * right).into(),
+        SLASH(SlashType::SLASH) => (left / right).into(),
+        GREATER(GreaterType::GREATER) => (left > right).into(),
+        GREATER(GreaterType::GREATER_EQUAL) => (left >= right).into(),
+        LESS(LessType::LESS) => (left < right).into(),
+        LESS(LessType::LESS_EQUAL) => (left <= right).into(),
+        EQUAL(EqualType::EQUAL_EQUAL) => (left == right).into(),
+        BANG(BangType::BANG_EQUAL) => (left != right).into(),
         _ => panic!("Invalid binary operator"),
     };
-    EvaluatedExpression {
-        value: result.to_string(),
-        value_type: ValueType::NUMBER,
-    }
+
+    result
 }
