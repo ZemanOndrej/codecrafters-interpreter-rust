@@ -32,10 +32,11 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case(" false / false")]
+    #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
         test_error(input)
     }
+    #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]
     #[test_case("14 * \"bar\"")]
     fn test_all_handle_evaluate_error(input: &str) {

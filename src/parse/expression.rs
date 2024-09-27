@@ -136,18 +136,21 @@ fn handle_bool_binary_operation(
     right: &EvaluatedExpression,
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
-    if right.value_type != left.value_type
-        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
-            || token.token_type == BANG(BangType::BANG_EQUAL))
+
+    if right.value_type == left.value_type {
+        let result = match token.token_type {
+            EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
+            BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
+            _ => return Err("Invalid binary operator for bool".to_string()),
+        };
+        Ok(result)
+    } else if token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+        || token.token_type == BANG(BangType::BANG_EQUAL)
     {
-        return Ok(false.into());
+        Ok(false.into())
+    } else {
+        Err("Invalid binary operator for bool".to_string())
     }
-    let result = match token.token_type {
-        EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
-        BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
-        _ => return Err("Invalid binary operator for bool".to_string()),
-    };
-    Ok(result)
 }
 
 fn handle_string_binary_operation(
@@ -156,20 +159,23 @@ fn handle_string_binary_operation(
     right: &EvaluatedExpression,
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
-    if right.value_type != left.value_type
-        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
-            || token.token_type == BANG(BangType::BANG_EQUAL))
-    {
-        return Ok(false.into());
-    }
-    let result = match token.token_type {
-        PLUS => format!("{}{}", left.value, right.value).into(),
-        EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
-        BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
 
-        _ => return Err("Invalid binary operator for string".to_string()),
-    };
-    Ok(result)
+    if left.value_type == right.value_type {
+        let result = match token.token_type {
+            PLUS => format!("{}{}", left.value, right.value).into(),
+            EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
+            BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
+
+            _ => return Err("Invalid binary operator for string".to_string()),
+        };
+        Ok(result)
+    } else if token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+        || token.token_type == BANG(BangType::BANG_EQUAL)
+    {
+        Ok(false.into())
+    } else {
+        Err("Invalid binary operator for string".to_string())
+    }
 }
 
 fn handle_number_binary_operation(
@@ -179,29 +185,31 @@ fn handle_number_binary_operation(
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
 
-    if right.value_type != ValueType::NUMBER
-        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
-            || token.token_type == BANG(BangType::BANG_EQUAL))
-    {
-        return Ok(false.into());
-    }
-    let right = right
-        .value
-        .parse::<f64>()
-        .map_err(|_| "Invalid number".to_string())?;
-    let result = match token.token_type {
-        PLUS => (left + right).into(),
-        MINUS => (left - right).into(),
-        STAR => (left * right).into(),
-        SLASH(SlashType::SLASH) => (left / right).into(),
-        GREATER(GreaterType::GREATER) => (left > right).into(),
-        GREATER(GreaterType::GREATER_EQUAL) => (left >= right).into(),
-        LESS(LessType::LESS) => (left < right).into(),
-        LESS(LessType::LESS_EQUAL) => (left <= right).into(),
-        EQUAL(EqualType::EQUAL_EQUAL) => (left == right).into(),
-        BANG(BangType::BANG_EQUAL) => (left != right).into(),
-        _ => return Err("Invalid binary operator".to_string()),
-    };
+    if right.value_type == ValueType::NUMBER {
+        let right = right
+            .value
+            .parse::<f64>()
+            .map_err(|_| "Invalid number".to_string())?;
+        let result = match token.token_type {
+            PLUS => (left + right).into(),
+            MINUS => (left - right).into(),
+            STAR => (left * right).into(),
+            SLASH(SlashType::SLASH) => (left / right).into(),
+            GREATER(GreaterType::GREATER) => (left > right).into(),
+            GREATER(GreaterType::GREATER_EQUAL) => (left >= right).into(),
+            LESS(LessType::LESS) => (left < right).into(),
+            LESS(LessType::LESS_EQUAL) => (left <= right).into(),
+            EQUAL(EqualType::EQUAL_EQUAL) => (left == right).into(),
+            BANG(BangType::BANG_EQUAL) => (left != right).into(),
+            _ => return Err("Invalid binary operator".to_string()),
+        };
 
-    Ok(result)
+        Ok(result)
+    } else if token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+        || token.token_type == BANG(BangType::BANG_EQUAL)
+    {
+        Ok(false.into())
+    } else {
+        Err("Invalid binary operator for number".to_string())
+    }
 }
