@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use super::handle_parse::parse;
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
@@ -12,7 +14,13 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
     return parsed_input
         .iter()
         .flat_map(|x| x.iter().map(|y| y.evaluate()))
-        .map(|x| x.value)
+        .map(|x| match x {
+            Ok(x) => x.value,
+            Err(x) => {
+                dbg!(x);
+                exit(70)
+            }
+        })
         .collect();
 }
 
@@ -22,7 +30,7 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("\"17\" == 17 ", "false")]
+    #[test_case(" -\"quz\"", "false")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }

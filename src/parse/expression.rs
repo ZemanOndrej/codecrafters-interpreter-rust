@@ -53,53 +53,61 @@ impl Into<ValueType> for TokenType {
 }
 
 impl Expression {
-    pub fn evaluate(&self) -> EvaluatedExpression {
+    pub fn evaluate(&self) -> Result<EvaluatedExpression, String> {
         use Expression::*;
         use TokenType::*;
         match self {
             Literal(t) => match &t.token_type {
-                TRUE | FALSE | NIL => EvaluatedExpression {
+                TRUE | FALSE | NIL => Ok(EvaluatedExpression {
                     value: t.token_type.get_lexeme(),
                     value_type: t.token_type.clone().into(),
-                },
+                }),
                 NUMBER(_) => {
                     let value = t.token_type.get_value();
                     let value = value.trim_end_matches("0");
                     let value = value.trim_end_matches(".");
-                    EvaluatedExpression {
+                    Ok(EvaluatedExpression {
                         value: value.to_string(),
                         value_type: t.token_type.clone().into(),
-                    }
+                    })
                 }
-                t => EvaluatedExpression {
+                t => Ok(EvaluatedExpression {
                     value: t.get_value(),
                     value_type: t.clone().into(),
-                },
+                }),
             },
             Binary(expression, token, expression1) => {
-                let left = expression.evaluate();
-                let right = expression1.evaluate();
+                let left = expression.evaluate()?;
+                let right = expression1.evaluate()?;
                 match left.value_type {
                     ValueType::STRING => handle_string_binary_operation(token, &left, &right),
-                    ValueType::NUMBER => {
-                        handle_number_binary_operation(right, token, left.value.parse::<f64>().unwrap())
-                    }
+                    ValueType::NUMBER => handle_number_binary_operation(
+                        right,
+                        token,
+                        left.value.parse::<f64>().map_err(|_| "Invalid number".to_string())?,
+                    ),
 
                     _ => panic!("Invalid binary operator"),
                 }
             }
             Unary(token, expression) => {
-                let evalueated_expr = expression.evaluate();
+                let evalueated_expr = expression.evaluate()?;
                 match token.token_type {
                     MINUS => {
-                        let right = evalueated_expr.value.parse::<f64>().unwrap();
-                        (-right).into()
+                        let right = evalueated_expr
+                            .value
+                            .parse::<f64>()
+                            .map_err(|_| "Invalid number".to_string())?;
+                        Ok((-right).into())
                     }
                     BANG(BangType::BANG) => {
                         let bool_value = if evalueated_expr.value_type == ValueType::NIL {
                             false
                         } else if evalueated_expr.value_type == ValueType::BOOL {
-                            evalueated_expr.value.parse::<bool>().unwrap()
+                            evalueated_expr
+                                .value
+                                .parse::<bool>()
+                                .map_err(|_| "Invalid number".to_string())?
                         } else if let Ok(number) = evalueated_expr.value.parse::<f64>() {
                             if number != 0.0 {
                                 true
@@ -109,7 +117,7 @@ impl Expression {
                         } else {
                             true
                         };
-                        (!bool_value).into()
+                        Ok((!bool_value).into())
                     }
                     _ => panic!("Invalid unary operator"),
                 }
@@ -123,27 +131,32 @@ fn handle_string_binary_operation(
     token: &Token,
     left: &EvaluatedExpression,
     right: &EvaluatedExpression,
-) -> EvaluatedExpression {
+) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
     if right.value_type != left.value_type {
-        return false.into();
+        return Ok(false.into());
     }
-    match token.token_type {
+    let result = match token.token_type {
         PLUS => format!("{}{}", left.value, right.value).into(),
         EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
         BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
 
-        _ => panic!("Invalid binary operator for string"),
-    }
+        _ => return Err("Invalid binary operator for string".to_string()),
+    };
+    Ok(result)
 }
 
-fn handle_number_binary_operation(right: EvaluatedExpression, token: &Token, left: f64) -> EvaluatedExpression {
+fn handle_number_binary_operation(
+    right: EvaluatedExpression,
+    token: &Token,
+    left: f64,
+) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
 
     if right.value_type != ValueType::NUMBER {
-        return false.into();
+        return Ok(false.into());
     }
-    let right = right.value.parse::<f64>().unwrap();
+    let right = right.value.parse::<f64>().map_err(|_| "Invalid number".to_string())?;
     let result = match token.token_type {
         PLUS => (left + right).into(),
         MINUS => (left - right).into(),
@@ -155,8 +168,8 @@ fn handle_number_binary_operation(right: EvaluatedExpression, token: &Token, lef
         LESS(LessType::LESS_EQUAL) => (left <= right).into(),
         EQUAL(EqualType::EQUAL_EQUAL) => (left == right).into(),
         BANG(BangType::BANG_EQUAL) => (left != right).into(),
-        _ => panic!("Invalid binary operator"),
+        _ => return Err("Invalid binary operator".to_string()),
     };
 
-    result
+    Ok(result)
 }
