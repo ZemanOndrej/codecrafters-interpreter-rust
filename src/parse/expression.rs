@@ -80,12 +80,7 @@ impl Expression {
                 let left = expression.evaluate();
                 let right = expression1.evaluate();
                 match left.value_type {
-                    ValueType::STRING => match token.token_type {
-                        PLUS => {
-                            return format!("{}{}", left.value, right.value).into();
-                        }
-                        _ => panic!("Invalid binary operator for string"),
-                    },
+                    ValueType::STRING => handle_string_binary_operation(token, &left, &right),
                     ValueType::NUMBER => {
                         handle_number_binary_operation(right, token, left.value.parse::<f64>().unwrap())
                     }
@@ -124,8 +119,30 @@ impl Expression {
     }
 }
 
+fn handle_string_binary_operation(
+    token: &Token,
+    left: &EvaluatedExpression,
+    right: &EvaluatedExpression,
+) -> EvaluatedExpression {
+    use TokenType::*;
+    if right.value_type != left.value_type {
+        return false.into();
+    }
+    match token.token_type {
+        PLUS => format!("{}{}", left.value, right.value).into(),
+        EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
+        BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
+
+        _ => panic!("Invalid binary operator for string"),
+    }
+}
+
 fn handle_number_binary_operation(right: EvaluatedExpression, token: &Token, left: f64) -> EvaluatedExpression {
     use TokenType::*;
+
+    if right.value_type != ValueType::NUMBER {
+        return false.into();
+    }
     let right = right.value.parse::<f64>().unwrap();
     let result = match token.token_type {
         PLUS => (left + right).into(),

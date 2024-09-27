@@ -22,10 +22,14 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("57 > -65", "true")]
+    #[test_case("\"17\" == 17 ", "false")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
+    #[test_case("\"17\" == 17 ", "false")]
+    #[test_case("17 == \"17\"", "false")]
+    #[test_case("\"bar\" != \"foo\"", "true")]
+    #[test_case("57 > -65", "true")]
     #[test_case("11 >= 11", "true")]
     #[test_case("\"bar\" + \"quz\"", "barquz")]
     #[test_case("20 + 74 - (-(14 - 33))", "75")]
