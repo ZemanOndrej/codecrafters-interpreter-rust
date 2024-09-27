@@ -7,54 +7,8 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug tokenization",
-			"cargo": {
-				"args": [
-					"build",
-					"--bin=codecrafters-interpreter",
-					"--package=codecrafters-interpreter"
-				],
-				"filter": {
-					"name": "codecrafters-interpreter",
-					"kind": "bin"
-				}
-			},
-			"args": ["tokenize", "test.lox"],
-			"cwd": "${workspaceFolder}"
-		},
-		{
-			"type": "lldb",
-			"request": "launch",
-			"name": "Debug parse",
-			"cargo": {
-				"args": [
-					"build",
-					"--bin=codecrafters-interpreter",
-					"--package=codecrafters-interpreter"
-				],
-				"filter": {
-					"name": "codecrafters-interpreter",
-					"kind": "bin"
-				}
-			},
-			"args": ["parse", "test.lox"],
-			"cwd": "${workspaceFolder}"
-		},
-		{
-			"type": "lldb",
-			"request": "launch",
-			"name": "Debug evaluate",
-			"cargo": {
-				"args": [
-					"build",
-					"--bin=codecrafters-interpreter",
-					"--package=codecrafters-interpreter"
-				],
-				"filter": {
-					"name": "codecrafters-interpreter",
-					"kind": "bin"
-				}
-			},
+			"name": "Launch",
+			"program": "${workspaceFolder}/target/debug/codecrafters-interpreter",
 			"args": ["evaluate", "test.lox"],
 			"cwd": "${workspaceFolder}"
 		}

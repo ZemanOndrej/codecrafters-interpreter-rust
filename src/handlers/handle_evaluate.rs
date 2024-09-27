@@ -3,11 +3,11 @@ use super::handle_parse::parse;
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let parsed_input = parse(input);
 
-    // for line in &parsed_input {
-    //     for e in line {
-    //         println!("{}", e.to_string());
-    //     }
-    // }
+    for line in &parsed_input {
+        for e in line {
+            dbg!(e);
+        }
+    }
 
     return parsed_input
         .iter()
@@ -22,10 +22,13 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("(18 * 3 / (3 * 6))", "3")]
+    // #[test_case("1- (-2)", "3")]
+    #[test_case("20 + 74 - (-(14 - 33))", "75")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
+    #[test_case("1- (-2)", "3")]
+    #[test_case("(18 * 3 / (3 * 6))", "3")]
     #[test_case("!\"test\"", "false")]
     #[test_case("!(73.40)", "false")]
     #[test_case("-(73)", "-73")]

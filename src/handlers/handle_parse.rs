@@ -48,6 +48,13 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
+    #[test_case("(14 - 33)", "(group (- 14.0 33.0))")]
+    fn test_handle_evaluate(input: &str, expected: &str) {
+		test(input, expected)
+    }
+	#[test_case("14 - 33", "(- 14.0 33.0)")]
+    #[test_case("-(-2)", "(- (group (- 2.0)))")]
+    #[test_case("(-2)", "(group (- 2.0))")]
     #[test_case("\"hello\" != \"world\"", "(!= hello world)")]
     #[test_case("94 <= 104", "(<= 94.0 104.0)")]
     #[test_case("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")]

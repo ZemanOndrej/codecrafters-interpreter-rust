@@ -62,6 +62,7 @@ fn parse_token(
         }
 
         LEFT_PAREN => {
+            let mut stack = Vec::new();
             loop {
                 let next = input.next();
                 let Some(next) = next else {
@@ -73,7 +74,7 @@ fn parse_token(
                 if next.token_type == RIGHT_PAREN {
                     break;
                 }
-                let value = parse_token(next, input, stack)?.unwrap();
+                let value = parse_token(next, input, &mut stack)?.unwrap();
                 stack.push(value);
             }
             let inner = stack.pop().unwrap();
