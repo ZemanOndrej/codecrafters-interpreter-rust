@@ -84,8 +84,11 @@ impl Expression {
                     ValueType::NUMBER => handle_number_binary_operation(
                         right,
                         token,
-                        left.value.parse::<f64>().map_err(|_| "Invalid number".to_string())?,
+                        left.value
+                            .parse::<f64>()
+                            .map_err(|_| "Invalid number".to_string())?,
                     ),
+                    ValueType::BOOL => handle_bool_binary_operation(token, &left, &right),
 
                     _ => panic!("Invalid binary operator"),
                 }
@@ -127,13 +130,36 @@ impl Expression {
     }
 }
 
+fn handle_bool_binary_operation(
+    token: &Token,
+    left: &EvaluatedExpression,
+    right: &EvaluatedExpression,
+) -> Result<EvaluatedExpression, String> {
+    use TokenType::*;
+    if right.value_type != left.value_type
+        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+            || token.token_type == BANG(BangType::BANG_EQUAL))
+    {
+        return Ok(false.into());
+    }
+    let result = match token.token_type {
+        EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
+        BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
+        _ => return Err("Invalid binary operator for bool".to_string()),
+    };
+    Ok(result)
+}
+
 fn handle_string_binary_operation(
     token: &Token,
     left: &EvaluatedExpression,
     right: &EvaluatedExpression,
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
-    if right.value_type != left.value_type {
+    if right.value_type != left.value_type
+        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+            || token.token_type == BANG(BangType::BANG_EQUAL))
+    {
         return Ok(false.into());
     }
     let result = match token.token_type {
@@ -153,10 +179,16 @@ fn handle_number_binary_operation(
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
 
-    if right.value_type != ValueType::NUMBER {
+    if right.value_type != ValueType::NUMBER
+        && (token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
+            || token.token_type == BANG(BangType::BANG_EQUAL))
+    {
         return Ok(false.into());
     }
-    let right = right.value.parse::<f64>().map_err(|_| "Invalid number".to_string())?;
+    let right = right
+        .value
+        .parse::<f64>()
+        .map_err(|_| "Invalid number".to_string())?;
     let result = match token.token_type {
         PLUS => (left + right).into(),
         MINUS => (left - right).into(),

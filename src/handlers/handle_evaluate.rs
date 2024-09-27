@@ -27,10 +27,22 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
 #[cfg(test)]
 mod tests {
 
+    use crate::parse::EvaluatedExpression;
+
     use super::*;
     use ntest::test_case;
 
-    #[test_case(" -\"quz\"", "false")]
+    #[test_case(" false / false")]
+    fn test_handle_evaluate_error(input: &str) {
+        test_error(input)
+    }
+    #[test_case(" \"bar\" / 47")]
+    #[test_case("14 * \"bar\"")]
+    fn test_all_handle_evaluate_error(input: &str) {
+        test_error(input)
+    }
+
+    #[test_case("2", "2")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
@@ -53,6 +65,14 @@ mod tests {
     #[test_case("true", "true")]
     fn test_all_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
+    }
+    fn test_error(input: &str) {
+        let res = parse(input.to_string());
+        let res: Result<Vec<EvaluatedExpression>, String> = res
+            .iter()
+            .flat_map(|x| x.iter().map(|y| y.evaluate()))
+            .collect();
+        assert!(res.is_err());
     }
 
     fn test(input: &str, expected: &str) {
