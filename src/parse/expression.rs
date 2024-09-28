@@ -1,4 +1,5 @@
 use crate::{
+    builtin_fns,
     parse::ValueType,
     sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
@@ -13,6 +14,7 @@ pub enum Expression {
     Binary(Box<Expression>, Token, Box<Expression>),
     Unary(Token, Box<Expression>),
     Grouping(Box<Expression>),
+    Function(Token, Vec<Expression>),
 }
 
 impl ToString for Expression {
@@ -35,6 +37,16 @@ impl ToString for Expression {
                 format!("({} {})", op.token_type.get_lexeme(), right.to_string())
             }
             Grouping(expr) => format!("(group {})", expr.to_string()),
+            Function(name, args) => {
+                format!(
+                    "function {}:{}",
+                    name.to_string(),
+                    args.iter()
+                        .map(|s| s.to_string())
+                        .reduce(|cur: String, nxt: String| cur + &nxt)
+                        .unwrap()
+                )
+            }
         }
     }
 }
@@ -126,6 +138,11 @@ impl Expression {
                 }
             }
             Grouping(expression) => expression.evaluate(),
+            Function(token, args) => {
+                dbg!(token);
+                dbg!(args);
+                builtin_fns::print(args)
+            }
         }
     }
 }

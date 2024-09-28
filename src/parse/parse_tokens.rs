@@ -91,7 +91,27 @@ fn parse_token(
             let value = Expression::Literal(token.clone()).into();
             value
         }
+        PRINT => {
+            let mut arguments = Vec::new();
+            loop {
+                let token = input.next().unwrap();
+                if token.token_type == SEMICOLON {
+                    break;
+                }
+
+                let arg = parse_token(token, input, stack)?.unwrap();
+                arguments.push(arg);
+
+                if input.next().unwrap().token_type != COMMA {
+                    break;
+                }
+            }
+
+            Expression::Function(token.clone(), arguments).into()
+        }
+        SEMICOLON => None,
         EOF => None,
+
         _ => {
             panic!("Invalid token type");
         }
@@ -100,5 +120,8 @@ fn parse_token(
 }
 
 pub fn create_error(token: &Token) -> String {
-    format!("Error at '{}': Expect expression.", token.token_type.get_lexeme())
+    format!(
+        "Error at '{}': Expect expression.",
+        token.token_type.get_lexeme()
+    )
 }

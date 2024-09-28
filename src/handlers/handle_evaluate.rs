@@ -32,10 +32,16 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
+    #[test_case("print \"Hello, World!\";", "")]
+    fn test_handle_evaluate(input: &str, expected: &str) {
+        test(input, expected)
+    }
+
     #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
         test_error(input)
     }
+
     #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]
     #[test_case("14 * \"bar\"")]
@@ -43,10 +49,6 @@ mod tests {
         test_error(input)
     }
 
-    #[test_case("2", "2")]
-    fn test_handle_evaluate(input: &str, expected: &str) {
-        test(input, expected)
-    }
     #[test_case("\"17\" == 17 ", "false")]
     #[test_case("17 == \"17\"", "false")]
     #[test_case("\"bar\" != \"foo\"", "true")]
