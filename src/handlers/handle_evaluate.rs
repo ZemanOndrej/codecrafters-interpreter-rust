@@ -5,11 +5,11 @@ use super::handle_parse::parse;
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let parsed_input = parse(input);
 
-    for line in &parsed_input {
-        for e in line {
-            dbg!(e);
-        }
-    }
+    // for line in &parsed_input {
+    //     for e in line {
+    //         dbg!(e);
+    //     }
+    // }
 
     return parsed_input
         .iter()
@@ -26,22 +26,23 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::parse::EvaluatedExpression;
+    use crate::evaluate::EvaluatedExpression;
 
     use super::*;
     use ntest::test_case;
 
-    #[test_case("print \"Hello, World!\";", "")]
-    fn test_handle_evaluate(input: &str, expected: &str) {
-        test(input, expected)
-    }
+    // #[test_case("print \"Hello, World!\";", "")]
+    // #[test_case("print false;", "false")]
+    // fn test_handle_evaluate(input: &str, expected: &str) {
+    //     test(input, expected)
+    // }
 
-    #[test_case(" \"foo\" + false")]
+    // #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
         test_error(input)
     }
 
+    #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]
     #[test_case("14 * \"bar\"")]

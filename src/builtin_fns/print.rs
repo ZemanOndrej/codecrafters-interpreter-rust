@@ -1,7 +1,9 @@
-use crate::parse::{EvaluatedExpression, Expression, ValueType};
+use crate::evaluate::{EvaluatedExpression, Expression, ValueType};
 
 pub fn print(args: &Vec<Expression>) -> Result<EvaluatedExpression, String> {
-    println!("{}", args.get(0).unwrap().to_string());
+    let value = args.get(0).unwrap().evaluate()?.value;
+    dbg!(&value);
+    print!("{}", value);
 
     Ok(EvaluatedExpression {
         value: "".to_string(),

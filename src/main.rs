@@ -1,4 +1,6 @@
-use codecrafters_interpreter::handlers::{handle_evaluate, handle_parse, handle_tokenize, Operation};
+use codecrafters_interpreter::handlers::{
+    handle_evaluate, handle_parse, handle_run, handle_tokenize, Operation,
+};
 use std::{env, fs};
 
 fn main() {
@@ -36,6 +38,9 @@ fn main() {
             for expr in result.iter() {
                 println!("{}", expr.to_string());
             }
+        }
+        Run => {
+            handle_run(file_contents);
         }
     }
 }

@@ -1,14 +1,13 @@
 use super::handle_tokenize::tokenize_multiline;
-use crate::{
-    parse::{parse_tokens, Expression},
-    token::Token,
-    tokenize::TokenizerResult,
-};
+use crate::{evaluate::Expression, parse::parse_tokens, token::Token, tokenize::TokenizerResult};
 use std::process::exit;
 
 pub fn handle_parse(input: String) -> Vec<String> {
     let result = parse(input);
-    return result.iter().flat_map(|x| x.iter().map(|y| y.to_string())).collect();
+    return result
+        .iter()
+        .flat_map(|x| x.iter().map(|y| y.to_string()))
+        .collect();
 }
 
 pub fn parse(input: String) -> Vec<Vec<Expression>> {
@@ -50,9 +49,9 @@ mod tests {
 
     #[test_case("(14 - 33)", "(group (- 14.0 33.0))")]
     fn test_handle_evaluate(input: &str, expected: &str) {
-		test(input, expected)
+        test(input, expected)
     }
-	#[test_case("14 - 33", "(- 14.0 33.0)")]
+    #[test_case("14 - 33", "(- 14.0 33.0)")]
     #[test_case("-(-2)", "(- (group (- 2.0)))")]
     #[test_case("(-2)", "(group (- 2.0))")]
     #[test_case("\"hello\" != \"world\"", "(!= hello world)")]

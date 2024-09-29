@@ -1,5 +1,5 @@
-use super::Expression;
 use crate::{
+    evaluate::Expression,
     sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
     token_type::TokenType,
@@ -27,7 +27,7 @@ fn parse_token(
     stack: &mut Vec<Expression>,
 ) -> Result<Option<Expression>, String> {
     use TokenType::*;
-    dbg!(&token);
+    // dbg!(&token);
     let expr = match &token.token_type {
         BANG(BangType::BANG) => {
             let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
@@ -62,22 +62,7 @@ fn parse_token(
         }
 
         LEFT_PAREN => {
-            let mut stack = Vec::new();
-            loop {
-                let next = input.next();
-                let Some(next) = next else {
-                    return Err(format!(
-                        "Error at '{}': Expect closing bracket",
-                        token.token_type.get_lexeme()
-                    ));
-                };
-                if next.token_type == RIGHT_PAREN {
-                    break;
-                }
-                let value = parse_token(next, input, &mut stack)?.unwrap();
-                stack.push(value);
-            }
-            let inner = stack.pop().unwrap();
+            let (inner, _) = parse_expression(input, token, &[RIGHT_PAREN])?;
             let r = Expression::Grouping(Box::new(inner)).into();
             r
         }
@@ -94,15 +79,10 @@ fn parse_token(
         PRINT => {
             let mut arguments = Vec::new();
             loop {
-                let token = input.next().unwrap();
-                if token.token_type == SEMICOLON {
-                    break;
-                }
-
-                let arg = parse_token(token, input, stack)?.unwrap();
+                let (arg, next) = parse_expression(input, token, &[COMMA, SEMICOLON])?;
                 arguments.push(arg);
 
-                if input.next().unwrap().token_type != COMMA {
+                if next.token_type == SEMICOLON {
                     break;
                 }
             }
@@ -117,6 +97,31 @@ fn parse_token(
         }
     };
     Ok(expr)
+}
+
+fn parse_expression(
+    input: &mut std::slice::Iter<'_, Token>,
+    token: &Token,
+    end_tokens: &[TokenType],
+) -> Result<(Expression, Token), String> {
+    let mut stack = Vec::new();
+    let mut next;
+    loop {
+        next = input.next();
+        let Some(next) = next else {
+            return Err(format!(
+                "Error at '{}': Expect closing bracket",
+                token.token_type.get_lexeme()
+            ));
+        };
+        if end_tokens.contains(&next.token_type) {
+            break;
+        }
+        let value = parse_token(next, input, &mut stack)?.unwrap();
+        stack.push(value);
+    }
+    let inner = stack.pop().unwrap();
+    Ok((inner, next.unwrap().clone()))
 }
 
 pub fn create_error(token: &Token) -> String {

@@ -3,6 +3,7 @@ pub enum Operation {
     Tokenize,
     Parse,
     Evaluate,
+    Run,
 }
 
 impl std::fmt::Display for Operation {
@@ -11,6 +12,7 @@ impl std::fmt::Display for Operation {
             Self::Tokenize => write!(f, "tokenize"),
             Self::Parse => write!(f, "parse"),
             Self::Evaluate => write!(f, "evaluate"),
+            Self::Run => write!(f, "run"),
         }
     }
 }
@@ -21,6 +23,7 @@ impl Operation {
             "tokenize" => Some(Self::Tokenize),
             "parse" => Some(Self::Parse),
             "evaluate" => Some(Self::Evaluate),
+            "run" => Some(Self::Run),
             _ => None,
         }
     }
