@@ -31,11 +31,10 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    // #[test_case("print \"Hello, World!\";", "")]
-    // #[test_case("print false;", "false")]
-    // fn test_handle_evaluate(input: &str, expected: &str) {
-    //     test(input, expected)
-    // }
+    #[test_case("(21 * 2 + 57 * 2) / (2)", "78")]
+    fn test_handle_evaluate(input: &str, expected: &str) {
+        test(input, expected)
+    }
 
     // #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
