@@ -1,4 +1,3 @@
-
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum BangType {

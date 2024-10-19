@@ -143,6 +143,19 @@ impl TokenType {
             IDENTIFIER(v) => v.to_string(),
         }
     }
+    pub fn get_precedence(&self) -> i32 {
+        use TokenType::*;
+        match self {
+            STAR | SLASH(SlashType::SLASH) => 2,
+            PLUS | MINUS => 1,
+            GREATER(GreaterType::GREATER)
+            | GREATER(GreaterType::GREATER_EQUAL)
+            | LESS(LessType::LESS)
+            | LESS(LessType::LESS_EQUAL) => 3,
+            EQUAL(EqualType::EQUAL_EQUAL) | BANG(BangType::BANG_EQUAL) => 4,
+            _ => 0,
+        }
+    }
 
     pub fn parse(input: &str) -> ParseOutput {
         use ParseOutput::*;

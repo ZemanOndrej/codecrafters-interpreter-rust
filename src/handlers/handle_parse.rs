@@ -33,6 +33,7 @@ pub fn parse(input: String) -> Vec<Vec<Expression>> {
             match result {
                 Ok(expr) => expr,
                 Err(e) => {
+                    dbg!(&e);
                     eprintln!("[line {}] {}", line_i + 1, e);
                     exit(65);
                 }
@@ -47,10 +48,11 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("(14 - 33)", "(group (- 14.0 33.0))")]
+    #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
+    #[test_case("(14 - 33)", "(group (- 14.0 33.0))")]
     #[test_case("14 - 33", "(- 14.0 33.0)")]
     #[test_case("-(-2)", "(- (group (- 2.0)))")]
     #[test_case("(-2)", "(group (- 2.0))")]
@@ -60,9 +62,9 @@ mod tests {
     #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
     #[test_case("!(false)", "(! (group false))")]
     #[test_case("(!!(false))", "(group (! (! (group false))))")]
-    #[test_case("1 + 2", "(+ 1.0 2.0)")]
     #[test_case("50 == 45", "(== 50.0 45.0)")]
     #[test_case("(\"foo\")", "(group foo)")]
+    #[test_case("1 + 2", "(+ 1.0 2.0)")]
     fn test_handle_parse(input: &str, expected: &str) {
         test(input, expected)
     }

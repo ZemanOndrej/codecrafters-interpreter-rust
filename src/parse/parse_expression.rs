@@ -1,9 +1,9 @@
 use crate::{evaluate::Expression, token::Token, token_type::TokenType};
 
-use super::parse_token::parse_token;
+use super::{parse_token::parse_token, InputIter};
 
 pub fn parse_expression(
-    input: &mut std::slice::Iter<'_, Token>,
+    input: &mut InputIter,
     token: &Token,
     end_tokens: &[TokenType],
 ) -> Result<(Expression, Token), String> {
@@ -12,6 +12,7 @@ pub fn parse_expression(
     loop {
         next = input.next();
         let Some(next) = next else {
+            dbg!(&next);
             return Err(format!(
                 "Error at '{}': Expect closing bracket",
                 token.token_type.get_lexeme()
@@ -23,6 +24,6 @@ pub fn parse_expression(
         let value = parse_token(next, input, &mut stack)?.unwrap();
         stack.push(value);
     }
-    let inner = stack.pop().unwrap();
+    let inner = stack.pop().ok_or("Error: Missing parameters")?;
     Ok((inner, next.unwrap().clone()))
 }

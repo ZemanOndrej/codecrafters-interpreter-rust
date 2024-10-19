@@ -11,7 +11,7 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
     //     }
     // }
 
-    return parsed_input
+    let result = parsed_input
         .iter()
         .flat_map(|x| x.iter().map(|y| y.evaluate()))
         .map(|x| match x {
@@ -22,6 +22,8 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
             }
         })
         .collect();
+
+    return result;
 }
 
 #[cfg(test)]
@@ -37,9 +39,9 @@ mod tests {
     }
 
     // #[test_case(" \"foo\" + false")]
-    fn test_handle_evaluate_error(input: &str) {
-        test_error(input)
-    }
+    // fn test_handle_evaluate_error(input: &str) {
+    //     test_error(input)
+    // }
 
     #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]

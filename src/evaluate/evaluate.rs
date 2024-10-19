@@ -84,11 +84,7 @@ impl Expression {
                 }
             }
             Grouping(expression) => expression.evaluate(),
-            Function(token, args) => {
-                // dbg!(token);
-                // dbg!(args);
-                builtin_fns::print(args)
-            }
+            Function(_, args) => builtin_fns::print(args),
         }
     }
 }
