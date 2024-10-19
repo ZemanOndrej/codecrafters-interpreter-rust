@@ -21,7 +21,21 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-    // #[test_case("print \"Hello, World!\";")]
+    #[test_case(
+        r#"
+print "quz" + "world" + "foo";
+print 22 - 56;
+print "foo" == "bar";
+"#
+    )]
+    fn test_all_handle_evaluate(input: &str) {
+        let _ = handle_run(input.to_string());
+        // let expected = vec![expected.to_string()];
+        // dbg!(result.clone());
+        // dbg!(expected.clone());
+        // assert_eq!(result, expected);
+    }
+    #[test_case("print \"Hello, World!\";")]
     #[test_case("print \"world\" + \"foo\" + \"baz\";")]
     #[test_case("print false;")]
     fn test_all_handle_evaluate(input: &str) {
