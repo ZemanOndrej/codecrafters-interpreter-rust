@@ -1,11 +1,13 @@
-pub mod string_literal;
-pub mod tokenize;
-pub mod number_literal;
-pub mod identifier;
-pub mod keyword;
+mod identifier;
+mod keyword;
+mod number_literal;
+mod string_literal;
+mod token_error;
+mod tokenize;
 
-pub use string_literal::*;
-pub use tokenize::*;
-pub use number_literal::*;
 pub use identifier::*;
 pub use keyword::*;
+pub use number_literal::*;
+pub use string_literal::*;
+pub use token_error::*;
+pub use tokenize::*;

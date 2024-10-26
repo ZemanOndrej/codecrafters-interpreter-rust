@@ -8,6 +8,7 @@ pub enum Expression {
     Unary(Token, Box<Expression>),
     Grouping(Box<Expression>),
     Function(Token, Vec<Expression>),
+    Scope(Token, Vec<Expression>),
 }
 
 impl ToString for Expression {
@@ -40,6 +41,17 @@ impl ToString for Expression {
                         .unwrap()
                 )
             }
+            Scope(name, exprs) => {
+                format!(
+                    "scope {}:{}",
+                    name.to_string(),
+                    exprs
+                        .iter()
+                        .map(|s| s.to_string())
+                        .reduce(|cur: String, nxt: String| cur + &nxt)
+                        .unwrap()
+                )
+            }
         }
     }
 }
@@ -52,6 +64,7 @@ impl Into<ValueType> for TokenType {
             STRING(_) => ValueType::STRING,
             TRUE | FALSE => ValueType::BOOL,
             NIL => ValueType::NIL,
+            IDENTIFIER(_) => ValueType::STRING,
             _ => panic!("Invalid value type"),
         }
     }

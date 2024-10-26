@@ -85,6 +85,9 @@ impl Expression {
             }
             Grouping(expression) => expression.evaluate(),
             Function(_, args) => builtin_fns::print(args),
+            Scope(_, _) => {
+                todo!()
+            }
         }
     }
 }

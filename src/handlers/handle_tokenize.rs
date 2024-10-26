@@ -1,42 +1,53 @@
-use crate::{
-    token::Token,
-    token_type::TokenType,
-    tokenize::{tokenize, TokenizerResult},
-};
+use crate::{sub_tokens::SlashType, token_type::TokenType, tokenize::tokenize};
 use std::process::exit;
 
 pub fn handle_tokenize(input: String) {
-    let tokens_per_line = tokenize_multiline(input);
+    let tokens = tokenize(input.as_str());
 
-    for result in tokens_per_line.iter() {
+    let mut has_error = false;
+    for result in tokens.iter() {
         match result {
-            TokenizerResult::VALID(tokens) => print_output(tokens),
-            TokenizerResult::INVALID(tokens) => print_output(tokens),
+            Ok(token) => {
+                if token.token_type == TokenType::SLASH(SlashType::COMMENT) {
+                    continue;
+                }
+                println!("{}", token.to_string());
+            }
+            Err(e) => {
+                eprintln!("{}", e.message);
+                has_error = true;
+            }
         }
     }
-
-    if tokens_per_line.iter().any(|r| match r {
-        TokenizerResult::INVALID(_) => true,
-        _ => false,
-    }) {
-        exit(65)
+    if has_error {
+        exit(65);
     }
 }
 
-fn print_output(tokens: &[Token]) {
-    for token in tokens {
-        println!("{}", token.to_string())
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_handle_tokenize() {
+        let input = "\"world\" \"unterminated";
+        let result = tokenize(input);
+        dbg!(&result);
+
+        assert_eq!(result.len(), 3);
+        let first = result.get(0).unwrap().as_ref().unwrap();
+        let err = result.get(1).unwrap().as_ref();
+        let second = result.get(2).unwrap().as_ref().unwrap();
+        assert!(matches!(first.token_type, TokenType::STRING(_)));
+        assert!(err.is_err());
+        assert!(matches!(second.token_type, TokenType::EOF));
     }
-}
 
-pub fn tokenize_multiline(file_contents: String) -> Vec<TokenizerResult> {
-    let lines = file_contents.lines();
-    let mut results: Vec<_> = lines
-        .enumerate()
-        .map(|(i, line)| tokenize(i, line))
-        .collect();
-
-    results.push(TokenizerResult::VALID(vec![Token::new(TokenType::EOF)]));
-
-    results
+    #[test]
+    fn test_handle_tokenize_with_error() {
+        let input = "$\t@%";
+        let result = tokenize(input);
+        dbg!(&result);
+    }
 }

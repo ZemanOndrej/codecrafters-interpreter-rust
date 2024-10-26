@@ -86,8 +86,21 @@ pub fn parse_token(
             Expression::Function(token.clone(), arguments).into()
         }
         SEMICOLON => None,
-        EOF => None,
+        LEFT_BRACE => {
+            let mut arguments = Vec::new();
+            loop {
+                let (arg, next) = parse_expression(input, token, &[RIGHT_BRACE])?;
+                arguments.push(arg);
 
+                if next.token_type == RIGHT_BRACE {
+                    break;
+                }
+            }
+
+            Expression::Function(token.clone(), arguments).into()
+        }
+
+        EOF => None,
         _ => {
             panic!("Invalid token type");
         }

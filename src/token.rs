@@ -1,17 +1,18 @@
-
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub value: String,
+    pub line_index: usize,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType) -> Token {
+    pub fn new(token_type: TokenType, line_index: usize) -> Token {
         Token {
             value: token_type.get_value(),
             token_type,
+            line_index,
         }
     }
 }

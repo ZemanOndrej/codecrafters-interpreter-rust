@@ -23,6 +23,43 @@ mod tests {
 
     #[test_case(
         r#"
+{
+// This is a complex test case
+str1 = "Test"
+str2 = "Case"
+num1 = 100
+num2 = 200.00
+result = (str1 == str2) != ((num1 + num2) >= 300)
+}
+"#
+    )]
+    fn test_handle_run(input: &str) {
+        let _ = handle_run(input.to_string());
+        // let expected = vec![expected.to_string()];
+        // dbg!(result.clone());
+        // dbg!(expected.clone());
+        // assert_eq!(result, expected);
+    }
+
+    #[test_case(
+        r#"
+print false != true;
+
+print "29
+59
+37
+";
+
+print "There should be an empty line above this.";
+
+print "(" + "" + ")";
+
+print "non-ascii: ॐ";
+
+"#
+    )]
+    #[test_case(
+        r#"
 print "quz" + "world" + "foo";
 print 22 - 56;
 print "foo" == "bar";

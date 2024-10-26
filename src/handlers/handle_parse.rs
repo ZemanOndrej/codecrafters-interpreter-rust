@@ -1,45 +1,36 @@
-use super::handle_tokenize::tokenize_multiline;
-use crate::{evaluate::Expression, parse::parse_tokens, token::Token, tokenize::TokenizerResult};
+use crate::{
+    evaluate::Expression,
+    parse::parse_tokens,
+    token::Token,
+    tokenize::{tokenize, TokenError},
+};
 use std::process::exit;
 
 pub fn handle_parse(input: String) -> Vec<String> {
     let result = parse(input);
-    return result
-        .iter()
-        .flat_map(|x| x.iter().map(|y| y.to_string()))
-        .collect();
+    return result.iter().map(|x| x.to_string()).collect();
 }
 
-pub fn parse(input: String) -> Vec<Vec<Expression>> {
-    let tokens_per_line = tokenize_multiline(input);
+pub fn parse(input: String) -> Vec<Expression> {
+    let tokens = tokenize(input.as_str());
+    // dbg!(&tokens);
 
-    let result: Result<Vec<Vec<Token>>, ()> = tokens_per_line
-        .into_iter()
-        .map(|v| match v {
-            TokenizerResult::VALID(tokens) => Ok(tokens),
-            TokenizerResult::INVALID(_) => Err(()),
-        })
-        .collect();
+    let result: Result<Vec<Token>, TokenError> = tokens.into_iter().collect();
 
     let Ok(tokens) = result else {
         exit(65);
     };
 
-    let result: Vec<_> = tokens
-        .into_iter()
-        .enumerate()
-        .map(|(line_i, result)| {
-            let result = parse_tokens(result);
-            match result {
-                Ok(expr) => expr,
-                Err(e) => {
-                    dbg!(&e);
-                    eprintln!("[line {}] {}", line_i + 1, e);
-                    exit(65);
-                }
-            }
-        })
-        .collect();
+    let result = parse_tokens(tokens);
+    let result = match result {
+        Ok(expr) => expr,
+        Err(e) => {
+            dbg!(&e);
+            eprintln!("{}", e);
+            exit(65);
+        }
+    };
+
     result
 }
 
@@ -48,15 +39,15 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("(2+1)", "(group (+ 2.0 1.0))")]
+    #[test_case("50 == 45", "(== 50.0 45.0)")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
     #[test_case("(14 - 33)", "(group (- 14.0 33.0))")]
+    #[test_case("\"hello\" != \"world\"", "(!= hello world)")]
     #[test_case("14 - 33", "(- 14.0 33.0)")]
     #[test_case("-(-2)", "(- (group (- 2.0)))")]
     #[test_case("(-2)", "(group (- 2.0))")]
-    #[test_case("\"hello\" != \"world\"", "(!= hello world)")]
     #[test_case("94 <= 104", "(<= 94.0 104.0)")]
     #[test_case("83 < 99 < 115", "(< (< 83.0 99.0) 115.0)")]
     #[test_case("(2+1)", "(group (+ 2.0 1.0))")]

@@ -1,10 +1,11 @@
 use crate::{token::Token, token_type::TokenType};
-use std::str::Chars;
+use std::{iter::Peekable, str::Chars};
 
 pub fn handle_string_literal(
     v: String,
-    chars: &mut Chars<'_>,
+    chars: &mut Peekable<Chars<'_>>,
     input: &mut String,
+    line_index: usize,
 ) -> Result<Token, String> {
     let mut string = v.clone();
     loop {
@@ -18,7 +19,7 @@ pub fn handle_string_literal(
         string.push(char);
     }
 
-    let token = Token::new(TokenType::STRING(string));
+    let token = Token::new(TokenType::STRING(string), line_index);
     input.clear();
     Ok(token)
 }

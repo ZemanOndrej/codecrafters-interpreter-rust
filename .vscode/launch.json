@@ -10,6 +10,7 @@
 			"name": "Launch",
 			"program": "${workspaceFolder}/target/debug/codecrafters-interpreter",
 			"args": ["evaluate", "test.lox"],
+			"preLaunchTask": "rust: cargo build",
 			"cwd": "${workspaceFolder}"
 		}
 	]

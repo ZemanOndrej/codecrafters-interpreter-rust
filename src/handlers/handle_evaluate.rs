@@ -5,21 +5,11 @@ use super::handle_parse::parse;
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let parsed_input = parse(input);
 
-    // for line in &parsed_input {
-    //     for e in line {
-    //         dbg!(e);
-    //     }
-    // }
-
     let result = parsed_input
         .iter()
-        .flat_map(|x| x.iter().map(|y| y.evaluate()))
-        .map(|x| match x {
+        .map(|x| match x.evaluate() {
             Ok(x) => x.value,
-            Err(x) => {
-                dbg!(x);
-                exit(70)
-            }
+            Err(_) => exit(70),
         })
         .collect();
 
@@ -32,8 +22,7 @@ mod tests {
 
     use super::*;
     use ntest::test_case;
-
-    #[test_case("(21 * 2 + 57 * 2) / (2)", "78")]
+    #[test_case("11 >= 11", "true")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
@@ -50,12 +39,11 @@ mod tests {
     fn test_all_handle_evaluate_error(input: &str) {
         test_error(input)
     }
-
+    #[test_case("(21 * 2 + 57 * 2) / (2)", "78")]
     #[test_case("\"17\" == 17 ", "false")]
     #[test_case("17 == \"17\"", "false")]
     #[test_case("\"bar\" != \"foo\"", "true")]
     #[test_case("57 > -65", "true")]
-    #[test_case("11 >= 11", "true")]
     #[test_case("\"bar\" + \"quz\"", "barquz")]
     #[test_case("20 + 74 - (-(14 - 33))", "75")]
     #[test_case("1- (-2)", "3")]
@@ -73,10 +61,8 @@ mod tests {
     }
     fn test_error(input: &str) {
         let res = parse(input.to_string());
-        let res: Result<Vec<EvaluatedExpression>, String> = res
-            .iter()
-            .flat_map(|x| x.iter().map(|y| y.evaluate()))
-            .collect();
+        let res: Result<Vec<EvaluatedExpression>, String> =
+            res.iter().map(|x| x.evaluate()).collect();
         assert!(res.is_err());
     }
 
