@@ -22,15 +22,21 @@ mod tests {
 
     #[test_case(
         r#"
-		var world = 21;
-		var result = (world + bar) / foo;
-		print result;
+		var bar;
+		print bar;
     "#
     )]
     fn test_handle_run(input: &str) {
         let _ = handle_run(input.to_string());
     }
 
+    #[test_case(
+        r#"
+		var world = 21;
+		var result = (world + bar) / foo;
+		print result;
+	"#
+    )]
     #[test_case(r#"print a;"#)]
     #[test_case(
         r#"

@@ -102,10 +102,24 @@ pub fn parse_token(
 
         VAR => {
             let name = input.next().unwrap();
-            // dbg!(&name);
-            input.next().unwrap();
-            let (expr, _) = parse_expression(input, token, &[SEMICOLON])?;
-            Expression::Variable(name.clone(), token.clone(), Box::new(expr)).into()
+
+            let next_token = input.peek().unwrap();
+            if matches!(next_token.token_type, EQUAL(EqualType::EQUAL)) {
+                input.next().unwrap();
+                let (expr, _) = parse_expression(input, token, &[SEMICOLON])?;
+                Expression::Variable(name.clone(), token.clone(), Box::new(expr)).into()
+            } else {
+                Expression::Variable(
+                    name.clone(),
+                    token.clone(),
+                    Box::new(Expression::Literal(Token::new(
+                        TokenType::NIL,
+                        token.line_index,
+                    )))
+                    .into(),
+                )
+                .into()
+            }
         }
 
         EOF => None,

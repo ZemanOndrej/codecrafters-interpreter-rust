@@ -96,7 +96,6 @@ impl Expression {
                 }
             }
             Variable(name, _, expr) => {
-                // let value = expr.evaluate(context)?;
                 let value = expr.evaluate(context)?;
                 context
                     .variables
