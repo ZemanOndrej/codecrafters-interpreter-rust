@@ -19,7 +19,8 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
                 x.value
             }
             Err(e) => {
-                dbg!(e);
+                dbg!(&e);
+                eprintln!("{}", e);
                 exit(70);
             }
         })

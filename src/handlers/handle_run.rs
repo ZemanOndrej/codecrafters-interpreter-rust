@@ -22,16 +22,25 @@ mod tests {
 
     #[test_case(
         r#"
-		var bar = 49;
-		var hello = 49;
-		print bar + hello;
-		var quz = 49;
-		print bar + hello + quz;
+		var world = 21;
+		var result = (world + bar) / foo;
+		print result;
     "#
     )]
     fn test_handle_run(input: &str) {
         let _ = handle_run(input.to_string());
     }
+
+    #[test_case(r#"print a;"#)]
+    #[test_case(
+        r#"
+		var bar = 49;
+		var hello = 49;
+		print bar + hello;
+		var quz = 49;
+		print bar + hello + quz;
+	"#
+    )]
     #[test_case(
         r#"
 		var a = "foo";

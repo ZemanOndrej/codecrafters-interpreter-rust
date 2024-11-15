@@ -32,7 +32,13 @@ impl Expression {
                     })
                 }
                 IDENTIFIER(identifier) => {
-                    let value = context.variables.get(identifier).unwrap();
+                    let Some(value) = context.variables.get(identifier) else {
+                        return Err(format!(
+                            "Undefined variable '{}'.\n[line {}]",
+                            identifier, t.line_index
+                        ));
+                    };
+
                     Ok(value.clone())
                 }
                 t => Ok(EvaluatedExpression {
@@ -91,7 +97,7 @@ impl Expression {
             }
             Variable(name, _, expr) => {
                 // let value = expr.evaluate(context)?;
-                let value = expr.evaluate(context).unwrap();
+                let value = expr.evaluate(context)?;
                 context
                     .variables
                     .insert(name.token_type.get_lexeme(), value);
