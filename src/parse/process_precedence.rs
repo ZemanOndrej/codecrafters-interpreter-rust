@@ -9,9 +9,9 @@ pub fn parse_precedence(
 ) -> Result<Option<Expression>, String> {
     let left = input.peek().unwrap();
 
-    dbg!(left);
-    dbg!(starting_operator);
-    dbg!(&stack);
+    // dbg!(left);
+    // dbg!(starting_operator);
+    // dbg!(&stack);
     // todo implement better operator precedence
     if !matches!(
         &left,
@@ -120,7 +120,7 @@ mod tests {
         };
 
         let result = get_right_most_token_with_lowest_precedence(&left, &mut input, &mut vec![]);
-        let result = result.evaluate().unwrap();
+        let result = result.evaluate(&mut Default::default()).unwrap();
         assert_eq!(result.value, "6");
     }
 
@@ -157,7 +157,7 @@ mod tests {
         };
 
         let result = get_right_most_token_with_lowest_precedence(&left, &mut input, &mut vec![]);
-        let result = result.evaluate().unwrap();
+        let result = result.evaluate(&mut Default::default()).unwrap();
         assert_eq!(result.value, "24");
     }
 }

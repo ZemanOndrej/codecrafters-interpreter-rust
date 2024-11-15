@@ -1,12 +1,19 @@
-use std::process::exit;
-
 use super::handle_parse::parse;
+use crate::evaluate::EvaluatedExpression;
+use std::{collections::HashMap, process::exit};
+
+#[derive(Debug, Clone, Default)]
+pub struct Context {
+    pub variables: HashMap<String, EvaluatedExpression>,
+}
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let parsed_input = parse(input);
+    let mut context = Context::default();
+    // dbg!(&parsed_input);
     let result = parsed_input
         .iter()
-        .map(|x| match x.evaluate() {
+        .map(|x| match x.evaluate(&mut context) {
             Ok(x) => {
                 // dbg!(&x);
                 x.value
@@ -80,8 +87,10 @@ mod tests {
 
     fn test_error(input: &str) {
         let res = parse(input.to_string());
-        let res: Result<Vec<EvaluatedExpression>, String> =
-            res.iter().map(|x| x.evaluate()).collect();
+        let res: Result<Vec<EvaluatedExpression>, String> = res
+            .iter()
+            .map(|x| x.evaluate(&mut Default::default()))
+            .collect();
         assert!(res.is_err());
     }
 }

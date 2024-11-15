@@ -6,6 +6,7 @@ pub enum Expression {
     Literal(Token),
     Binary(Box<Expression>, Token, Box<Expression>),
     Unary(Token, Box<Expression>),
+    Variable(Token, Token, Box<Expression>),
     Grouping(Box<Expression>),
     Function(Token, Vec<Expression>),
     Scope(Token, Vec<Expression>),
@@ -50,6 +51,13 @@ impl ToString for Expression {
                         .map(|s| s.to_string())
                         .reduce(|cur: String, nxt: String| cur + &nxt)
                         .unwrap()
+                )
+            }
+            Variable(name, _, expr) => {
+                format!(
+                    "variable {} declared:{} ",
+                    name.to_string(),
+                    expr.to_string()
                 )
             }
         }

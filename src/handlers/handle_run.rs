@@ -20,10 +20,24 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-    #[test_case("1+2*3;")]
+    #[test_case(
+        r#"
+		var bar = 49;
+		var hello = 49;
+		print bar + hello;
+		var quz = 49;
+		print bar + hello + quz;
+    "#
+    )]
     fn test_handle_run(input: &str) {
         let _ = handle_run(input.to_string());
     }
+    #[test_case(
+        r#"
+		var a = "foo";
+		print a;"#
+    )]
+    #[test_case("1+2*3;")]
     #[test_case(r#"1 >= -2 + 3 ;"#)]
     #[test_case(r#"1 >= 1 * 2 ;"#)]
     #[test_case(

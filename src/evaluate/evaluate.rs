@@ -4,6 +4,7 @@ use crate::{
         handle_bool_binary_operation, handle_number_binary_operation,
         handle_string_binary_operation, ValueType,
     },
+    handlers::Context,
     sub_tokens::*,
     token_type::TokenType,
 };
@@ -11,9 +12,10 @@ use crate::{
 use super::{EvaluatedExpression, Expression};
 
 impl Expression {
-    pub fn evaluate(&self) -> Result<EvaluatedExpression, String> {
+    pub fn evaluate(&self, context: &mut Context) -> Result<EvaluatedExpression, String> {
         use Expression::*;
         use TokenType::*;
+
         match self {
             Literal(t) => match &t.token_type {
                 TRUE | FALSE | NIL => Ok(EvaluatedExpression {
@@ -29,14 +31,18 @@ impl Expression {
                         value_type: t.token_type.clone().into(),
                     })
                 }
+                IDENTIFIER(identifier) => {
+                    let value = context.variables.get(identifier).unwrap();
+                    Ok(value.clone())
+                }
                 t => Ok(EvaluatedExpression {
                     value: t.get_value(),
                     value_type: t.clone().into(),
                 }),
             },
             Binary(expression, token, expression1) => {
-                let left = expression.evaluate()?;
-                let right = expression1.evaluate()?;
+                let left = expression.evaluate(context)?;
+                let right = expression1.evaluate(context)?;
                 match left.value_type {
                     ValueType::STRING => handle_string_binary_operation(token, &left, &right),
                     ValueType::NUMBER => handle_number_binary_operation(
@@ -52,7 +58,7 @@ impl Expression {
                 }
             }
             Unary(token, expression) => {
-                let evalueated_expr = expression.evaluate()?;
+                let evalueated_expr = expression.evaluate(context)?;
                 match token.token_type {
                     MINUS => {
                         let right = evalueated_expr
@@ -83,8 +89,19 @@ impl Expression {
                     _ => panic!("Invalid unary operator"),
                 }
             }
-            Grouping(expression) => expression.evaluate(),
-            Function(_, args) => builtin_fns::print(args),
+            Variable(name, _, expr) => {
+                // let value = expr.evaluate(context)?;
+                let value = expr.evaluate(context).unwrap();
+                context
+                    .variables
+                    .insert(name.token_type.get_lexeme(), value);
+                Ok(EvaluatedExpression {
+                    value: "".to_string(),
+                    value_type: ValueType::NIL,
+                })
+            }
+            Grouping(expression) => expression.evaluate(context),
+            Function(_, args) => builtin_fns::print(args, context),
             Scope(_, _) => {
                 todo!()
             }

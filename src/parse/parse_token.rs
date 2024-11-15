@@ -100,6 +100,14 @@ pub fn parse_token(
             Expression::Function(token.clone(), arguments).into()
         }
 
+        VAR => {
+            let name = input.next().unwrap();
+            // dbg!(&name);
+            input.next().unwrap();
+            let (expr, _) = parse_expression(input, token, &[SEMICOLON])?;
+            Expression::Variable(name.clone(), token.clone(), Box::new(expr)).into()
+        }
+
         EOF => None,
         _ => {
             panic!("Invalid token type");
