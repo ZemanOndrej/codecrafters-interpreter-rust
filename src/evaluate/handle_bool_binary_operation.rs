@@ -12,7 +12,12 @@ pub fn handle_bool_binary_operation(
         let result = match token.token_type {
             EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
             BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
-            _ => return Err("Invalid binary operator for bool".to_string()),
+            _ => {
+                return Err(format!(
+                    "Invalid binary operator for bool '{}'",
+                    token.token_type.get_lexeme()
+                ))
+            }
         };
         Ok(result)
     } else if token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
@@ -20,6 +25,9 @@ pub fn handle_bool_binary_operation(
     {
         Ok(false.into())
     } else {
-        Err("Invalid binary operator for bool".to_string())
+        Err(format!(
+            "Invalid binary operator for bool '{}'",
+            token.token_type.get_lexeme()
+        ))
     }
 }

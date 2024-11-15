@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq)]
 pub struct EvaluatedExpression {
     pub value: String,
     pub value_type: ValueType,

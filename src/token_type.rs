@@ -1,9 +1,10 @@
 use crate::sub_tokens::*;
 
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum TokenType {
     // Single-character tokens.
+    #[default]
     LEFT_PAREN,
     RIGHT_PAREN,
     LEFT_BRACE,
@@ -146,14 +147,15 @@ impl TokenType {
     pub fn get_precedence(&self) -> i32 {
         use TokenType::*;
         match self {
-            STAR | SLASH(SlashType::SLASH) => 2,
-            PLUS | MINUS => 1,
+            STAR | SLASH(SlashType::SLASH) => 1,
+            PLUS | MINUS => 2,
             GREATER(GreaterType::GREATER)
             | GREATER(GreaterType::GREATER_EQUAL)
             | LESS(LessType::LESS)
-            | LESS(LessType::LESS_EQUAL) => 3,
-            EQUAL(EqualType::EQUAL_EQUAL) | BANG(BangType::BANG_EQUAL) => 4,
-            _ => 0,
+            | LESS(LessType::LESS_EQUAL)
+            | EQUAL(EqualType::EQUAL_EQUAL)
+            | BANG(BangType::BANG_EQUAL) => 3,
+            _ => 4,
         }
     }
 

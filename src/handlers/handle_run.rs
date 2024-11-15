@@ -13,7 +13,6 @@ mod tests {
     fn test_handle_run_error(input: &str) {
         let _ = handle_run(input.to_string());
     }
-    // #[test_case("1+2*3", "7")]
     #[test_case("28 - 84 * 67 - 54", "-5654")]
     fn test_handle_run(input: &str, expected: &str) {
         let result = handle_evaluate(input.to_string());
@@ -21,6 +20,20 @@ mod tests {
         assert_eq!(result, expected);
     }
 
+    #[test_case("1+2*3;")]
+    fn test_handle_run(input: &str) {
+        let _ = handle_run(input.to_string());
+    }
+    #[test_case(r#"1 >= -2 + 3 ;"#)]
+    #[test_case(r#"1 >= 1 * 2 ;"#)]
+    #[test_case(
+        r#"
+(27 + 25 - 46) > (43 - 27) * 2;
+print !true;
+"quz" + "hello" + "baz" + "foo" == "quzhellobazfoo";
+print !true;
+"#
+    )]
     #[test_case(
         r#"
 {
@@ -33,14 +46,6 @@ result = (str1 == str2) != ((num1 + num2) >= 300)
 }
 "#
     )]
-    fn test_handle_run(input: &str) {
-        let _ = handle_run(input.to_string());
-        // let expected = vec![expected.to_string()];
-        // dbg!(result.clone());
-        // dbg!(expected.clone());
-        // assert_eq!(result, expected);
-    }
-
     #[test_case(
         r#"
 print false != true;

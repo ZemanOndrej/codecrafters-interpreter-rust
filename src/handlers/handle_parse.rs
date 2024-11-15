@@ -13,7 +13,6 @@ pub fn handle_parse(input: String) -> Vec<String> {
 
 pub fn parse(input: String) -> Vec<Expression> {
     let tokens = tokenize(input.as_str());
-    // dbg!(&tokens);
 
     let result: Result<Vec<Token>, TokenError> = tokens.into_iter().collect();
 
@@ -39,7 +38,8 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("50 == 45", "(== 50.0 45.0)")]
+    #[test_case("(95 +)", "")]
+
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }

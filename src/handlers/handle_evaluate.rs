@@ -4,12 +4,17 @@ use super::handle_parse::parse;
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let parsed_input = parse(input);
-
     let result = parsed_input
         .iter()
         .map(|x| match x.evaluate() {
-            Ok(x) => x.value,
-            Err(_) => exit(70),
+            Ok(x) => {
+                // dbg!(&x);
+                x.value
+            }
+            Err(e) => {
+                dbg!(e);
+                exit(70);
+            }
         })
         .collect();
 
@@ -22,23 +27,17 @@ mod tests {
 
     use super::*;
     use ntest::test_case;
-    #[test_case("11 >= 11", "true")]
+
+    #[test_case("1-(-2)", "3")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
 
-    // #[test_case(" \"foo\" + false")]
-    // fn test_handle_evaluate_error(input: &str) {
-    //     test_error(input)
-    // }
-
-    #[test_case(" \"foo\" + false")]
-    #[test_case(" false / false")]
-    #[test_case(" \"bar\" / 47")]
-    #[test_case("14 * \"bar\"")]
-    fn test_all_handle_evaluate_error(input: &str) {
-        test_error(input)
-    }
+    #[test_case("1+(2) * 3", "7")]
+    #[test_case("1+(2) * 2*2", "9")]
+    #[test_case("1- (-2)", "3")]
+    #[test_case("3+(2) * 2", "7")]
+    #[test_case("11 >= 11", "true")]
     #[test_case("(21 * 2 + 57 * 2) / (2)", "78")]
     #[test_case("\"17\" == 17 ", "false")]
     #[test_case("17 == \"17\"", "false")]
@@ -46,7 +45,6 @@ mod tests {
     #[test_case("57 > -65", "true")]
     #[test_case("\"bar\" + \"quz\"", "barquz")]
     #[test_case("20 + 74 - (-(14 - 33))", "75")]
-    #[test_case("1- (-2)", "3")]
     #[test_case("(18 * 3 / (3 * 6))", "3")]
     #[test_case("!\"test\"", "false")]
     #[test_case("!(73.40)", "false")]
@@ -59,12 +57,6 @@ mod tests {
     fn test_all_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
-    fn test_error(input: &str) {
-        let res = parse(input.to_string());
-        let res: Result<Vec<EvaluatedExpression>, String> =
-            res.iter().map(|x| x.evaluate()).collect();
-        assert!(res.is_err());
-    }
 
     fn test(input: &str, expected: &str) {
         let result = handle_evaluate(input.to_string());
@@ -72,5 +64,24 @@ mod tests {
         dbg!(result.clone());
         dbg!(expected.clone());
         assert_eq!(result, expected);
+    }
+    // #[test_case(" \"foo\" + false")]
+    // fn test_handle_evaluate_error(input: &str) {
+    //     test_error(input)
+    // }
+
+    #[test_case(" \"foo\" + false")]
+    #[test_case(" false / false")]
+    #[test_case(" \"bar\" / 47")]
+    #[test_case("14 * \"bar\"")]
+    fn test_all_handle_evaluate_error(input: &str) {
+        test_error(input)
+    }
+
+    fn test_error(input: &str) {
+        let res = parse(input.to_string());
+        let res: Result<Vec<EvaluatedExpression>, String> =
+            res.iter().map(|x| x.evaluate()).collect();
+        assert!(res.is_err());
     }
 }

@@ -23,35 +23,35 @@ pub fn parse_token(
         }
         FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => Expression::Literal(token.clone()).into(),
         MINUS => {
-            let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
-
             let left = stack.pop();
             let value = match left {
                 Some(left) => {
-                    let right = parse_precedence(MINUS, right, input, stack);
+                    let right = parse_precedence(token, input, stack)?.unwrap();
                     Expression::Binary(Box::new(left), token.clone(), Box::new(right))
                 }
-                None => Expression::Unary(token.clone(), Box::new(right)),
+                None => {
+                    let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
+                    Expression::Unary(token.clone(), Box::new(right))
+                }
             };
             value.into()
         }
 
-        PLUS => {
-            let left = stack.pop().ok_or_else(|| create_error(token))?;
-            let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
-            let right = parse_precedence(PLUS, right, input, stack);
-
-            Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()
-        }
-        STAR
+        PLUS
+        | GREATER(GreaterType::GREATER)
         | SLASH(SlashType::SLASH)
         | LESS(LessType::LESS)
         | LESS(LessType::LESS_EQUAL)
-        | GREATER(GreaterType::GREATER)
         | BANG(BangType::BANG_EQUAL)
         | GREATER(GreaterType::GREATER_EQUAL)
         | EQUAL(EqualType::EQUAL)
         | EQUAL(EqualType::EQUAL_EQUAL) => {
+            let left = stack.pop().ok_or_else(|| create_error(token))?;
+            let right = parse_precedence(token, input, stack)?.unwrap();
+
+            Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()
+        }
+        STAR => {
             let left = stack.pop().ok_or_else(|| create_error(token))?;
             let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
             Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()

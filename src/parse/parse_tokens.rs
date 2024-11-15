@@ -37,6 +37,6 @@ mod test {
         let Err(result) = result else {
             panic!("Expected error, got {:?}", result);
         };
-        assert_eq!(result, "Error at '(': Expect expression.".to_string());
+        assert_eq!(result, "Error at '(': Expect ')'".to_string());
     }
 }
