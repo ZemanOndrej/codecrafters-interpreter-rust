@@ -36,7 +36,8 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    #[test_case("1-(-2)", "3")]
+    // #[test_case("1-(-2)", "3")]
+    #[test_case("3+(2) * 2", "7")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
     }
@@ -69,8 +70,8 @@ mod tests {
     fn test(input: &str, expected: &str) {
         let result = handle_evaluate(input.to_string());
         let expected = vec![expected.to_string()];
-        dbg!(result.clone());
-        dbg!(expected.clone());
+        // dbg!(result.clone());
+        // dbg!(expected.clone());
         assert_eq!(result, expected);
     }
     // #[test_case(" \"foo\" + false")]

@@ -1,3 +1,4 @@
+mod handle_assignment;
 mod parse_expression;
 mod parse_token;
 mod parse_tokens;

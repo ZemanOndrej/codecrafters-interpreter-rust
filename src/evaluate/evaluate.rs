@@ -47,8 +47,30 @@ impl Expression {
                 }),
             },
             Binary(expression, token, expression1) => {
-                let left = expression.evaluate(context)?;
+                // dbg!(expression, token, expression1);
                 let right = expression1.evaluate(context)?;
+                if token.token_type == EQUAL(EqualType::EQUAL) {
+                    match &**expression {
+                        Literal(t) => {
+                            if let IDENTIFIER(identifier) = &t.token_type {
+                                if !context.variables.contains_key(identifier) {
+                                    return Err(format!(
+                                        "Undefined variable '{}'.\n[line {}]",
+                                        identifier, t.line_index
+                                    ));
+                                }
+                                context.variables.insert(identifier.clone(), right.clone());
+                                return Ok(right);
+                            }
+                        }
+                        Binary(e1, t, e2) => {
+                            dbg!(e1, t, e2);
+                        }
+                        _ => (),
+                    }
+                }
+                let left = expression.evaluate(context)?;
+
                 match left.value_type {
                     ValueType::STRING => handle_string_binary_operation(token, &left, &right),
                     ValueType::NUMBER => handle_number_binary_operation(
@@ -95,11 +117,9 @@ impl Expression {
                     _ => panic!("Invalid unary operator"),
                 }
             }
-            Variable(name, _, expr) => {
+            Variable(name, expr) => {
                 let value = expr.evaluate(context)?;
-                context
-                    .variables
-                    .insert(name.token_type.get_lexeme(), value);
+                context.variables.insert(name.clone(), value);
                 Ok(EvaluatedExpression {
                     value: "".to_string(),
                     value_type: ValueType::NIL,

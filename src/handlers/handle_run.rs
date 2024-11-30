@@ -9,6 +9,17 @@ mod tests {
     use crate::handlers::{handle_evaluate, handle_run};
     use ntest::test_case;
 
+    #[test_case(
+        r#"
+		var a;
+		var b;
+		a = b = 89;
+		"#
+    )]
+    fn test_handle_run_error(input: &str) {
+        let _ = handle_run(input.to_string());
+    }
+
     #[test_case("print;")]
     fn test_handle_run_error(input: &str) {
         let _ = handle_run(input.to_string());
@@ -19,17 +30,49 @@ mod tests {
         let result = result.first().unwrap().as_str();
         assert_eq!(result, expected);
     }
-
     #[test_case(
         r#"
-		var bar;
-		print bar;
+    	var a;
+    	a = 2;
+    	print a;"#
+    )]
+    #[test_case(
+        r#"
+		var a;
+		var b = 2;
+		var a = b = 1;
+		print a;
     "#
     )]
     fn test_handle_run(input: &str) {
         let _ = handle_run(input.to_string());
     }
+    #[test_case("var a;")]
+    #[test_case(
+        r#"
+		var b;
+		var a = b = "foo";
+		print a;"#
+    )]
+    fn test_handle_run(input: &str) {
+        let _ = handle_run(input.to_string());
+    }
 
+    #[test_case(
+        r#"
+		var quz;
+		quz = 1;
+		print quz;
+		print quz = 2;
+		print quz;
+	"#
+    )]
+    #[test_case(
+        r#"
+		var bar;
+		print bar;
+	"#
+    )]
     #[test_case(
         r#"
 		var world = 21;

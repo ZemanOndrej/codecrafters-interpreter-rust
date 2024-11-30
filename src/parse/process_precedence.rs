@@ -19,6 +19,7 @@ pub fn parse_precedence(
             token_type: TokenType::NUMBER(_)
                 | TokenType::LEFT_PAREN
                 | TokenType::MINUS
+                | TokenType::IDENTIFIER(_)
                 | TokenType::EOF,
             ..
         }

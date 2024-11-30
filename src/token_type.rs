@@ -96,6 +96,15 @@ impl TokenType {
                     value.to_string() // Preserve all decimal places
                 }
             }
+            IDENTIFIER(_v) => {
+                "null".to_string()
+                // bs
+                // if TokenType::is_keyword(v) {
+                //     "null".to_string()
+                // } else {
+                //     v.to_string()
+                // }
+            }
             _ => "null".to_string(),
         };
         value
@@ -224,6 +233,14 @@ impl TokenType {
             "//" => Token(SLASH(SlashType::COMMENT)),
 
             _ => Mismatched(partial),
+        }
+    }
+    pub fn is_keyword(input: &str) -> bool {
+        let lowercase = input.to_lowercase();
+        match lowercase.as_str() {
+            "and" | "class" | "else" | "false" | "fun" | "for" | "if" | "nil" | "or" | "print"
+            | "return" | "super" | "this" | "true" | "var" | "while" => true,
+            _ => false,
         }
     }
 }

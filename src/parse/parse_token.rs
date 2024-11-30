@@ -2,7 +2,10 @@ use std::{iter::Peekable, slice::Iter};
 
 use crate::{
     evaluate::Expression,
-    parse::{create_error, parse_expression, process_precedence::parse_precedence},
+    parse::{
+        create_error, handle_assignment::handle_assignment, parse_expression,
+        process_precedence::parse_precedence,
+    },
     sub_tokens::*,
     token::Token,
     token_type::TokenType,
@@ -12,25 +15,29 @@ pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
 pub fn parse_token(
     token: &Token,
     input: &mut InputIter,
-    stack: &mut Vec<Expression>,
+    expression_stack: &mut Vec<Expression>,
 ) -> Result<Option<Expression>, String> {
     use TokenType::*;
+    // dbg!(token);
     let expr = match &token.token_type {
         BANG(BangType::BANG) => {
-            let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
+            let right = parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
 
             Expression::Unary(token.clone(), Box::new(right)).into()
         }
-        FALSE | TRUE | NUMBER(_) | NIL | STRING(_) => Expression::Literal(token.clone()).into(),
+        FALSE | TRUE | NUMBER(_) | NIL | STRING(_) | IDENTIFIER(_) => {
+            Expression::Literal(token.clone()).into()
+        }
         MINUS => {
-            let left = stack.pop();
+            let left = expression_stack.pop();
             let value = match left {
                 Some(left) => {
-                    let right = parse_precedence(token, input, stack)?.unwrap();
+                    let right = parse_precedence(token, input, expression_stack)?.unwrap();
                     Expression::Binary(Box::new(left), token.clone(), Box::new(right))
                 }
                 None => {
-                    let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
+                    let right =
+                        parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
                     Expression::Unary(token.clone(), Box::new(right))
                 }
             };
@@ -44,16 +51,15 @@ pub fn parse_token(
         | LESS(LessType::LESS_EQUAL)
         | BANG(BangType::BANG_EQUAL)
         | GREATER(GreaterType::GREATER_EQUAL)
-        | EQUAL(EqualType::EQUAL)
         | EQUAL(EqualType::EQUAL_EQUAL) => {
-            let left = stack.pop().ok_or_else(|| create_error(token))?;
-            let right = parse_precedence(token, input, stack)?.unwrap();
+            let left = expression_stack.pop().ok_or_else(|| create_error(token))?;
+            let right = parse_precedence(token, input, expression_stack)?.unwrap();
 
             Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()
         }
         STAR => {
-            let left = stack.pop().ok_or_else(|| create_error(token))?;
-            let right = parse_token(input.next().unwrap(), input, stack)?.unwrap();
+            let left = expression_stack.pop().ok_or_else(|| create_error(token))?;
+            let right = parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
             Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into()
         }
 
@@ -63,15 +69,12 @@ pub fn parse_token(
             r
         }
         RIGHT_PAREN => {
-            let right = stack.pop().ok_or_else(|| create_error(token))?;
+            let right = expression_stack.pop().ok_or_else(|| create_error(token))?;
 
-            stack.pop().unwrap();
+            expression_stack.pop();
             Expression::Grouping(right.into()).into()
         }
-        IDENTIFIER(_) => {
-            let value = Expression::Literal(token.clone()).into();
-            value
-        }
+
         PRINT => {
             let mut arguments = Vec::new();
             loop {
@@ -85,7 +88,10 @@ pub fn parse_token(
 
             Expression::Function(token.clone(), arguments).into()
         }
-        SEMICOLON => None,
+        SEMICOLON => {
+            // dbg!("SEMI");
+            None
+        }
         LEFT_BRACE => {
             let mut arguments = Vec::new();
             loop {
@@ -101,17 +107,16 @@ pub fn parse_token(
         }
 
         VAR => {
-            let name = input.next().unwrap();
+            let name = input.next().unwrap().token_type.get_lexeme();
 
             let next_token = input.peek().unwrap();
             if matches!(next_token.token_type, EQUAL(EqualType::EQUAL)) {
                 input.next().unwrap();
                 let (expr, _) = parse_expression(input, token, &[SEMICOLON])?;
-                Expression::Variable(name.clone(), token.clone(), Box::new(expr)).into()
+                Expression::Variable(name, Box::new(expr)).into()
             } else {
                 Expression::Variable(
-                    name.clone(),
-                    token.clone(),
+                    name,
                     Box::new(Expression::Literal(Token::new(
                         TokenType::NIL,
                         token.line_index,
@@ -121,10 +126,14 @@ pub fn parse_token(
                 .into()
             }
         }
+        EQUAL(EqualType::EQUAL) => handle_assignment(expression_stack, token, input)?,
 
-        EOF => None,
-        _ => {
-            panic!("Invalid token type");
+        EOF => {
+            // dbg!("eof");
+            None
+        }
+        e => {
+            panic!("Invalid token type {:?}", e);
         }
     };
     Ok(expr)
