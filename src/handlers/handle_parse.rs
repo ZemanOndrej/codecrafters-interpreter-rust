@@ -44,6 +44,7 @@ mod tests {
     use ntest::test_case;
 
     #[test_case("(95 +)")]
+    #[test_case("print;")]
     fn test_handle_evaluate_error(input: &str) {
         let file_contents = String::from(input);
         let result = parse_internal(file_contents);
@@ -60,7 +61,7 @@ mod tests {
         let expected = vec![
             "variable declaration \"a\":nil",
             "variable declaration \"b\":1.0",
-            "(= a (+ b (+ 89.0 1.0)))",
+            "(= null (+ null (+ 89.0 1.0)))",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);
@@ -76,7 +77,7 @@ mod tests {
         let expected = vec![
             "variable declaration \"a\":nil",
             "variable declaration \"b\":nil",
-            "(= a (= b 89.0))",
+            "(= null (= null 89.0))",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);
@@ -95,7 +96,7 @@ mod tests {
             "variable declaration \"c\":1.0",
             "variable declaration \"a\":nil",
             "variable declaration \"b\":nil",
-            "(= a (= b (+ 89.0 c)))",
+            "(= null (= null (+ 89.0 null)))",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);
@@ -114,7 +115,7 @@ mod tests {
             "variable declaration \"c\":1.0",
             "variable declaration \"a\":nil",
             "variable declaration \"b\":nil",
-            "(= a (= b (+ c 2.0)))",
+            "(= null (= null (+ null 2.0)))",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);
@@ -130,7 +131,7 @@ mod tests {
 		"#;
         let expected = vec![
             "variable declaration \"baz\":1.0",
-            "function PRINT print null:(= baz 2.0)",
+            "function PRINT print null:(= null 2.0)",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);

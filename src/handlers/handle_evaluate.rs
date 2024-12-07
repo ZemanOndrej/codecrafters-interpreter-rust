@@ -8,16 +8,9 @@ pub struct Context {
 }
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
-    let parsed_input = parse(input);
-    let mut context = Context::default();
-    // dbg!(&parsed_input);
-    let result = parsed_input
-        .iter()
-        .map(|x| match x.evaluate(&mut context) {
-            Ok(x) => {
-                // dbg!(&x);
-                x.value
-            }
+    let result = handle_evaluate_internal(input)
+        .map(|x| match x {
+            Ok(x) => x.value,
             Err(e) => {
                 dbg!(&e);
                 eprintln!("{}", e);
@@ -29,6 +22,19 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
     return result;
 }
 
+fn handle_evaluate_internal(
+    input: String,
+) -> impl Iterator<Item = Result<EvaluatedExpression, String>> {
+    let parsed_input = parse(input);
+
+    let mut context = Context::default();
+    let result = parsed_input
+        .into_iter()
+        .map(move |x| x.evaluate(&mut context));
+
+    return result;
+}
+
 #[cfg(test)]
 mod tests {
     use crate::evaluate::EvaluatedExpression;
@@ -36,7 +42,7 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
-    // #[test_case("1-(-2)", "3")]
+    #[test_case("1-(-2)", "3")]
     #[test_case("3+(2) * 2", "7")]
     fn test_handle_evaluate(input: &str, expected: &str) {
         test(input, expected)
@@ -74,15 +80,33 @@ mod tests {
         // dbg!(expected.clone());
         assert_eq!(result, expected);
     }
-    // #[test_case(" \"foo\" + false")]
-    // fn test_handle_evaluate_error(input: &str) {
-    //     test_error(input)
-    // }
+    #[test_case(" \"foo\" + false")]
+    fn test_handle_evaluate_error(input: &str) {
+        test_error(input)
+    }
 
     #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]
     #[test_case("14 * \"bar\"")]
+    #[test_case(r#"print a;"#)]
+    #[test_case(
+        r#"
+    	var quz;
+    	quz = 1;
+    	print quz;
+    	print quz = 2;
+    	print quz;
+    "#
+    )]
+    #[test_case(
+        r#"
+    	var world = 21;
+    	var result = (world + bar) / foo;
+    	print result;
+    "#
+    )]
+
     fn test_all_handle_evaluate_error(input: &str) {
         test_error(input)
     }

@@ -98,7 +98,7 @@ impl TokenType {
             }
             IDENTIFIER(_v) => {
                 "null".to_string()
-                // bs
+                // TODO dont print null for
                 // if TokenType::is_keyword(v) {
                 //     "null".to_string()
                 // } else {

@@ -3,7 +3,7 @@ use std::{iter::Peekable, slice::Iter};
 use crate::{
     evaluate::Expression,
     parse::{
-        create_error, handle_assignment::handle_assignment, parse_expression,
+        create_error, handle_assignment::handle_assignment, parse_expression, parse_expressions,
         process_precedence::parse_precedence,
     },
     sub_tokens::*,
@@ -18,7 +18,6 @@ pub fn parse_token(
     expression_stack: &mut Vec<Expression>,
 ) -> Result<Option<Expression>, String> {
     use TokenType::*;
-    // dbg!(token);
     let expr = match &token.token_type {
         BANG(BangType::BANG) => {
             let right = parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
@@ -64,7 +63,7 @@ pub fn parse_token(
         }
 
         LEFT_PAREN => {
-            let (inner, _) = parse_expression(input, token, &[RIGHT_PAREN])?;
+            let (inner, _) = parse_expression(input, token, &[RIGHT_PAREN], true)?;
             let r = Expression::Grouping(Box::new(inner)).into();
             r
         }
@@ -78,7 +77,7 @@ pub fn parse_token(
         PRINT => {
             let mut arguments = Vec::new();
             loop {
-                let (arg, next) = parse_expression(input, token, &[COMMA, SEMICOLON])?;
+                let (arg, next) = parse_expression(input, token, &[COMMA, SEMICOLON], true)?;
                 arguments.push(arg);
 
                 if next.token_type == SEMICOLON {
@@ -88,22 +87,22 @@ pub fn parse_token(
 
             Expression::Function(token.clone(), arguments).into()
         }
-        SEMICOLON => {
-            // dbg!("SEMI");
-            None
-        }
+        SEMICOLON => None,
         LEFT_BRACE => {
-            let mut arguments = Vec::new();
+            let mut expressions = Vec::new();
             loop {
-                let (arg, next) = parse_expression(input, token, &[RIGHT_BRACE])?;
-                arguments.push(arg);
+                let (expr, next) =
+                    parse_expressions(input, token, &[SEMICOLON, RIGHT_BRACE], false)?;
+                // dbg!(&expr);
+                expressions.extend(expr);
+                input.next().unwrap(); // consume the semicolon or right brace
 
                 if next.token_type == RIGHT_BRACE {
                     break;
                 }
             }
-
-            Expression::Function(token.clone(), arguments).into()
+            // dbg!(&expressions);
+            Expression::Scope(token.clone(), expressions).into()
         }
 
         VAR => {
@@ -112,7 +111,7 @@ pub fn parse_token(
             let next_token = input.peek().unwrap();
             if matches!(next_token.token_type, EQUAL(EqualType::EQUAL)) {
                 input.next().unwrap();
-                let (expr, _) = parse_expression(input, token, &[SEMICOLON])?;
+                let (expr, _) = parse_expression(input, token, &[SEMICOLON], false)?;
                 Expression::Variable(name, Box::new(expr)).into()
             } else {
                 Expression::Variable(

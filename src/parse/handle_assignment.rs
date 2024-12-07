@@ -29,7 +29,7 @@ pub fn handle_assignment(
         return handle_next_assignment(input, right, expression_stack, left);
     } else if next.token_type != SEMICOLON {
         let next = input.next().unwrap();
-        let (expr, _) = parse_expression(input, next, &[SEMICOLON])?;
+        let (expr, _) = parse_expression(input, next, &[SEMICOLON], true)?;
         right = Expression::Binary(Box::new(right), next.clone(), Box::new(expr))
     }
     Ok(Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into())

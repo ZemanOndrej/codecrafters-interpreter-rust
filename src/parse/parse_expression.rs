@@ -6,18 +6,47 @@ pub fn parse_expression(
     input: &mut InputIter,
     token: &Token,
     end_tokens: &[TokenType],
+    remove_end_token: bool,
 ) -> Result<(Expression, Token), String> {
+    let (mut stack, next) = parse_expression_internal(input, token, end_tokens, remove_end_token)?;
+    let inner = stack
+        .pop()
+        .ok_or(generate_error_message(token, end_tokens))?;
+    Ok((inner, next.unwrap()))
+}
+pub fn parse_expressions(
+    input: &mut InputIter,
+    token: &Token,
+    end_tokens: &[TokenType],
+    remove_end_token: bool,
+) -> Result<(Vec<Expression>, Token), String> {
+    let (stack, next) = parse_expression_internal(input, token, end_tokens, remove_end_token)?;
+
+    Ok((stack, next.unwrap()))
+}
+
+fn parse_expression_internal(
+    input: &mut std::iter::Peekable<std::slice::Iter<'_, Token>>,
+    token: &Token,
+    end_tokens: &[TokenType],
+    remove_end_token: bool,
+) -> Result<(Vec<Expression>, Option<Token>), String> {
     let mut stack = Vec::new();
-    let mut next;
+    let mut next: Option<&Token>;
     loop {
-        next = input.next();
+        next = input.peek().map(|v| &**v);
         let Some(next) = next else {
             // dbg!(&next);
             return Err(generate_error_message(token, end_tokens));
         };
         if end_tokens.contains(&next.token_type) {
+            if remove_end_token {
+                input.next();
+            }
             break;
         }
+
+        input.next().unwrap();
         if next.token_type == TokenType::SLASH(SlashType::COMMENT) {
             continue;
         }
@@ -25,10 +54,7 @@ pub fn parse_expression(
             .ok_or(generate_error_message(token, end_tokens))?;
         stack.push(value);
     }
-    let inner = stack
-        .pop()
-        .ok_or(generate_error_message(token, end_tokens))?;
-    Ok((inner, next.unwrap().clone()))
+    Ok((stack, next.cloned()))
 }
 
 fn generate_error_message(token: &Token, end_tokens: &[TokenType]) -> String {

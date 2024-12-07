@@ -4,12 +4,9 @@ use crate::{
 };
 
 pub fn print(args: &Vec<Expression>, context: &mut Context) -> Result<EvaluatedExpression, String> {
-    let value = args
-        .get(0)
-        .ok_or("Missing argument")?
-        .evaluate(context)?
-        .value;
-    // dbg!(&value);
+    let first_argument = args.get(0).ok_or("Missing argument")?;
+    let value = first_argument.evaluate(context)?.value;
+
     println!("{}", value);
 
     Ok(EvaluatedExpression {

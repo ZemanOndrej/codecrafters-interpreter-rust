@@ -127,8 +127,14 @@ impl Expression {
             }
             Grouping(expression) => expression.evaluate(context),
             Function(_, args) => builtin_fns::print(args, context),
-            Scope(_, _) => {
-                todo!()
+            Scope(_, exprs) => {
+                for expr in exprs {
+                    expr.evaluate(context)?;
+                }
+                Ok(EvaluatedExpression {
+                    value: "".to_string(),
+                    value_type: ValueType::NIL,
+                })
             }
         }
     }
