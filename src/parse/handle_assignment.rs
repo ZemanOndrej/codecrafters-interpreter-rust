@@ -24,7 +24,6 @@ pub fn handle_assignment(
             Box::new(right),
         )));
     };
-    dbg!(next, &right);
     if next.token_type == EQUAL(EqualType::EQUAL) {
         return handle_next_assignment(input, right, expression_stack, left);
     } else if next.token_type != SEMICOLON {

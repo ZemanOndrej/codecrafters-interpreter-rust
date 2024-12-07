@@ -11,6 +11,51 @@ mod tests {
 
     #[test_case(
         r#"
+    	{
+    	  var baz = "outer baz";
+    	  var bar = "outer bar";
+    	  {
+    	    baz = "modified baz";
+    	    var bar = "inner bar";
+    	    print baz;
+    	    print bar;
+    	  }
+    	  print baz;
+    	  print bar;
+    	}
+    	print bar;
+    	"#
+    )]
+    fn test_scope(input: &str) {
+        let _ = handle_run(input.to_string());
+    }
+    #[test_case(
+        r#"
+		{
+		  var baz = "outer baz";
+		  {
+		  	print baz;
+		    baz = "modified baz";
+		    print baz;
+		  }
+		  print baz;
+		}
+    	"#
+    )]
+    #[test_case(
+        r#"
+		{
+			var quz = "before";
+			{
+				var quz = "after";
+				print quz;
+			}
+			print quz;
+		}
+		"#
+    )]
+    #[test_case(
+        r#"
 		{
 			var quz = 29;
 			{
@@ -21,10 +66,6 @@ mod tests {
 		}
     	"#
     )]
-    fn test_scope(input: &str) {
-        let _ = handle_run(input.to_string());
-    }
-
     #[test_case(
         r#"
 		{

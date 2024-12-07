@@ -1,9 +1,9 @@
-use crate::{
-    evaluate::{EvaluatedExpression, Expression, ValueType},
-    handlers::Context,
-};
+use crate::evaluate::{ContextRef, EvaluatedExpression, Expression, ValueType};
 
-pub fn print(args: &Vec<Expression>, context: &mut Context) -> Result<EvaluatedExpression, String> {
+pub fn print(
+    args: &Vec<Expression>,
+    context: &mut ContextRef,
+) -> Result<EvaluatedExpression, String> {
     let first_argument = args.get(0).ok_or("Missing argument")?;
     let value = first_argument.evaluate(context)?.value;
 

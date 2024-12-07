@@ -4,15 +4,14 @@ use crate::{
         handle_bool_binary_operation, handle_number_binary_operation,
         handle_string_binary_operation, ValueType,
     },
-    handlers::Context,
     sub_tokens::*,
     token_type::TokenType,
 };
 
-use super::{EvaluatedExpression, Expression};
+use super::{Context, ContextRef, EvaluatedExpression, Expression};
 
 impl Expression {
-    pub fn evaluate(&self, context: &mut Context) -> Result<EvaluatedExpression, String> {
+    pub fn evaluate(&self, context: &mut ContextRef) -> Result<EvaluatedExpression, String> {
         use Expression::*;
         use TokenType::*;
 
@@ -32,7 +31,7 @@ impl Expression {
                     })
                 }
                 IDENTIFIER(identifier) => {
-                    let Some(value) = context.variables.get(identifier) else {
+                    let Some(value) = context.borrow().get_variable(identifier) else {
                         return Err(format!(
                             "Undefined variable '{}'.\n[line {}]",
                             identifier, t.line_index
@@ -53,13 +52,15 @@ impl Expression {
                     match &**expression {
                         Literal(t) => {
                             if let IDENTIFIER(identifier) = &t.token_type {
-                                if !context.variables.contains_key(identifier) {
+                                if !context.borrow().contains_variable(identifier) {
                                     return Err(format!(
                                         "Undefined variable '{}'.\n[line {}]",
                                         identifier, t.line_index
                                     ));
                                 }
-                                context.variables.insert(identifier.clone(), right.clone());
+                                context
+                                    .borrow_mut()
+                                    .change_variable(identifier, right.clone());
                                 return Ok(right);
                             }
                         }
@@ -119,7 +120,7 @@ impl Expression {
             }
             Variable(name, expr) => {
                 let value = expr.evaluate(context)?;
-                context.variables.insert(name.clone(), value);
+                context.borrow_mut().set_variable(name.clone(), value);
                 Ok(EvaluatedExpression {
                     value: "".to_string(),
                     value_type: ValueType::NIL,
@@ -128,8 +129,9 @@ impl Expression {
             Grouping(expression) => expression.evaluate(context),
             Function(_, args) => builtin_fns::print(args, context),
             Scope(_, exprs) => {
+                let mut child_context = Context::new(context.clone());
                 for expr in exprs {
-                    expr.evaluate(context)?;
+                    expr.evaluate(&mut child_context)?;
                 }
                 Ok(EvaluatedExpression {
                     value: "".to_string(),

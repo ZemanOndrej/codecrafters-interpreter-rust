@@ -1,11 +1,6 @@
 use super::handle_parse::parse;
-use crate::evaluate::EvaluatedExpression;
-use std::{collections::HashMap, process::exit};
-
-#[derive(Debug, Clone, Default)]
-pub struct Context {
-    pub variables: HashMap<String, EvaluatedExpression>,
-}
+use crate::evaluate::{Context, EvaluatedExpression};
+use std::process::exit;
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let result = handle_evaluate_internal(input)
@@ -27,7 +22,7 @@ fn handle_evaluate_internal(
 ) -> impl Iterator<Item = Result<EvaluatedExpression, String>> {
     let parsed_input = parse(input);
 
-    let mut context = Context::default();
+    let mut context = Context::new_root();
     let result = parsed_input
         .into_iter()
         .map(move |x| x.evaluate(&mut context));
