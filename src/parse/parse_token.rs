@@ -3,8 +3,8 @@ use std::{iter::Peekable, slice::Iter};
 use crate::{
     evaluate::Expression,
     parse::{
-        create_error, handle_assignment::handle_assignment, parse_expression, parse_expressions,
-        process_precedence::parse_precedence,
+        create_error, handle_assignment::handle_assignment, handle_conditionals, parse_expression,
+        parse_expressions, process_precedence::parse_precedence,
     },
     sub_tokens::*,
     token::Token,
@@ -127,10 +127,9 @@ pub fn parse_token(
         }
         EQUAL(EqualType::EQUAL) => handle_assignment(expression_stack, token, input)?,
 
-        EOF => {
-            // dbg!("eof");
-            None
-        }
+        EOF => None,
+
+        IF => handle_conditionals(expression_stack, token, input)?,
         e => {
             panic!("Invalid token type {:?}", e);
         }

@@ -10,6 +10,11 @@ pub enum Expression {
     Grouping(Box<Expression>),
     Function(Token, Vec<Expression>),
     Scope(Token, Vec<Expression>),
+    IfElse {
+        condition: Box<Expression>,
+        then: Box<Expression>,
+        else_expr: Option<Box<Expression>>,
+    },
 }
 
 impl ToString for Expression {
@@ -64,6 +69,22 @@ impl ToString for Expression {
                 //         .join(","),
                 //     expr.to_string()
                 // )
+            }
+            IfElse {
+                condition,
+                then,
+                else_expr,
+            } => {
+                let else_expr = match else_expr {
+                    Some(expr) => format!("else {}", expr.to_string()),
+                    None => "".to_string(),
+                };
+                format!(
+                    "if {} then {} {}",
+                    condition.to_string(),
+                    then.to_string(),
+                    else_expr
+                )
             }
         }
     }

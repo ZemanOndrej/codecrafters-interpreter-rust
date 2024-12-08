@@ -138,6 +138,28 @@ impl Expression {
                     value_type: ValueType::NIL,
                 })
             }
+            IfElse {
+                condition,
+                then,
+                else_expr,
+            } => {
+                let condition = condition.evaluate(context)?;
+                if condition.value_type != ValueType::BOOL {
+                    return Err("Invalid condition".to_string());
+                }
+                if condition.value.parse::<bool>().unwrap() {
+                    then.evaluate(context)
+                } else {
+                    if let Some(expr) = else_expr {
+                        expr.evaluate(context)
+                    } else {
+                        Ok(EvaluatedExpression {
+                            value: "".to_string(),
+                            value_type: ValueType::NIL,
+                        })
+                    }
+                }
+            }
         }
     }
 }

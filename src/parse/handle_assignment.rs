@@ -26,8 +26,9 @@ pub fn handle_assignment(
     };
     if next.token_type == EQUAL(EqualType::EQUAL) {
         return handle_next_assignment(input, right, expression_stack, left);
-    } else if next.token_type != SEMICOLON {
+    } else if next.token_type != SEMICOLON && next.token_type != RIGHT_PAREN { // right paren because of if statements
         let next = input.next().unwrap();
+        dbg!(next);
         let (expr, _) = parse_expression(input, next, &[SEMICOLON], true)?;
         right = Expression::Binary(Box::new(right), next.clone(), Box::new(expr))
     }

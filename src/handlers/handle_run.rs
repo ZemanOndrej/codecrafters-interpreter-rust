@@ -11,24 +11,58 @@ mod tests {
 
     #[test_case(
         r#"
-    	{
-    	  var baz = "outer baz";
-    	  var bar = "outer bar";
-    	  {
-    	    baz = "modified baz";
-    	    var bar = "inner bar";
-    	    print baz;
-    	    print bar;
-    	  }
-    	  print baz;
-    	  print bar;
-    	}
-    	print bar;
+		var a = 1;
+		var b = 0;
+		b = (a = 2) *2;
+		print a;
+		print b;
     	"#
     )]
-    fn test_scope(input: &str) {
+    fn test_if(input: &str) {
         let _ = handle_run(input.to_string());
     }
+    #[test_case(
+        r#"
+		var a = 1;
+		var b = 0;
+		b = (a = 2) *2;
+		print a;
+		print b;
+    	"#
+    )]
+    #[test_case(
+        r#"
+		var a = false;
+		if (a = true) {
+		  print (a == true);
+		}
+		"#
+    )]
+    #[test_case(
+        r#"
+		var a =1;
+		var b = 2;
+		   if (a == b) print "bad";
+		if (a != b) print "good";
+		"#
+    )]
+    #[test_case(
+        r#"
+		{
+		  var baz = "outer baz";
+		  var bar = "outer bar";
+		  {
+			baz = "modified baz";
+			var bar = "inner bar";
+			print baz;
+			print bar;
+		  }
+		  print baz;
+		  print bar;
+		}
+		print bar;
+		"#
+    )]
     #[test_case(
         r#"
 		{
