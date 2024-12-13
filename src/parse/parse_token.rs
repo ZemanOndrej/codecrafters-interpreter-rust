@@ -50,7 +50,9 @@ pub fn parse_token(
         | LESS(LessType::LESS_EQUAL)
         | BANG(BangType::BANG_EQUAL)
         | GREATER(GreaterType::GREATER_EQUAL)
-        | EQUAL(EqualType::EQUAL_EQUAL) => {
+        | EQUAL(EqualType::EQUAL_EQUAL)
+        | OR
+        | AND => {
             let left = expression_stack.pop().ok_or_else(|| create_error(token))?;
             let right = parse_precedence(token, input, expression_stack)?.unwrap();
 
@@ -126,7 +128,6 @@ pub fn parse_token(
             }
         }
         EQUAL(EqualType::EQUAL) => handle_assignment(expression_stack, token, input)?,
-
         EOF => None,
 
         IF => handle_conditionals(expression_stack, token, input)?,

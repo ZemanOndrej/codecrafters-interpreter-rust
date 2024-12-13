@@ -8,26 +8,27 @@ pub fn handle_bool_binary_operation(
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
 
-    if right.value_type == left.value_type {
-        let result = match token.token_type {
-            EQUAL(EqualType::EQUAL_EQUAL) => (left.value == right.value).into(),
-            BANG(BangType::BANG_EQUAL) => (left.value != right.value).into(),
-            _ => {
-                return Err(format!(
-                    "Invalid binary operator for bool '{}'",
-                    token.token_type.get_lexeme()
-                ))
+    let left_bool = left.to_bool();
+    let right_bool = right.to_bool();
+    let result = match token.token_type {
+        EQUAL(EqualType::EQUAL_EQUAL) => (left_bool == right_bool).into(),
+        BANG(BangType::BANG_EQUAL) => (left_bool != right_bool).into(),
+        OR => {
+            if left_bool {
+                left.clone()
+            } else if right_bool {
+                right.clone()
+            } else {
+                false.into()
             }
-        };
-        Ok(result)
-    } else if token.token_type == EQUAL(EqualType::EQUAL_EQUAL)
-        || token.token_type == BANG(BangType::BANG_EQUAL)
-    {
-        Ok(false.into())
-    } else {
-        Err(format!(
-            "Invalid binary operator for bool '{}'",
-            token.token_type.get_lexeme()
-        ))
-    }
+        }
+        AND => (left_bool && right_bool).into(),
+        _ => {
+            return Err(format!(
+                "Invalid binary operator for bool '{}'",
+                token.token_type.get_lexeme()
+            ))
+        }
+    };
+    Ok(result)
 }

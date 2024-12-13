@@ -4,6 +4,17 @@ pub struct EvaluatedExpression {
     pub value_type: ValueType,
 }
 
+impl EvaluatedExpression {
+    pub fn to_bool(&self) -> bool {
+        match self.value_type {
+            ValueType::BOOL => self.value.parse().unwrap(),
+            ValueType::NUMBER => self.value != "0",
+            ValueType::STRING => self.value != "",
+            ValueType::NIL => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValueType {
     NUMBER,

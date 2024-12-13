@@ -81,6 +81,23 @@ mod tests {
         test_error(input)
     }
 
+    #[test]
+    fn test_or_operator() {
+        let input = r#"
+        if (false or "ok") print "foo";
+
+        if (false or false) print "world";
+        if (true or "world") print "world";
+
+        if (12 or "bar") print "bar";
+        if ("bar" or "bar") print "bar";
+		if (nil or "ok") print "foo";
+		
+		"#;
+
+        let file_contents = String::from(input);
+        let _ = handle_evaluate(file_contents);
+    }
     #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]

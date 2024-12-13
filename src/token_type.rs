@@ -67,6 +67,14 @@ pub enum PartialParseOutput {
 }
 
 impl TokenType {
+    pub fn is_bool_logic_operator(&self) -> bool {
+        use TokenType::*;
+        match self {
+            AND | OR => true,
+            _ => false,
+        }
+    }
+
     pub fn is_ignored(&self) -> bool {
         use TokenType::*;
         match self {

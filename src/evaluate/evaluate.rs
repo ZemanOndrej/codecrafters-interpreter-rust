@@ -71,6 +71,9 @@ impl Expression {
                     }
                 }
                 let left = expression.evaluate(context)?;
+                if token.token_type.is_bool_logic_operator() {
+                    return handle_bool_binary_operation(token, &left, &right);
+                }
 
                 match left.value_type {
                     ValueType::STRING => handle_string_binary_operation(token, &left, &right),
@@ -144,10 +147,8 @@ impl Expression {
                 else_expr,
             } => {
                 let condition = condition.evaluate(context)?;
-                if condition.value_type != ValueType::BOOL {
-                    return Err("Invalid condition".to_string());
-                }
-                if condition.value.parse::<bool>().unwrap() {
+
+                if condition.to_bool() {
                     then.evaluate(context)
                 } else {
                     if let Some(expr) = else_expr {
