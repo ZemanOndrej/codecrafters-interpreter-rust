@@ -83,7 +83,7 @@ impl Expression {
                     ),
                     ValueType::BOOL => handle_bool_binary_operation(token, &left, &right),
 
-                    _ => panic!("Invalid binary operator"),
+                    e => panic!("Invalid binary operator {:?}", e),
                 }
             }
             Unary(token, expression) => {

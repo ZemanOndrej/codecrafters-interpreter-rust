@@ -37,6 +37,7 @@ mod tests {
     use super::*;
     use ntest::test_case;
 
+    #[test_case("43 * 9 / 5 + 32;", "109.4")]
     #[test_case("1-(-2)", "3")]
     #[test_case("3+(2) * 2", "7")]
     fn test_handle_evaluate(input: &str, expected: &str) {
@@ -101,7 +102,23 @@ mod tests {
     	print result;
     "#
     )]
-
+    #[test_case(
+        r#"
+    	{
+    	  var baz = "outer baz";
+    	  var bar = "outer bar";
+    	  {
+    		baz = "modified baz";
+    		var bar = "inner bar";
+    		print baz;
+    		print bar;
+    	  }
+    	  print baz;
+    	  print bar;
+    	}
+    	print bar;
+    	"#
+    )]
     fn test_all_handle_evaluate_error(input: &str) {
         test_error(input)
     }

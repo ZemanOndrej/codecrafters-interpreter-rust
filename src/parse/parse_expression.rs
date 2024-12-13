@@ -2,13 +2,33 @@ use crate::{evaluate::Expression, sub_tokens::SlashType, token::Token, token_typ
 
 use super::{parse_token::parse_token, InputIter};
 
+pub fn parse_expression_with_stack(
+    input: &mut InputIter,
+    token: &Token,
+    end_tokens: &[TokenType],
+    remove_end_token: bool,
+    stack: Vec<Expression>,
+) -> Result<(Expression, Token), String> {
+    let (mut stack, next) =
+        parse_expression_internal(input, token, end_tokens, remove_end_token, stack)?;
+    let inner = stack
+        .pop()
+        .ok_or(generate_error_message(token, end_tokens))?;
+    Ok((inner, next.unwrap()))
+}
 pub fn parse_expression(
     input: &mut InputIter,
     token: &Token,
     end_tokens: &[TokenType],
     remove_end_token: bool,
 ) -> Result<(Expression, Token), String> {
-    let (mut stack, next) = parse_expression_internal(input, token, end_tokens, remove_end_token)?;
+    let (mut stack, next) = parse_expression_internal(
+        input,
+        token,
+        end_tokens,
+        remove_end_token,
+        Default::default(),
+    )?;
     let inner = stack
         .pop()
         .ok_or(generate_error_message(token, end_tokens))?;
@@ -20,18 +40,24 @@ pub fn parse_expressions(
     end_tokens: &[TokenType],
     remove_end_token: bool,
 ) -> Result<(Vec<Expression>, Token), String> {
-    let (stack, next) = parse_expression_internal(input, token, end_tokens, remove_end_token)?;
+    let (stack, next) = parse_expression_internal(
+        input,
+        token,
+        end_tokens,
+        remove_end_token,
+        Default::default(),
+    )?;
 
     Ok((stack, next.unwrap()))
 }
 
 fn parse_expression_internal(
-    input: &mut std::iter::Peekable<std::slice::Iter<'_, Token>>,
+    input: &mut InputIter,
     token: &Token,
     end_tokens: &[TokenType],
     remove_end_token: bool,
+    mut stack: Vec<Expression>,
 ) -> Result<(Vec<Expression>, Option<Token>), String> {
-    let mut stack = Vec::new();
     let mut next: Option<&Token>;
     loop {
         next = input.peek().map(|v| &**v);

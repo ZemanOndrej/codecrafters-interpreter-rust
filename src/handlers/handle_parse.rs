@@ -52,6 +52,22 @@ mod tests {
     }
 
     #[test]
+    fn test_simple_assignment() {
+        let input = r#"
+		var a;
+		var b=1;
+		a = b + 89;
+		"#;
+        let expected = vec![
+            "variable declaration \"a\":nil",
+            "variable declaration \"b\":1.0",
+            "(= null (+ null 89.0))",
+        ];
+        let file_contents = String::from(input);
+        let result = handle_parse(file_contents);
+        assert_eq!(result, expected);
+    }
+    #[test]
     fn test_multiple_variable_assignment_expression() {
         let input = r#"
 		var a;
@@ -61,7 +77,7 @@ mod tests {
         let expected = vec![
             "variable declaration \"a\":nil",
             "variable declaration \"b\":1.0",
-            "(= null (+ null (+ 89.0 1.0)))",
+            "(= null (+ (+ null 89.0) 1.0))",
         ];
         let file_contents = String::from(input);
         let result = handle_parse(file_contents);

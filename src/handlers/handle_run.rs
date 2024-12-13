@@ -11,16 +11,11 @@ mod tests {
 
     #[test_case(
         r#"
-		var a = 1;
-		var b = 0;
-		b = (a = 2) *2;
-		print a;
-		print b;
-    	"#
+		var fahrenheit = 0;
+		fahrenheit = 43 * 9 / 5 + 32;
+		print fahrenheit;
+		"#
     )]
-    fn test_if(input: &str) {
-        let _ = handle_run(input.to_string());
-    }
     #[test_case(
         r#"
 		var a = 1;
@@ -60,7 +55,6 @@ mod tests {
 		  print baz;
 		  print bar;
 		}
-		print bar;
 		"#
     )]
     #[test_case(
@@ -193,20 +187,19 @@ mod tests {
     )]
     #[test_case(
         r#"
-print false != true;
+		print false != true;
 
-print "29
-59
-37
-";
+		print "29
+		59
+		37
+		";
 
-print "There should be an empty line above this.";
+		print "There should be an empty line above this.";
 
-print "(" + "" + ")";
+		print "(" + "" + ")";
 
-print "non-ascii: ॐ";
-
-"#
+		print "non-ascii: ॐ";
+		"#
     )]
     #[test_case(
         r#"
