@@ -9,7 +9,7 @@ impl EvaluatedExpression {
         match self.value_type {
             ValueType::BOOL => self.value.parse().unwrap(),
             ValueType::NUMBER => self.value != "0",
-            ValueType::STRING => self.value != "",
+            ValueType::STRING => true,
             ValueType::NIL => false,
         }
     }

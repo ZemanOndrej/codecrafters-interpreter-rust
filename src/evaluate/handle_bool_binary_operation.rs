@@ -22,7 +22,13 @@ pub fn handle_bool_binary_operation(
                 false.into()
             }
         }
-        AND => (left_bool && right_bool).into(),
+        AND => {
+            if left_bool && right_bool {
+                right.clone()
+            } else {
+                false.into()
+            }
+        }
         _ => {
             return Err(format!(
                 "Invalid binary operator for bool '{}'",

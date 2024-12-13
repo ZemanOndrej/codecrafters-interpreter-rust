@@ -82,6 +82,27 @@ mod tests {
     }
 
     #[test]
+    fn test_and_operator() {
+        let input = r#"
+		print false and 1;
+		print true and 1;
+		print 24 and "hello" and false;
+			
+		print 24 and true;
+		print 24 and "hello" and 24;
+		"#;
+
+        let file_contents = String::from(input);
+        r#"
+			false
+			1
+			false
+			true
+			24
+		"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
     fn test_or_operator() {
         let input = r#"
         if (false or "ok") print "foo";
@@ -92,7 +113,6 @@ mod tests {
         if (12 or "bar") print "bar";
         if ("bar" or "bar") print "bar";
 		if (nil or "ok") print "foo";
-		
 		"#;
 
         let file_contents = String::from(input);
