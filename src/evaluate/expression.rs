@@ -19,6 +19,12 @@ pub enum Expression {
         condition: Box<Expression>,
         then: Box<Expression>,
     },
+    For {
+        declaration: Box<Expression>,
+        condition: Box<Expression>,
+        increment: Box<Expression>,
+        then: Box<Expression>,
+    },
 }
 
 impl ToString for Expression {
@@ -64,15 +70,6 @@ impl ToString for Expression {
             }
             Variable(tok, expr) => {
                 format!("variable declaration {:?}:{}", tok, expr.to_string())
-
-                // format!(
-                //     "variable {} declared:{} ",
-                //     name.iter()
-                //         .map(|v| v.to_string())
-                //         .collect::<Vec<String>>()
-                //         .join(","),
-                //     expr.to_string()
-                // )
             }
             IfElse {
                 condition,
@@ -93,6 +90,18 @@ impl ToString for Expression {
             While { condition, then } => {
                 format!("while {} then {}", condition.to_string(), then.to_string())
             }
+            For {
+                declaration,
+                condition,
+                increment,
+                then,
+            } => format!(
+                "for {} {} {:?} then {}",
+                declaration.to_string(),
+                condition.to_string(),
+                increment,
+                then.to_string()
+            ),
         }
     }
 }

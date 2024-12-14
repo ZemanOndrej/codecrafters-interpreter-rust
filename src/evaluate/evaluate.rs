@@ -161,6 +161,26 @@ impl Expression {
                     }
                 }
             }
+            For {
+                declaration,
+                condition,
+                increment,
+                then,
+            } => {
+                declaration.evaluate(context)?;
+                loop {
+                    let condition = condition.evaluate(context)?;
+                    if !condition.to_bool() {
+                        break;
+                    }
+                    then.evaluate(context)?;
+                    increment.evaluate(context)?;
+                }
+                Ok(EvaluatedExpression {
+                    value: "".to_string(),
+                    value_type: ValueType::NIL,
+                })
+            }
             While { condition, then } => {
                 loop {
                     if !condition.evaluate(context)?.to_bool() {

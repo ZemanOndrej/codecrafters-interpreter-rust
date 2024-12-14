@@ -93,6 +93,47 @@ mod tests {
     	"#;
         let _ = handle_evaluate(file_contents);
     }
+    #[test]
+    fn test_for_operator() {
+        let input = r#"
+    	for (var foo = 0; foo < 3;) print foo = foo + 1;
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+
+    #[test]
+    fn test_for_inc_operator() {
+        let input = r#"
+    	for (var foo = 0; foo < 3; foo = foo + 1) print foo;
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+
+    #[test]
+    fn test_for_no_declaration() {
+        let input = r#"
+    	var baz = 0;
+		for (; baz < 2; baz = baz + 1) print baz;
+
+		for (var hello = 0; hello < 2;) {
+		  print hello;
+		  hello = hello + 1;
+		}
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
 
     #[test]
     fn test_and_operator() {

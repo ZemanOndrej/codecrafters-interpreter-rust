@@ -28,8 +28,13 @@ pub fn handle_assignment(
     if next.token_type == EQUAL(EqualType::EQUAL) {
         return handle_next_assignment(input, right, expression_stack, left);
     } else if next.token_type != SEMICOLON && next.token_type != RIGHT_PAREN {
-        (right, _) =
-            parse_expression_with_stack(input, right_token, &[SEMICOLON], false, vec![right])?;
+        (right, _) = parse_expression_with_stack(
+            input,
+            right_token,
+            &[SEMICOLON, RIGHT_PAREN],
+            false,
+            vec![right],
+        )?;
     }
     Ok(Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into())
 }
