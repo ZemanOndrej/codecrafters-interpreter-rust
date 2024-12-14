@@ -3,8 +3,8 @@ use std::{iter::Peekable, slice::Iter};
 use crate::{
     evaluate::Expression,
     parse::{
-        create_error, handle_assignment::handle_assignment, handle_conditionals, parse_expression,
-        parse_expressions, process_precedence::parse_precedence,
+        create_error, handle_assignment::handle_assignment, handle_conditionals, handle_while,
+        parse_expression, parse_expressions, process_precedence::parse_precedence,
     },
     sub_tokens::*,
     token::Token,
@@ -79,9 +79,10 @@ pub fn parse_token(
         PRINT => {
             let mut arguments = Vec::new();
             loop {
-                let (arg, next) = parse_expression(input, token, &[COMMA, SEMICOLON], true)?;
+                let (arg, _) = parse_expression(input, token, &[COMMA, SEMICOLON], false)?;
                 arguments.push(arg);
 
+                let next = input.next().unwrap();
                 if next.token_type == SEMICOLON {
                     break;
                 }
@@ -129,6 +130,7 @@ pub fn parse_token(
         }
         EQUAL(EqualType::EQUAL) => handle_assignment(expression_stack, token, input)?,
         EOF => None,
+        WHILE => handle_while(expression_stack, token, input)?,
 
         IF => handle_conditionals(expression_stack, token, input)?,
         e => {

@@ -15,6 +15,10 @@ pub enum Expression {
         then: Box<Expression>,
         else_expr: Option<Box<Expression>>,
     },
+    While {
+        condition: Box<Expression>,
+        then: Box<Expression>,
+    },
 }
 
 impl ToString for Expression {
@@ -85,6 +89,9 @@ impl ToString for Expression {
                     then.to_string(),
                     else_expr
                 )
+            }
+            While { condition, then } => {
+                format!("while {} then {}", condition.to_string(), then.to_string())
             }
         }
     }

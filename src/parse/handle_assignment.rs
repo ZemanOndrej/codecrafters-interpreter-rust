@@ -24,12 +24,12 @@ pub fn handle_assignment(
             Box::new(right),
         )));
     };
-    dbg!(&right, right_token, next);
+    // dbg!(&right, right_token, next);
     if next.token_type == EQUAL(EqualType::EQUAL) {
         return handle_next_assignment(input, right, expression_stack, left);
     } else if next.token_type != SEMICOLON && next.token_type != RIGHT_PAREN {
         (right, _) =
-            parse_expression_with_stack(input, right_token, &[SEMICOLON], true, vec![right])?;
+            parse_expression_with_stack(input, right_token, &[SEMICOLON], false, vec![right])?;
     }
     Ok(Expression::Binary(Box::new(left), token.clone(), Box::new(right)).into())
 }

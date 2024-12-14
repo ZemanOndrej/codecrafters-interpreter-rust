@@ -65,6 +65,7 @@ fn parse_expression_internal(
             // dbg!(&next);
             return Err(generate_error_message(token, end_tokens));
         };
+        // dbg!(&next);
         if end_tokens.contains(&next.token_type) {
             if remove_end_token {
                 input.next();
@@ -76,8 +77,8 @@ fn parse_expression_internal(
         if next.token_type == TokenType::SLASH(SlashType::COMMENT) {
             continue;
         }
-        let value = parse_token(next, input, &mut stack)?
-            .ok_or(generate_error_message(token, end_tokens))?;
+        let value = parse_token(next, input, &mut stack)?;
+        let value = value.ok_or(generate_error_message(token, end_tokens))?;
         stack.push(value);
     }
     Ok((stack, next.cloned()))

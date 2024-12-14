@@ -161,6 +161,18 @@ impl Expression {
                     }
                 }
             }
+            While { condition, then } => {
+                loop {
+                    if !condition.evaluate(context)?.to_bool() {
+                        break;
+                    }
+                    then.evaluate(context)?;
+                }
+                Ok(EvaluatedExpression {
+                    value: "".to_string(),
+                    value_type: ValueType::NIL,
+                })
+            }
         }
     }
 }

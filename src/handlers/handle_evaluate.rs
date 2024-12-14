@@ -82,6 +82,19 @@ mod tests {
     }
 
     #[test]
+    fn test_while_operator() {
+        let input = r#"
+    	var foo = 0;
+    	while (foo < 3) print foo = foo + 1;
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+
+    #[test]
     fn test_and_operator() {
         let input = r#"
 		print false and 1;
@@ -102,6 +115,7 @@ mod tests {
 		"#;
         let _ = handle_evaluate(file_contents);
     }
+
     #[test]
     fn test_or_operator() {
         let input = r#"
