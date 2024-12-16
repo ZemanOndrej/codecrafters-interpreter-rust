@@ -24,25 +24,26 @@ pub fn handle_for(
         if next.token_type == TokenType::RIGHT_PAREN {
             input.next().unwrap(); // consume the right paren
             let next = input.next().unwrap(); // consume the left brace or scope
-            return Ok(Some(Expression::For {
-                declaration: Box::new(declaration),
-                condition: Box::new(condition),
-                increment: Box::new(Expression::Literal(Token::new(
-                    TokenType::NIL,
-                    for_token.line_index,
-                ))),
-                then: Box::new(parse_token(next, input, expression_stack)?.unwrap()),
-            }));
+
+            let expression = Expression::create_for(
+                declaration,
+                condition,
+                Expression::Literal(Token::new(TokenType::NIL, for_token.line_index)),
+                parse_token(next, input, expression_stack)?.unwrap(),
+            )?;
+            return Ok(Some(expression));
         }
     }
 
     let (increment, _) = parse_expression(input, next, &[TokenType::RIGHT_PAREN], true)?;
 
     let token = input.next().unwrap(); // statement or scope
-    return Ok(Some(Expression::For {
-        declaration: Box::new(declaration),
-        condition: Box::new(condition),
-        increment: Box::new(increment),
-        then: Box::new(parse_token(token, input, expression_stack)?.unwrap()),
-    }));
+    let result = Expression::create_for(
+        declaration,
+        condition,
+        increment,
+        parse_token(token, input, expression_stack)?.unwrap(),
+    )?;
+
+    return Ok(Some(result));
 }

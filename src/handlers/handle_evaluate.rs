@@ -82,6 +82,41 @@ mod tests {
     }
 
     #[test]
+    fn test_comment() {
+        let input = r#"
+    	// this is a comment
+		print "hello world!";
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
+    fn test_invalid_for_condition() {
+        let input = r#"
+		 for (var a = 1; {}; a = a + 1) {}
+    	"#;
+
+        let _ = handle_evaluate(input.to_string());
+    }
+    #[test]
+    fn test_invalid_for_inicialization() {
+        let input = r#"
+		 for ({}; a < 2; a = a + 1) {}
+    	"#;
+
+        let _ = handle_evaluate(input.to_string());
+    }
+    #[test]
+    fn test_invalid_for_increment() {
+        let input = r#"
+		for (var a = 1; a < 2; {}) {}
+    	"#;
+        let _ = handle_evaluate(input.to_string());
+    }
+    #[test]
     fn test_while_operator() {
         let input = r#"
     	var foo = 0;

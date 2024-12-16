@@ -19,6 +19,14 @@ pub fn parse_token(
 ) -> Result<Option<Expression>, String> {
     use TokenType::*;
     let expr = match &token.token_type {
+        SLASH(SlashType::COMMENT) => {
+            // input.next();
+            let Some(next) = input.next() else {
+                return Ok(None);
+            };
+            let res = parse_token(next, input, expression_stack);
+            return res;
+        }
         BANG(BangType::BANG) => {
             let right = parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
 
