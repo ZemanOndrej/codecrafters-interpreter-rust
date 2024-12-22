@@ -60,7 +60,7 @@ fn parse_expression_internal(
 ) -> Result<(Vec<Expression>, Option<Token>), String> {
     let mut next: Option<&Token>;
     loop {
-        next = input.peek().map(|v| &**v);
+        next = input.peek().cloned();
         let Some(next) = next else {
             // dbg!(&next);
             return Err(generate_error_message(token, end_tokens));

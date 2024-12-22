@@ -10,7 +10,21 @@ pub fn handle_identifier(
 
         if next.token_type == LEFT_PAREN {
             let left_paren = input.next().unwrap(); // consume the left paren
-            let (arguments, _) = parse_expressions(input, left_paren, &[RIGHT_PAREN], true)?;
+
+            let mut arguments = vec![];
+            loop {
+                let (exprs, end_tok) =
+                    parse_expressions(input, left_paren, &[COMMA, RIGHT_PAREN], true)?;
+                let Some(expr) = exprs.into_iter().next() else {
+                    break;
+                };
+
+                arguments.push(expr);
+
+                if end_tok.token_type == RIGHT_PAREN {
+                    break;
+                }
+            }
 
             return Ok(Some(Expression::FunctionCall(token.clone(), arguments)));
         }

@@ -138,14 +138,34 @@ impl Expression {
             Grouping(expression) => expression.evaluate(context),
             FunctionCall(t, args) => {
                 let builtin_fns = builtin_fns::get_builtin_fns();
+                // dbg!(&context);
                 let fn_name = t.token_type.get_lexeme();
                 if let Some(builtin_fn) = builtin_fns.get(fn_name.as_str()) {
                     return (builtin_fn.function)(args, context);
                 }
 
-                if let Some(function) = context.borrow_mut().get_function(fn_name.as_str()) {
+                if let Some(function) = context.borrow().get_function(fn_name.as_str()) {
                     let mut child_context = Context::new(context.clone());
-                    return function.evaluate(&mut child_context);
+                    let FunctionDeclaration(_, fn_args, scope) = &function else {
+                        return Err(format!(
+                            "Undefined function '{}'",
+                            t.token_type.get_lexeme()
+                        ));
+                    };
+                    for (i, arg) in args.iter().enumerate() {
+                        let value = arg.evaluate(&mut child_context)?;
+                        let Some(arg) = fn_args.get(i) else {
+                            return Err(format!(
+                                "Bad arguments for function '{}'",
+                                t.token_type.get_lexeme()
+                            ));
+                        };
+
+                        child_context
+                            .borrow_mut()
+                            .set_variable(arg.to_string(), value);
+                    }
+                    return scope.evaluate(&mut child_context);
                 }
 
                 match t.token_type {
@@ -156,11 +176,10 @@ impl Expression {
                     )),
                 }
             }
-            FunctionDeclaration(name, args) => {
-                let function = Expression::FunctionDeclaration(name.clone(), args.clone());
+            FunctionDeclaration(name, _, _) => {
                 context
                     .borrow_mut()
-                    .set_function(name.token_type.get_lexeme(), function.into());
+                    .set_function(name.token_type.get_lexeme(), self.clone());
                 Ok(EvaluatedExpression {
                     value: "".to_string(),
                     value_type: ValueType::NIL,

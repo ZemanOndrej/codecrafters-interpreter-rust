@@ -82,6 +82,32 @@ mod tests {
     }
 
     #[test]
+    fn test_custom_function_with_args_print() {
+        let input = r#"
+		// This function takes three arguments and prints their sum
+		fun f3(a, b, c) { print a + b + c; }
+		f3(36, 36, 36);
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
+    fn test_custom_function_with_arg_print() {
+        let input = r#"
+		// This is a simple function that takes one argument and prints it
+		fun f1(a) { print a; }
+		f1(43);
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
     fn test_custom_function_print() {
         let input = r#"
     	// This program should print <fn foo>

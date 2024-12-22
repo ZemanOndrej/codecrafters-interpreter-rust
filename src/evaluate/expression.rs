@@ -2,6 +2,8 @@ use super::ValueType;
 use crate::{token::Token, token_type::TokenType};
 mod create_for;
 
+type Parameter = String;
+
 #[derive(Debug, Clone)]
 pub enum Expression {
     Literal(Token),
@@ -10,7 +12,7 @@ pub enum Expression {
     Variable(String, Box<Expression>),
     Grouping(Box<Expression>),
     FunctionCall(Token, Vec<Expression>),
-    FunctionDeclaration(Token, Vec<Expression>),
+    FunctionDeclaration(Token, Vec<Parameter>, Box<Expression>),
     Scope(Token, Vec<Expression>),
     IfElse {
         condition: Box<Expression>,
@@ -59,7 +61,7 @@ impl ToString for Expression {
                         .unwrap()
                 )
             }
-            FunctionDeclaration(name, _args) => {
+            FunctionDeclaration(name, _args, _scope) => {
                 format!("<fn {}>", name.token_type.get_lexeme(),)
             }
             Scope(name, exprs) => {

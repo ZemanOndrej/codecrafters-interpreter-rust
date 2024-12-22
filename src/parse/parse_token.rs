@@ -21,7 +21,6 @@ pub fn parse_token(
     use TokenType::*;
     let expr = match &token.token_type {
         SLASH(SlashType::COMMENT) => {
-            // input.next();
             let Some(next) = input.next() else {
                 return Ok(None);
             };
