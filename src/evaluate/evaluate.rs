@@ -130,7 +130,21 @@ impl Expression {
                 })
             }
             Grouping(expression) => expression.evaluate(context),
-            Function(_, args) => builtin_fns::print(args, context),
+            Function(t, args) => {
+                let builtin_fns = builtin_fns::get_builtin_fns();
+                let fn_name = t.token_type.get_lexeme();
+                if let Some(builtin_fn) = builtin_fns.get(fn_name.as_str()) {
+                    return (builtin_fn.function)(args, context);
+                }
+
+                match t.token_type {
+                    PRINT => builtin_fns::print(args, context),
+                    _ => Err(format!(
+                        "Undefined function '{}'",
+                        t.token_type.get_lexeme()
+                    )),
+                }
+            }
             Scope(_, exprs) => {
                 let mut child_context = Context::new(context.clone());
                 for expr in exprs {
