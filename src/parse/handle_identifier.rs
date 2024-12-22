@@ -12,7 +12,7 @@ pub fn handle_identifier(
             let left_paren = input.next().unwrap(); // consume the left paren
             let (arguments, _) = parse_expressions(input, left_paren, &[RIGHT_PAREN], true)?;
 
-            return Ok(Some(Expression::Function(token.clone(), arguments)));
+            return Ok(Some(Expression::FunctionCall(token.clone(), arguments)));
         }
     }
     Ok(Some(Expression::Literal(token.clone())))

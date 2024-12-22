@@ -4,7 +4,7 @@ use crate::{
     evaluate::Expression,
     parse::{
         create_error, handle_assignment::handle_assignment, handle_conditionals, handle_for,
-        handle_identifier, handle_while, parse_expression, parse_expressions,
+        handle_fun, handle_identifier, handle_while, parse_expression, parse_expressions,
         process_precedence::parse_precedence,
     },
     sub_tokens::*,
@@ -96,7 +96,7 @@ pub fn parse_token(
                 }
             }
 
-            Expression::Function(token.clone(), arguments).into()
+            Expression::FunctionCall(token.clone(), arguments).into()
         }
         SEMICOLON => None,
         LEFT_BRACE => {
@@ -140,6 +140,7 @@ pub fn parse_token(
         EOF => None,
         WHILE => handle_while(expression_stack, token, input)?,
         FOR => handle_for(expression_stack, token, input)?,
+        FUN => handle_fun(token, input)?,
 
         IF => handle_conditionals(expression_stack, token, input)?,
         e => {

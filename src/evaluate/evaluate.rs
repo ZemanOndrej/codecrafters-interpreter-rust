@@ -31,14 +31,20 @@ impl Expression {
                     })
                 }
                 IDENTIFIER(identifier) => {
-                    let Some(value) = context.borrow().get_variable(identifier) else {
+                    if let Some(value) = context.borrow().get_variable(identifier) {
+                        return Ok(value.clone());
+                    }
+                    if let Some(function) = context.borrow_mut().get_function(identifier) {
+                        return Ok(EvaluatedExpression {
+                            value: function.to_string(),
+                            value_type: ValueType::STRING,
+                        });
+                    } else {
                         return Err(format!(
                             "Undefined variable '{}'.\n[line {}]",
                             identifier, t.line_index
                         ));
-                    };
-
-                    Ok(value.clone())
+                    }
                 }
                 t => Ok(EvaluatedExpression {
                     value: t.get_value(),
@@ -130,11 +136,16 @@ impl Expression {
                 })
             }
             Grouping(expression) => expression.evaluate(context),
-            Function(t, args) => {
+            FunctionCall(t, args) => {
                 let builtin_fns = builtin_fns::get_builtin_fns();
                 let fn_name = t.token_type.get_lexeme();
                 if let Some(builtin_fn) = builtin_fns.get(fn_name.as_str()) {
                     return (builtin_fn.function)(args, context);
+                }
+
+                if let Some(function) = context.borrow_mut().get_function(fn_name.as_str()) {
+                    let mut child_context = Context::new(context.clone());
+                    return function.evaluate(&mut child_context);
                 }
 
                 match t.token_type {
@@ -144,6 +155,16 @@ impl Expression {
                         t.token_type.get_lexeme()
                     )),
                 }
+            }
+            FunctionDeclaration(name, args) => {
+                let function = Expression::FunctionDeclaration(name.clone(), args.clone());
+                context
+                    .borrow_mut()
+                    .set_function(name.token_type.get_lexeme(), function.into());
+                Ok(EvaluatedExpression {
+                    value: "".to_string(),
+                    value_type: ValueType::NIL,
+                })
             }
             Scope(_, exprs) => {
                 let mut child_context = Context::new(context.clone());

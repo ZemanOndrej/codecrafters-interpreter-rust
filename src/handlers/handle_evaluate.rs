@@ -82,6 +82,54 @@ mod tests {
     }
 
     #[test]
+    fn test_custom_function_print() {
+        let input = r#"
+    	// This program should print <fn foo>
+		fun foo() {}
+		print foo;
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
+    fn test_custom_function() {
+        let input = r#"
+    	fun bar() { print 10; }
+		bar();
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
+    fn test_complex_custom_function() {
+        let input = r#"
+    	fun cumulative_sum() {
+			var n = 10;  // Fixed value
+			var total = 0;
+			var i = 1;
+			while (i <= n) {
+				total = total + i;
+				i = i + 1;
+			}
+			print "The cumulative sum from 1 to 10 is: ";
+			print total;
+		}
+
+		cumulative_sum();
+    	"#;
+
+        let file_contents = String::from(input);
+        r#"
+    	"#;
+        let _ = handle_evaluate(file_contents);
+    }
+    #[test]
     fn test_function_clock() {
         let input = r#"
     	print clock() + 48;

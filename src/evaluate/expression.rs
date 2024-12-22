@@ -9,7 +9,8 @@ pub enum Expression {
     Unary(Token, Box<Expression>),
     Variable(String, Box<Expression>),
     Grouping(Box<Expression>),
-    Function(Token, Vec<Expression>),
+    FunctionCall(Token, Vec<Expression>),
+    FunctionDeclaration(Token, Vec<Expression>),
     Scope(Token, Vec<Expression>),
     IfElse {
         condition: Box<Expression>,
@@ -48,7 +49,7 @@ impl ToString for Expression {
                 format!("({} {})", op.token_type.get_lexeme(), right.to_string())
             }
             Grouping(expr) => format!("(group {})", expr.to_string()),
-            Function(name, args) => {
+            FunctionCall(name, args) => {
                 format!(
                     "function {}:{}",
                     name.to_string(),
@@ -57,6 +58,9 @@ impl ToString for Expression {
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
                         .unwrap()
                 )
+            }
+            FunctionDeclaration(name, _args) => {
+                format!("<fn {}>", name.token_type.get_lexeme(),)
             }
             Scope(name, exprs) => {
                 format!(

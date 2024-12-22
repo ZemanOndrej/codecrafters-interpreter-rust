@@ -1,6 +1,7 @@
 mod handle_assignment;
 mod handle_conditionals;
 mod handle_for;
+mod handle_fun;
 mod handle_identifier;
 mod handle_while;
 mod parse_expression;
@@ -10,6 +11,7 @@ mod process_precedence;
 
 use handle_conditionals::*;
 use handle_for::*;
+use handle_fun::*;
 use handle_identifier::*;
 use handle_while::*;
 use parse_expression::*;
