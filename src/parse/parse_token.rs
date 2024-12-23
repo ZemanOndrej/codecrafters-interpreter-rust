@@ -77,10 +77,10 @@ pub fn parse_token(
             r
         }
         RIGHT_PAREN => {
-            let right = expression_stack.pop().ok_or_else(|| create_error(token))?;
-
-            expression_stack.pop();
-            Expression::Grouping(right.into()).into()
+            return Err(format!(
+                "Error at '{}': Expect ';' after value.",
+                token.token_type.get_lexeme()
+            ));
         }
 
         PRINT => {

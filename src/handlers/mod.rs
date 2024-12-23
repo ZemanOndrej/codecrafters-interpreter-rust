@@ -1,5 +1,6 @@
 mod handle_evaluate;
 mod handle_parse;
+mod handle_parse_test;
 mod handle_run;
 mod handle_tokenize;
 mod operation;

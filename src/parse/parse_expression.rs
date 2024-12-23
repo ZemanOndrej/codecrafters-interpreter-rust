@@ -77,6 +77,12 @@ fn parse_expression_internal(
         if next.token_type == TokenType::SLASH(SlashType::COMMENT) {
             continue;
         }
+        if next.token_type == TokenType::SEMICOLON {
+            return Err(format!(
+                "Error at '{}': Expect expression.",
+                next.token_type.get_lexeme()
+            ));
+        }
         let value = parse_token(next, input, &mut stack)?;
         let value = value.ok_or(generate_error_message(token, end_tokens))?;
         stack.push(value);

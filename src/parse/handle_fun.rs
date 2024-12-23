@@ -13,6 +13,17 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
             &[TokenType::COMMA, TokenType::RIGHT_PAREN],
             true,
         )?;
+        if exprs.len() > 1 {
+            let second = exprs.get(1).unwrap();
+            if let Expression::Literal(token) = second {
+                return Err(format!(
+                    "Error at '{}': Expect ')' after parameters.",
+                    token.token_type.get_lexeme(),
+                ));
+            } else {
+                return Err("Expected identifier".to_string());
+            }
+        }
         let Some(expr) = exprs.first() else {
             break;
         };
@@ -30,11 +41,22 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
     }
     let token = input.next().unwrap();
 
-    let expr = parse_token(token, input, &mut Default::default())?.unwrap();
+    let body = parse_token(token, input, &mut Default::default())?.unwrap();
+    dbg!(&body);
 
-    Ok(Some(Expression::FunctionDeclaration(
-        fn_name.clone(),
+    match body {
+        Expression::Scope(_, _) => {}
+        _ => {
+            return Err(format!(
+                "Error at '{}': Expect '{{' before function body.",
+                token.token_type.get_lexeme()
+            ))
+        }
+    }
+
+    Ok(Some(Expression::FunctionDeclaration {
+        name: fn_name.clone(),
         args,
-        Box::new(expr),
-    )))
+        body: Box::new(body),
+    }))
 }

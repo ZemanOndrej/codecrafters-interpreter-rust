@@ -17,7 +17,7 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
     return result;
 }
 
-fn handle_evaluate_internal(
+pub(super) fn handle_evaluate_internal(
     input: String,
 ) -> impl Iterator<Item = Result<EvaluatedExpression, String>> {
     let parsed_input = parse(input);

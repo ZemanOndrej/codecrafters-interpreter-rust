@@ -25,7 +25,7 @@ pub fn parse(input: String) -> Vec<Expression> {
     result
 }
 
-fn parse_internal(input: String) -> Result<Vec<Expression>, String> {
+pub(super) fn parse_internal(input: String) -> Result<Vec<Expression>, String> {
     let tokens = tokenize(input.as_str());
 
     let result: Result<Vec<Token>, TokenError> = tokens.into_iter().collect();
@@ -39,13 +39,13 @@ fn parse_internal(input: String) -> Result<Vec<Expression>, String> {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
     use ntest::test_case;
 
     #[test_case("(95 +)")]
     #[test_case("print;")]
-    fn test_handle_evaluate_error(input: &str) {
+    pub fn test_handle_evaluate_error(input: &str) {
         let file_contents = String::from(input);
         let result = parse_internal(file_contents);
         assert!(result.is_err());

@@ -12,7 +12,11 @@ pub enum Expression {
     Variable(String, Box<Expression>),
     Grouping(Box<Expression>),
     FunctionCall(Token, Vec<Expression>),
-    FunctionDeclaration(Token, Vec<Parameter>, Box<Expression>),
+    FunctionDeclaration {
+        name: Token,
+        args: Vec<Parameter>,
+        body: Box<Expression>,
+    },
     Scope(Token, Vec<Expression>),
     IfElse {
         condition: Box<Expression>,
@@ -61,7 +65,11 @@ impl ToString for Expression {
                         .unwrap()
                 )
             }
-            FunctionDeclaration(name, _args, _scope) => {
+            FunctionDeclaration {
+                name,
+                args: _,
+                body: _,
+            } => {
                 format!("<fn {}>", name.token_type.get_lexeme(),)
             }
             Scope(name, exprs) => {

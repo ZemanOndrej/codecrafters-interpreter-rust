@@ -146,7 +146,12 @@ impl Expression {
 
                 if let Some(function) = context.borrow().get_function(fn_name.as_str()) {
                     let mut child_context = Context::new(context.clone());
-                    let FunctionDeclaration(_, fn_args, scope) = &function else {
+                    let FunctionDeclaration {
+                        args: fn_args,
+                        body,
+                        ..
+                    } = &function
+                    else {
                         return Err(format!(
                             "Undefined function '{}'",
                             t.token_type.get_lexeme()
@@ -165,7 +170,7 @@ impl Expression {
                             .borrow_mut()
                             .set_variable(arg.to_string(), value);
                     }
-                    return scope.evaluate(&mut child_context);
+                    return body.evaluate(&mut child_context);
                 }
 
                 match t.token_type {
@@ -176,7 +181,7 @@ impl Expression {
                     )),
                 }
             }
-            FunctionDeclaration(name, _, _) => {
+            FunctionDeclaration { name, .. } => {
                 context
                     .borrow_mut()
                     .set_function(name.token_type.get_lexeme(), self.clone());
