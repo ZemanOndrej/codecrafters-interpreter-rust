@@ -1,6 +1,4 @@
-use crate::{sub_tokens::*, token::Token, token_type::TokenType};
-
-use super::EvaluatedExpression;
+use crate::{evaluation::EvaluatedExpression, sub_tokens::*, token::Token, token_type::TokenType};
 
 pub fn handle_string_binary_operation(
     token: &Token,

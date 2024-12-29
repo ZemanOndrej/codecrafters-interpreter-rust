@@ -15,6 +15,13 @@ impl Token {
             line_index,
         }
     }
+    pub fn nil() -> Token {
+        Token {
+            value: "nil".to_string(),
+            token_type: TokenType::NIL,
+            line_index: 0,
+        }
+    }
 }
 
 impl ToString for Token {

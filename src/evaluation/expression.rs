@@ -33,6 +33,7 @@ pub enum Expression {
         increment: Box<Expression>,
         then: Box<Expression>,
     },
+    Return(Box<Expression>),
 }
 
 impl ToString for Expression {
@@ -117,6 +118,7 @@ impl ToString for Expression {
                 increment,
                 then.to_string()
             ),
+            Return(expr) => format!("return {}", expr.to_string()),
         }
     }
 }
@@ -132,5 +134,10 @@ impl Into<ValueType> for TokenType {
             IDENTIFIER(_) => ValueType::STRING,
             _ => panic!("Invalid value type"),
         }
+    }
+}
+impl Expression {
+    pub fn nil() -> Expression {
+        Expression::Literal(Token::nil())
     }
 }

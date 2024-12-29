@@ -1,4 +1,4 @@
-use crate::{evaluate::Expression, sub_tokens::SlashType, token::Token, token_type::TokenType};
+use crate::{evaluation::Expression, sub_tokens::SlashType, token::Token, token_type::TokenType};
 
 use super::{parse_token::parse_token, InputIter};
 

@@ -1,5 +1,5 @@
 use super::handle_parse::parse;
-use crate::evaluate::{Context, EvaluatedExpression};
+use crate::evaluation::{Context, EvaluatedExpression};
 use std::process::exit;
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
@@ -25,14 +25,14 @@ pub(super) fn handle_evaluate_internal(
     let mut context = Context::new_root();
     let result = parsed_input
         .into_iter()
-        .map(move |x| x.evaluate(&mut context));
+        .map(move |x| x.evaluate(&mut context)?.assert_value());
 
     return result;
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::evaluate::EvaluatedExpression;
+    use crate::evaluation::EvaluatedExpression;
 
     use super::*;
     use ntest::test_case;
@@ -82,6 +82,92 @@ mod tests {
     }
 
     #[test]
+    fn test_function_with_return() {
+        let input = r#"
+    	fun foo() { return 10; }
+    	print foo();
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_recursive_function_with_return() {
+        let input = r#"
+    	// This program computes the 35th Fibonacci number
+    	fun mult(x, n) {
+
+    	  if (n == 0) {
+    	  	return 1;
+    	  }
+
+    	  return mult(x, n - 1) * x;
+    	}
+
+    	print mult(5, 2);
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+    #[test]
+    fn test_function_with_no_return() {
+        let input = r#"
+		// This program uses a return statement inside a while loop to return "ok" if the condition is false
+		fun f() {
+		while (!false) return "ok";
+		}
+
+		print f();
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+    #[test]
+    fn test_function_with_return_nil() {
+        let input = r#"
+		 // This program relies on the return statement returning nil by default
+		fun f() {
+			return;
+			print "bad";
+		}
+
+		print f();
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_fibonacii_function_with_return() {
+        let input = r#"
+    	// This program computes the 35th Fibonacci number
+    	fun fib(n) {
+    	  if (n < 2) return n;
+    	  return fib(n - 2) + fib(n - 1);
+    	}
+
+    	var start = clock();
+    	print fib(10) == 55;
+    	print (clock() - start) < 5; // 5 seconds
+    	"#;
+
+        let file_contents = String::from(input);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+    #[test]
     fn test_custom_function_with_args_print() {
         let input = r#"
 		// This function takes three arguments and prints their sum
@@ -90,9 +176,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_custom_function_with_arg_print() {
@@ -103,9 +188,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_custom_function_print() {
@@ -116,9 +200,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_custom_function() {
@@ -128,9 +211,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_complex_custom_function() {
@@ -151,9 +233,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_function_clock() {
@@ -162,9 +243,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -175,9 +255,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     // TODO move this elsewhere because parsing is failing
@@ -213,9 +292,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test]
     fn test_for_operator() {
@@ -224,9 +302,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -236,9 +313,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -254,9 +330,8 @@ mod tests {
     	"#;
 
         let file_contents = String::from(input);
-        r#"
-    	"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -278,7 +353,8 @@ mod tests {
 			true
 			24
 		"#;
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -295,7 +371,24 @@ mod tests {
 		"#;
 
         let file_contents = String::from(input);
-        let _ = handle_evaluate(file_contents);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_if_else_operator() {
+        let input = r#"
+		// This program uses a return statement inside an if statement to return "ok" if the condition is false
+		fun f() {
+		  if (true) return "no"; else return "ok";
+		}
+
+		print f();
+		"#;
+
+        let file_contents = String::from(input);
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        assert!(res.is_ok());
     }
     #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]
@@ -343,7 +436,7 @@ mod tests {
         let res = parse(input.to_string());
         let res: Result<Vec<EvaluatedExpression>, String> = res
             .iter()
-            .map(|x| x.evaluate(&mut Default::default()))
+            .map(|x| x.evaluate(&mut Default::default())?.assert_value())
             .collect();
         assert!(res.is_err());
     }

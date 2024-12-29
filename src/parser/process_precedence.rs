@@ -1,4 +1,4 @@
-use crate::{evaluate::Expression, token::Token, token_type::TokenType};
+use crate::{evaluation::Expression, token::Token, token_type::TokenType};
 
 use super::{parse_token, InputIter};
 
@@ -121,7 +121,11 @@ mod tests {
         };
 
         let result = get_right_most_token_with_lowest_precedence(&left, &mut input, &mut vec![]);
-        let result = result.evaluate(&mut Default::default()).unwrap();
+        let result = result
+            .evaluate(&mut Default::default())
+            .unwrap()
+            .assert_value()
+            .unwrap();
         assert_eq!(result.value, "6");
     }
 
@@ -158,7 +162,11 @@ mod tests {
         };
 
         let result = get_right_most_token_with_lowest_precedence(&left, &mut input, &mut vec![]);
-        let result = result.evaluate(&mut Default::default()).unwrap();
+        let result = result
+            .evaluate(&mut Default::default())
+            .unwrap()
+            .assert_value()
+            .unwrap();
         assert_eq!(result.value, "24");
     }
 }

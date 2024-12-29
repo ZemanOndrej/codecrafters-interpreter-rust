@@ -1,16 +1,24 @@
-use std::{iter::Peekable, slice::Iter};
+mod handle_assignment;
+mod handle_conditionals;
+mod handle_for;
+mod handle_fun;
+mod handle_identifier;
+mod handle_while;
 
 use crate::{
-    evaluate::Expression,
-    parse::{
-        create_error, handle_assignment::handle_assignment, handle_conditionals, handle_for,
-        handle_fun, handle_identifier, handle_while, parse_expression, parse_expressions,
-        process_precedence::parse_precedence,
-    },
+    evaluation::Expression,
+    parser::{create_error, parse_expression, parse_expressions, parse_precedence},
     sub_tokens::*,
     token::Token,
     token_type::TokenType,
 };
+use handle_assignment::*;
+use handle_conditionals::*;
+use handle_for::*;
+use handle_fun::*;
+use handle_identifier::*;
+use handle_while::*;
+use std::{iter::Peekable, slice::Iter};
 pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
 
 pub fn parse_token(
@@ -140,6 +148,17 @@ pub fn parse_token(
         WHILE => handle_while(expression_stack, token, input)?,
         FOR => handle_for(expression_stack, token, input)?,
         FUN => handle_fun(token, input)?,
+        RETURN => {
+            let (mut exprs, _) = parse_expressions(input, token, &[SEMICOLON], true)?;
+            if exprs.is_empty() {
+                return Ok(Some(Expression::Return(Box::new(Expression::nil()))));
+            }
+            if exprs.len() > 1 {
+                return Err("Expected single expression after return".to_string());
+            }
+            let expr = exprs.remove(0);
+            Expression::Return(Box::new(expr)).into()
+        }
 
         IF => handle_conditionals(expression_stack, token, input)?,
         e => {

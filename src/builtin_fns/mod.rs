@@ -6,7 +6,7 @@ use std::collections::HashMap;
 pub use clock::*;
 pub use print::*;
 
-use crate::evaluate::{ContextRef, EvaluatedExpression, Expression};
+use crate::evaluation::{ContextRef, EvaluatedExpression, Expression};
 
 pub fn get_builtin_fns() -> HashMap<&'static str, BuiltinFn<'static>> {
     let mut builtin_fns = HashMap::new();

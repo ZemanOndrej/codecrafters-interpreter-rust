@@ -1,7 +1,7 @@
 use super::InputIter;
 use crate::{
-    evaluate::Expression,
-    parse::{create_error, parse_expression_with_stack, parse_token},
+    evaluation::Expression,
+    parser::{create_error, parse_expression_with_stack, parse_token},
     sub_tokens::EqualType,
     token::Token,
     token_type::TokenType,

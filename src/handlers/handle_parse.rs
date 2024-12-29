@@ -1,6 +1,6 @@
 use crate::{
-    evaluate::Expression,
-    parse::parse_tokens,
+    evaluation::Expression,
+    parser::parse_tokens,
     token::Token,
     tokenize::{tokenize, TokenError},
 };

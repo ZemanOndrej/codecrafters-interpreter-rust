@@ -1,4 +1,4 @@
-use crate::{evaluate::Expression, token::Token};
+use crate::{evaluation::Expression, token::Token};
 
 use super::parse_token;
 
@@ -27,7 +27,7 @@ pub fn create_error(token: &Token) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::{parse::parse_tokens, tokenize::tokenize};
+    use crate::{parser::parse_tokens, tokenize::tokenize};
 
     #[test]
     fn test_invalid_braces() {

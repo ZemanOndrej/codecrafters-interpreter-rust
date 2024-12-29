@@ -1,5 +1,9 @@
-use super::EvaluatedExpression;
-use crate::{evaluate::ValueType, sub_tokens::*, token::Token, token_type::TokenType};
+use crate::{
+    evaluation::{EvaluatedExpression, ValueType},
+    sub_tokens::*,
+    token::Token,
+    token_type::TokenType,
+};
 
 pub fn handle_number_binary_operation(
     right: EvaluatedExpression,

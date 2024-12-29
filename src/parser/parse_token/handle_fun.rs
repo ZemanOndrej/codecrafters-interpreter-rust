@@ -1,5 +1,5 @@
 use super::{parse_expressions, parse_token, InputIter};
-use crate::{evaluate::Expression, token::Token, token_type::TokenType};
+use crate::{evaluation::Expression, token::Token, token_type::TokenType};
 
 pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>, String> {
     let fn_name = input.next().unwrap();
@@ -42,7 +42,6 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
     let token = input.next().unwrap();
 
     let body = parse_token(token, input, &mut Default::default())?.unwrap();
-    dbg!(&body);
 
     match body {
         Expression::Scope(_, _) => {}

@@ -1,5 +1,4 @@
-use super::EvaluatedExpression;
-use crate::{sub_tokens::*, token::Token, token_type::TokenType};
+use crate::{evaluation::EvaluatedExpression, sub_tokens::*, token::Token, token_type::TokenType};
 
 pub fn handle_bool_binary_operation(
     token: &Token,

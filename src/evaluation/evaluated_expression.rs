@@ -1,4 +1,24 @@
 #[derive(Debug, Clone, PartialEq)]
+pub enum EvaluatedExpressionResult {
+    FunctionReturn(EvaluatedExpression),
+    Value(EvaluatedExpression),
+}
+impl From<EvaluatedExpression> for EvaluatedExpressionResult {
+    fn from(value: EvaluatedExpression) -> Self {
+        EvaluatedExpressionResult::Value(value)
+    }
+}
+
+impl EvaluatedExpressionResult {
+    pub fn assert_value(self) -> Result<EvaluatedExpression, String> {
+        match self {
+            EvaluatedExpressionResult::Value(value) => Ok(value),
+            _ => Err("Expected value not return.".to_string()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct EvaluatedExpression {
     pub value: String,
     pub value_type: ValueType,
@@ -13,6 +33,12 @@ impl EvaluatedExpression {
             ValueType::NIL => false,
         }
     }
+    pub fn nil() -> EvaluatedExpression {
+        EvaluatedExpression {
+            value: "nil".to_string(),
+            value_type: ValueType::NIL,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -22,6 +48,7 @@ pub enum ValueType {
     BOOL,
     NIL,
 }
+
 impl Into<EvaluatedExpression> for f64 {
     fn into(self) -> EvaluatedExpression {
         EvaluatedExpression {
