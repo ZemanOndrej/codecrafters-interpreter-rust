@@ -1,3 +1,5 @@
+use super::Expression;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum EvaluatedExpressionResult {
     FunctionReturn(EvaluatedExpression),
@@ -20,22 +22,27 @@ impl EvaluatedExpressionResult {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EvaluatedExpression {
-    pub value: String,
     pub value_type: ValueType,
+}
+impl std::fmt::Display for EvaluatedExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value_type)
+    }
 }
 
 impl EvaluatedExpression {
     pub fn to_bool(&self) -> bool {
+        use ValueType::*;
         match self.value_type {
-            ValueType::BOOL => self.value.parse().unwrap(),
-            ValueType::NUMBER => self.value != "0",
-            ValueType::STRING => true,
-            ValueType::NIL => false,
+            BOOL(v) => v,
+            NUMBER(v) => v != 0.0,
+            STRING(_) => true,
+            FUNCTION { .. } => true,
+            NIL => false,
         }
     }
     pub fn nil() -> EvaluatedExpression {
         EvaluatedExpression {
-            value: "nil".to_string(),
             value_type: ValueType::NIL,
         }
     }
@@ -43,17 +50,40 @@ impl EvaluatedExpression {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValueType {
-    NUMBER,
-    STRING,
-    BOOL,
+    NUMBER(f64),
+    STRING(String),
+    BOOL(bool),
+    FUNCTION {
+        name: String,
+        params: Vec<String>,
+        body: Box<Expression>,
+    },
     NIL,
+}
+
+impl std::fmt::Display for ValueType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use ValueType::*;
+        match self {
+            NUMBER(v) => write!(f, "{}", v),
+            STRING(v) => write!(f, "{}", v),
+            BOOL(v) => write!(f, "{}", v),
+            FUNCTION {
+                name,
+                params,
+                body: _,
+            } => {
+                write!(f, "Function {}({:?})", name, params)
+            }
+            NIL => write!(f, "nil"),
+        }
+    }
 }
 
 impl Into<EvaluatedExpression> for f64 {
     fn into(self) -> EvaluatedExpression {
         EvaluatedExpression {
-            value: self.to_string(),
-            value_type: ValueType::NUMBER,
+            value_type: ValueType::NUMBER(self),
         }
     }
 }
@@ -61,8 +91,7 @@ impl Into<EvaluatedExpression> for f64 {
 impl Into<EvaluatedExpression> for bool {
     fn into(self) -> EvaluatedExpression {
         EvaluatedExpression {
-            value: self.to_string(),
-            value_type: ValueType::BOOL,
+            value_type: ValueType::BOOL(self),
         }
     }
 }
@@ -70,16 +99,14 @@ impl Into<EvaluatedExpression> for bool {
 impl Into<EvaluatedExpression> for String {
     fn into(self) -> EvaluatedExpression {
         EvaluatedExpression {
-            value: self,
-            value_type: ValueType::STRING,
+            value_type: ValueType::STRING(self),
         }
     }
 }
 impl Into<EvaluatedExpression> for &str {
     fn into(self) -> EvaluatedExpression {
         EvaluatedExpression {
-            value: self.to_string(),
-            value_type: ValueType::STRING,
+            value_type: ValueType::STRING(self.to_string()),
         }
     }
 }

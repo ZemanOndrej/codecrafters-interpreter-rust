@@ -1,8 +1,8 @@
+use super::{ContextRef, EvaluatedExpressionResult};
 use crate::{
     evaluation::{EvaluatedExpression, ValueType},
     token_type::TokenType,
 };
-use super::{ContextRef, EvaluatedExpressionResult};
 
 pub fn handle_literal(
     context: &mut ContextRef,
@@ -12,39 +12,38 @@ pub fn handle_literal(
 
     match &t.token_type {
         TRUE | FALSE | NIL => Ok(EvaluatedExpression {
-            value: t.token_type.get_lexeme(),
             value_type: t.token_type.clone().into(),
         }
         .into()),
+
         NUMBER(_) => {
-            let value = t.token_type.get_value();
-            let value = value.trim_end_matches("0");
-            let value = value.trim_end_matches(".");
+            let value = t.token_type.get_value().parse::<f64>().unwrap();
             Ok(EvaluatedExpression {
-                value: value.to_string(),
-                value_type: t.token_type.clone().into(),
+                value_type: ValueType::NUMBER(value).into(),
             }
             .into())
         }
         IDENTIFIER(identifier) => {
-            if let Some(value) = context.borrow().get_variable(identifier) {
-                return Ok(value.clone().into());
-            }
-            if let Some(function) = context.borrow_mut().get_function(identifier) {
-                return Ok(EvaluatedExpression {
-                    value: function.to_string(),
-                    value_type: ValueType::STRING,
+            if let Some(value) = context.borrow().get_declaration(identifier) {
+                match value.value_type {
+                    ValueType::FUNCTION { name, params, body } => Ok(EvaluatedExpression {
+                        value_type: ValueType::FUNCTION {
+                            name: name.to_string(),
+                            params: params.iter().map(|a| a.to_string()).collect(),
+                            body: body.clone(),
+                        },
+                    }
+                    .into()),
+                    value => Ok(EvaluatedExpression { value_type: value }.into()),
                 }
-                .into());
             } else {
-                return Err(format!(
+                Err(format!(
                     "Undefined variable '{}'.\n[line {}]",
                     identifier, t.line_index
-                ));
+                ))
             }
         }
         t => Ok(EvaluatedExpression {
-            value: t.get_value(),
             value_type: t.clone().into(),
         }
         .into()),

@@ -34,6 +34,7 @@ pub fn parse_expression(
         .ok_or(generate_error_message(token, end_tokens))?;
     Ok((inner, next.unwrap()))
 }
+
 pub fn parse_expressions(
     input: &mut InputIter,
     token: &Token,

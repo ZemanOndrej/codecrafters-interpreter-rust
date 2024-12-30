@@ -12,11 +12,7 @@ pub fn handle_number_binary_operation(
 ) -> Result<EvaluatedExpression, String> {
     use TokenType::*;
 
-    if right.value_type == ValueType::NUMBER {
-        let right = right
-            .value
-            .parse::<f64>()
-            .map_err(|_| "Invalid number".to_string())?;
+    if let ValueType::NUMBER(right) = right.value_type {
         let result = match token.token_type {
             PLUS => (left + right).into(),
             MINUS => (left - right).into(),

@@ -1,12 +1,12 @@
-use super::{EvaluatedExpression, Expression};
+use super::EvaluatedExpression;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub type ContextRef = Rc<RefCell<Context>>;
 
 #[derive(Debug, Clone, Default)]
 pub struct Context {
-    variables: HashMap<String, EvaluatedExpression>,
-    functions: HashMap<String, Expression>,
+    declarations: HashMap<String, EvaluatedExpression>,
+
     pub parent: Option<ContextRef>,
     pub child: Option<ContextRef>,
 }
@@ -23,59 +23,46 @@ impl Context {
         Rc::new(RefCell::new(ctx))
     }
 
-    pub fn get_variable(&self, variable_name: &str) -> Option<EvaluatedExpression> {
-        if let Some(value) = self.variables.get(variable_name) {
+    pub fn get_declaration(&self, variable_name: &str) -> Option<EvaluatedExpression> {
+        if let Some(value) = self.declarations.get(variable_name) {
             return Some(value.clone());
         }
 
         if let Some(parent) = &self.parent {
-            return parent.borrow().get_variable(variable_name);
-        }
-
-        None
-    }
-    pub fn get_function(&self, function_name: &str) -> Option<Expression> {
-        if let Some(value) = self.functions.get(function_name) {
-            return Some(value.clone());
-        }
-
-        if let Some(parent) = &self.parent {
-            return parent.borrow().get_function(function_name);
+            return parent.borrow().get_declaration(variable_name);
         }
 
         None
     }
 
-    pub fn contains_variable(&self, variable_name: &str) -> bool {
-        if self.variables.contains_key(variable_name) {
+    pub fn contains_declaration(&self, variable_name: &str) -> bool {
+        if self.declarations.contains_key(variable_name) {
             return true;
         }
 
         if let Some(parent) = &self.parent {
-            return parent.borrow().contains_variable(variable_name);
+            return parent.borrow().contains_declaration(variable_name);
         }
 
         false
     }
-    pub fn set_variable(&mut self, variable_name: String, value: EvaluatedExpression) {
-        self.variables.insert(variable_name, value);
-    }
-    pub fn set_function(&mut self, function_name: String, value: Expression) {
-        self.functions.insert(function_name, value);
+
+    pub fn set_declaration(&mut self, variable_name: String, value: EvaluatedExpression) {
+        self.declarations.insert(variable_name, value);
     }
 
-    pub fn change_variable(
+    pub fn change_declaration(
         &mut self,
         variable_name: &str,
         value: EvaluatedExpression,
     ) -> Option<EvaluatedExpression> {
-        if self.variables.contains_key(variable_name) {
-            self.variables
+        if self.declarations.contains_key(variable_name) {
+            self.declarations
                 .insert(variable_name.to_string(), value.clone());
             return Some(value);
         } else {
             if let Some(parent) = &mut self.parent {
-                return parent.borrow_mut().change_variable(variable_name, value);
+                return parent.borrow_mut().change_declaration(variable_name, value);
             }
         }
         return None;

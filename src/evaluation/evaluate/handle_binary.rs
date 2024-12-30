@@ -24,7 +24,7 @@ pub fn handle_binary(
         match &**expression {
             Literal(t) => {
                 if let IDENTIFIER(identifier) = &t.token_type {
-                    if !context.borrow().contains_variable(identifier) {
+                    if !context.borrow().contains_declaration(identifier) {
                         return Err(format!(
                             "Undefined variable '{}'.\n[line {}]",
                             identifier, t.line_index
@@ -32,7 +32,7 @@ pub fn handle_binary(
                     }
                     context
                         .borrow_mut()
-                        .change_variable(identifier, right.clone());
+                        .change_declaration(identifier, right.clone().into());
                     return Ok(right.into());
                 }
             }
@@ -48,16 +48,13 @@ pub fn handle_binary(
     }
 
     match left.value_type {
-        ValueType::STRING => handle_string_binary_operation(token, &left, &right).map(|v| v.into()),
-        ValueType::NUMBER => handle_number_binary_operation(
-            right,
-            token,
-            left.value
-                .parse::<f64>()
-                .map_err(|_| "Invalid number".to_string())?,
-        )
-        .map(|v| v.into()),
-        ValueType::BOOL => handle_bool_binary_operation(token, &left, &right).map(|v| v.into()),
+        ValueType::STRING(value) => {
+            handle_string_binary_operation(token, value, right).map(|v| v.into())
+        }
+        ValueType::NUMBER(value) => {
+            handle_number_binary_operation(right, token, value).map(|v| v.into())
+        }
+        ValueType::BOOL(_) => handle_bool_binary_operation(token, &left, &right).map(|v| v.into()),
 
         e => panic!("Invalid binary operator {:?}", e),
     }

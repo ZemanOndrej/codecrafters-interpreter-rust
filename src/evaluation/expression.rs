@@ -4,7 +4,7 @@ mod create_for;
 
 type Parameter = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Literal(Token),
     Binary(Box<Expression>, Token, Box<Expression>),
@@ -127,11 +127,12 @@ impl Into<ValueType> for TokenType {
     fn into(self) -> ValueType {
         use TokenType::*;
         match self {
-            NUMBER(_) => ValueType::NUMBER,
-            STRING(_) => ValueType::STRING,
-            TRUE | FALSE => ValueType::BOOL,
+            NUMBER(v) => ValueType::NUMBER(v.parse().unwrap()),
+            STRING(v) => ValueType::STRING(v),
+            TRUE => ValueType::BOOL(true),
+            FALSE => ValueType::BOOL(false),
             NIL => ValueType::NIL,
-            IDENTIFIER(_) => ValueType::STRING,
+            IDENTIFIER(v) => ValueType::STRING(v),
             _ => panic!("Invalid value type"),
         }
     }

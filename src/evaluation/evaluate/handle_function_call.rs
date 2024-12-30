@@ -1,6 +1,6 @@
 use crate::{
     builtin_fns,
-    evaluation::{Context, ContextRef, EvaluatedExpressionResult, Expression},
+    evaluation::{Context, ContextRef, EvaluatedExpressionResult, Expression, ValueType},
     token::Token,
     token_type::TokenType,
 };
@@ -10,7 +10,6 @@ pub fn handle_function_call(
     t: &Token,
     args: &Vec<Expression>,
 ) -> Result<EvaluatedExpressionResult, String> {
-    use Expression::*;
     use TokenType::*;
 
     let builtin_fns = builtin_fns::get_builtin_fns();
@@ -18,19 +17,18 @@ pub fn handle_function_call(
     if let Some(builtin_fn) = builtin_fns.get(fn_name.as_str()) {
         return (builtin_fn.function)(args, context).map(|v| v.into());
     }
-    if let Some(function) = context.borrow().get_function(fn_name.as_str()) {
-        let mut child_context = Context::new(context.clone());
-        let FunctionDeclaration {
-            args: fn_args,
+    // dbg!(&context);
+    if let Some(function) = context.borrow().get_declaration(fn_name.as_str()) {
+        let ValueType::FUNCTION {
+            params: fn_args,
             body,
             ..
-        } = &function
+        } = function.value_type
         else {
-            return Err(format!(
-                "Undefined function '{}'",
-                t.token_type.get_lexeme()
-            ));
+            return Err(format!("Not a function '{}'", t.token_type.get_lexeme()));
         };
+        let mut child_context = Context::new(context.clone());
+
         for (i, arg) in args.iter().enumerate() {
             let value = arg.evaluate(&mut child_context)?.assert_value()?;
             let Some(arg) = fn_args.get(i) else {
@@ -42,7 +40,7 @@ pub fn handle_function_call(
 
             child_context
                 .borrow_mut()
-                .set_variable(arg.to_string(), value);
+                .set_declaration(arg.to_string(), value.into());
         }
         let result = body.evaluate(&mut child_context);
         return result.map(|v| match v {

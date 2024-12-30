@@ -154,6 +154,7 @@ pub fn parse_token(
                 return Ok(Some(Expression::Return(Box::new(Expression::nil()))));
             }
             if exprs.len() > 1 {
+                dbg!(&exprs);
                 return Err("Expected single expression after return".to_string());
             }
             let expr = exprs.remove(0);

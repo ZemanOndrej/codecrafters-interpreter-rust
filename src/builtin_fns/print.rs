@@ -5,7 +5,10 @@ pub fn print(
     context: &mut ContextRef,
 ) -> Result<EvaluatedExpression, String> {
     let first_argument = args.get(0).ok_or("Missing argument")?;
-    let value = first_argument.evaluate(context)?.assert_value()?.value;
+    let value = first_argument
+        .evaluate(context)?
+        .assert_value()?
+        .to_string();
 
     println!("{}", value);
 

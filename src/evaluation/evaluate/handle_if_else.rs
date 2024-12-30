@@ -16,7 +16,7 @@ pub fn handle_if_else(
             expr.evaluate(context)
         } else {
             Ok(EvaluatedExpression {
-                value: "".to_string(),
+                // value: "".to_string(),
                 value_type: ValueType::NIL,
             }
             .into())

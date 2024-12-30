@@ -5,7 +5,7 @@ use std::process::exit;
 pub fn handle_evaluate(input: String) -> Vec<String> {
     let result = handle_evaluate_internal(input)
         .map(|x| match x {
-            Ok(x) => x.value,
+            Ok(x) => x.to_string(),
             Err(e) => {
                 dbg!(&e);
                 eprintln!("{}", e);
@@ -70,11 +70,12 @@ mod tests {
     }
 
     fn test(input: &str, expected: &str) {
-        let result = handle_evaluate(input.to_string());
-        let expected = vec![expected.to_string()];
-        // dbg!(result.clone());
-        // dbg!(expected.clone());
-        assert_eq!(result, expected);
+        let handle_evaluate_internal = handle_evaluate_internal(input.to_string())
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        let result = handle_evaluate_internal.first().unwrap();
+        let expected = expected.to_string();
+        assert_eq!(result.to_string(), expected);
     }
     #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
@@ -93,6 +94,59 @@ mod tests {
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
         assert!(res.is_ok());
     }
+
+    #[test]
+    fn test_higher_order_function() {
+        let input = r#"
+    	var globalGreeting = "Hello";
+
+    	fun makeGreeter() {
+    		fun greet(name) {
+    			print globalGreeting + " " + name;
+    		}
+    		return greet;
+    	}
+
+    	var sayHello = makeGreeter();
+    	sayHello("Bob");
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
+    // #[test]
+    // fn test_nested_higher_order_function() {
+    //     let input = r#"
+    // 	fun returnArg(arg) {
+    // 	  return arg;
+    // 	}
+
+    // 	fun returnFunCallWithArg(func, arg) {
+    // 	  return returnArg(func)(arg);
+    // 	}
+
+    // 	fun printArg(arg) {
+    // 	  print arg;
+    // 	}
+
+    // 	returnFunCallWithArg(printArg, "quz");
+    // 	"#;
+
+    //     let file_contents = String::from(input);
+
+    //     let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+
+    //     res.unwrap_or_else(|e| {
+    //         dbg!(e);
+    //         panic!("Error");
+    //     });
+    // }
 
     #[test]
     fn test_recursive_function_with_return() {
@@ -234,7 +288,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_function_clock() {

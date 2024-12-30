@@ -17,6 +17,7 @@ use handle_unary::*;
 use handle_while::*;
 
 use super::{Context, ContextRef, EvaluatedExpression, EvaluatedExpressionResult, Expression};
+use crate::evaluation::ValueType;
 
 impl Expression {
     pub fn evaluate(&self, context: &mut ContextRef) -> Result<EvaluatedExpressionResult, String> {
@@ -29,22 +30,36 @@ impl Expression {
             }
             Unary(token, expression) => handle_unary(context, token, expression),
             Variable(name, expr) => {
-                let value = expr.evaluate(context)?.assert_value()?;
-                context.borrow_mut().set_variable(name.clone(), value);
+                let evaluated_expression_result = expr.evaluate(context)?;
+                let value = evaluated_expression_result.assert_value()?;
+                context
+                    .borrow_mut()
+                    .set_declaration(name.clone(), value.into());
                 Ok(EvaluatedExpression::nil().into())
             }
             Grouping(expression) => expression.evaluate(context),
             FunctionCall(t, args) => handle_function_call(context, t, args),
-            FunctionDeclaration { name, .. } => {
-                context
-                    .borrow_mut()
-                    .set_function(name.token_type.get_lexeme(), self.clone());
+            FunctionDeclaration { name, args, body } => {
+                context.borrow_mut().set_declaration(
+                    name.token_type.get_lexeme(),
+                    EvaluatedExpression {
+                        value_type: ValueType::FUNCTION {
+                            name: name.token_type.get_lexeme(),
+                            params: args.clone(),
+                            body: body.clone(),
+                        },
+                    },
+                );
                 Ok(EvaluatedExpression::nil().into())
             }
-            Return(expr) => expr
-                .evaluate(context)?
-                .assert_value()
-                .map(|v| EvaluatedExpressionResult::FunctionReturn(v)),
+            Return(expr) => {
+                dbg!(expr);
+                let res = expr
+                    .evaluate(context)?
+                    .assert_value()
+                    .map(|v| EvaluatedExpressionResult::FunctionReturn(v));
+                res
+            }
             Scope(_, exprs) => handle_scope(context, exprs),
             IfElse {
                 condition,

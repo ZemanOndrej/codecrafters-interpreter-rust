@@ -3,13 +3,12 @@ use crate::evaluation::{ContextRef, EvaluatedExpression, Expression, ValueType};
 use std::time::SystemTime;
 
 fn clock_fn(_: &Vec<Expression>, _: &mut ContextRef) -> Result<EvaluatedExpression, String> {
+    let value = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
     Ok(EvaluatedExpression {
-        value: SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs()
-            .to_string(),
-        value_type: ValueType::NUMBER,
+        value_type: ValueType::NUMBER(value as f64),
     })
 }
 

@@ -126,7 +126,7 @@ mod tests {
             .unwrap()
             .assert_value()
             .unwrap();
-        assert_eq!(result.value, "6");
+        assert_eq!(result.to_string(), "6");
     }
 
     #[test]
@@ -167,6 +167,6 @@ mod tests {
             .unwrap()
             .assert_value()
             .unwrap();
-        assert_eq!(result.value, "24");
+        assert_eq!(result.to_string(), "24");
     }
 }
