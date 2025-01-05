@@ -1,4 +1,6 @@
-use crate::evaluation::{Context, ContextRef, EvaluatedExpressionResult, Expression, ValueType};
+use crate::evaluation::{ContextRef, EvaluatedExpressionResult, Expression, ValueType};
+
+use super::eval_args;
 
 pub fn handle_function_call_lambda(
     context: &mut ContextRef,
@@ -10,25 +12,17 @@ pub fn handle_function_call_lambda(
     let ValueType::FUNCTION {
         params: fn_args,
         body,
-        context: _,
+        context: closure,
         ..
     } = function.value_type
     else {
         return Err(format!("Not a function type."));
     };
 
-    let mut child_context = Context::new(context.clone());
+    let mut child_context = eval_args(context, args, fn_args, closure, "lambda")?;
+    // dbg!(&child_context.borrow());
+    // dbg!(closure.borrow());
 
-    for (i, arg) in args.iter().enumerate() {
-        let value = arg.evaluate(&mut child_context)?.assert_value()?;
-        let Some(arg) = fn_args.get(i) else {
-            return Err(format!("Bad arguments for function."));
-        };
-
-        child_context
-            .borrow_mut()
-            .set_declaration(arg.to_string(), value.into());
-    }
     let result = body.evaluate(&mut child_context);
     return result.map(|v| match v {
         EvaluatedExpressionResult::FunctionReturn(value) => value.into(),

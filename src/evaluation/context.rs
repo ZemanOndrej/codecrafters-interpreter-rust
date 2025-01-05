@@ -8,7 +8,7 @@ pub struct Context {
     declarations: HashMap<String, EvaluatedExpression>,
 
     pub parent: Option<ContextRef>,
-    pub child: Option<ContextRef>,
+    // pub child: Option<ContextRef>,
 }
 
 impl Context {
@@ -21,6 +21,23 @@ impl Context {
             ..Default::default()
         };
         Rc::new(RefCell::new(ctx))
+    }
+    pub fn merge(first: ContextRef, other: &ContextRef) -> ContextRef {
+        let mut root_other = other.borrow().get_root();
+
+        let ctx = Context {
+            parent: Some(first.clone()),
+            ..Default::default()
+        };
+        root_other.parent = Some(Rc::new(RefCell::new(ctx)));
+
+        other.clone()
+    }
+    fn get_root(&self) -> Context {
+        if let Some(parent) = &self.parent {
+            return parent.borrow().get_root();
+        }
+        self.clone()
     }
 
     pub fn get_declaration(&self, variable_name: &str) -> Option<EvaluatedExpression> {
@@ -66,5 +83,11 @@ impl Context {
             }
         }
         return None;
+    }
+}
+
+impl std::fmt::Display for Context {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.declarations.keys().collect::<Vec<_>>())
     }
 }

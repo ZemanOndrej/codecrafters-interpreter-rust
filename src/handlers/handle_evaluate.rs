@@ -92,7 +92,10 @@ mod tests {
         let file_contents = String::from(input);
 
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -120,34 +123,104 @@ mod tests {
             panic!("Error");
         });
     }
-    // #[test]
-    // fn test_nested_higher_order_function() {
-    //     let input = r#"
-    // 	fun returnArg(arg) {
-    // 	  return arg;
-    // 	}
+    #[test]
+    fn test_nested_higher_order_function() {
+        let input = r#"
+    	fun returnArg(arg) {
+    	  return arg;
+    	}
 
-    // 	fun returnFunCallWithArg(func, arg) {
-    // 	  return returnArg(func)(arg);
-    // 	}
+    	fun returnFunCallWithArg(func, arg) {
+    	  return returnArg(func)(arg);
+    	}
 
-    // 	fun printArg(arg) {
-    // 	  print arg;
-    // 	}
+    	fun printArg(arg) {
+    	  print arg;
+    	}
 
-    // 	returnFunCallWithArg(printArg, "quz");
-    // 	"#;
+    	returnFunCallWithArg(printArg, "quz");
+    	"#;
 
-    //     let file_contents = String::from(input);
+        let file_contents = String::from(input);
 
-    //     let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
 
-    //     res.unwrap_or_else(|e| {
-    //         dbg!(e);
-    //         panic!("Error");
-    //     });
-    // }
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
+    #[test]
+    fn test_filter_higher_order_function() {
+        let input = r#"
+    	// This program creates a function that returns another function
+		// and uses it to filter a list of numbers
+		fun makeFilter(min) {
+		  fun filter(n) {
+		    if (n < min) {
+		      return false;
+		    }
+		    return true;
+		  }
+		  return filter;
+		}
 
+		// This function applies a function to a list of numbers
+		fun applyToNumbers(f, count) {
+		  var n = 0;
+		  while (n < count) {
+		    if (f(n)) {
+		      print n;
+		    }
+		    n = n + 1;
+		  }
+		}
+
+		var greaterThanX = makeFilter(38);
+		var greaterThanY = makeFilter(93);
+
+		print "Numbers >= 38:";
+		applyToNumbers(greaterThanX, 38 + 6);
+
+		print "Numbers >= 93:";
+		applyToNumbers(greaterThanY, 93 + 6);
+		
+	
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
+
+    #[test]
+    fn test_return_function_with_closure() {
+        let input = r#"
+    	fun outer(i) {
+			var x = 1;
+			fun inner(){
+				return x+i;
+			
+			}
+			x = 2;
+    		return inner;
+    	}
+    	print outer(1)();
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
     #[test]
     fn test_recursive_function_with_return() {
         let input = r#"
@@ -167,7 +240,10 @@ mod tests {
         let file_contents = String::from(input);
 
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_function_with_no_return() {
@@ -183,7 +259,10 @@ mod tests {
         let file_contents = String::from(input);
 
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_function_with_return_nil() {
@@ -200,7 +279,10 @@ mod tests {
         let file_contents = String::from(input);
 
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -219,7 +301,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_custom_function_with_args_print() {
@@ -231,7 +316,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_custom_function_with_arg_print() {
@@ -243,7 +331,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_custom_function_print() {
@@ -255,7 +346,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_custom_function() {
@@ -266,7 +360,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_complex_custom_function() {
@@ -301,7 +398,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -313,7 +413,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     // TODO move this elsewhere because parsing is failing
@@ -350,7 +453,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test]
     fn test_for_operator() {
@@ -360,7 +466,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -371,7 +480,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -388,7 +500,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -411,7 +526,10 @@ mod tests {
 			24
 		"#;
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -429,7 +547,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
 
     #[test]
@@ -445,7 +566,10 @@ mod tests {
 
         let file_contents = String::from(input);
         let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
-        assert!(res.is_ok());
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
     }
     #[test_case(" \"foo\" + false")]
     #[test_case(" false / false")]

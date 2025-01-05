@@ -4,7 +4,7 @@ pub fn handle_return(
     context: &mut ContextRef,
     expr: &Box<Expression>,
 ) -> Result<EvaluatedExpressionResult, String> {
-    dbg!(expr);
+    // dbg!(expr);
     let res = expr.evaluate(context)?.assert_value()?;
 
     // set latest closure context for returned function

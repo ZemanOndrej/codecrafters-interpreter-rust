@@ -25,6 +25,7 @@ pub fn handle_binary(
             return value;
         }
     }
+    // dbg!(token, context.borrow());
     let left = expression.evaluate(context)?.assert_value()?;
     if token.token_type.is_bool_logic_operator() {
         return handle_bool_binary_operation(token, &left, &right).map(|v| v.into());

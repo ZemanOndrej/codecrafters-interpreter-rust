@@ -1,3 +1,5 @@
+use core::fmt;
+
 use super::{ContextRef, Expression};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -54,7 +56,7 @@ impl EvaluatedExpression {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum ValueType {
     NUMBER(f64),
     STRING(String),
@@ -75,10 +77,35 @@ impl std::fmt::Display for ValueType {
             NUMBER(v) => write!(f, "{}", v),
             STRING(v) => write!(f, "{}", v),
             BOOL(v) => write!(f, "{}", v),
-            FUNCTION { name, params, .. } => {
-                write!(f, "Function {}({:?})", name, params)
+            FUNCTION { name, .. } => {
+                write!(f, "<fn {}>", name,)
             }
             NIL => write!(f, "nil"),
+        }
+    }
+}
+impl fmt::Debug for ValueType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ValueType::*;
+        match self {
+            NUMBER(v) => write!(f, "NUMBER({})", v),
+            STRING(v) => write!(f, "STRING({})", v),
+            BOOL(v) => write!(f, "BOOL({})", v),
+            FUNCTION {
+                name,
+                params,
+                context,
+                ..
+            } => {
+                write!(
+                    f,
+                    "FUNCTION {}({:?}) with context {}",
+                    name,
+                    params,
+                    context.borrow()
+                )
+            }
+            NIL => write!(f, "NIL"),
         }
     }
 }

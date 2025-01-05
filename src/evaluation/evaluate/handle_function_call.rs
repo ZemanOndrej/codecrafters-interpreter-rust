@@ -22,27 +22,21 @@ pub fn handle_function_call(
         let ValueType::FUNCTION {
             params: fn_args,
             body,
-            context: _,
+            context: closure,
             ..
         } = function.value_type
         else {
             return Err(format!("Not a function '{}'", t.token_type.get_lexeme()));
         };
-        let mut child_context = Context::new(context.clone());
-
-        for (i, arg) in args.iter().enumerate() {
-            let value = arg.evaluate(&mut child_context)?.assert_value()?;
-            let Some(arg) = fn_args.get(i) else {
-                return Err(format!(
-                    "Bad arguments for function '{}'",
-                    t.token_type.get_lexeme()
-                ));
-            };
-
-            child_context
-                .borrow_mut()
-                .set_declaration(arg.to_string(), value.into());
-        }
+        let mut child_context = eval_args(
+            &mut context.clone(),
+            args,
+            fn_args,
+            closure,
+            t.token_type.get_lexeme().as_str(),
+        )?;
+        // dbg!(&child_context.borrow());
+        // dunno if this is correct, we pass to the function only closure context, current context is not passed
         let result = body.evaluate(&mut child_context);
         return result.map(|v| match v {
             EvaluatedExpressionResult::FunctionReturn(value) => value.into(),
@@ -56,4 +50,25 @@ pub fn handle_function_call(
             t.token_type.get_lexeme()
         )),
     }
+}
+
+pub(super) fn eval_args(
+    context: &mut ContextRef,
+    args: &Vec<Expression>,
+    fn_args: Vec<String>,
+    closure: ContextRef,
+    fn_name: &str,
+) -> Result<ContextRef, String> {
+    let child_context = Context::new(closure.clone());
+    for (i, arg) in args.iter().enumerate() {
+        let value = arg.evaluate(&mut context.clone())?.assert_value()?;
+        let Some(arg) = fn_args.get(i) else {
+            return Err(format!("Bad arguments for function {fn_name}"));
+        };
+
+        child_context
+            .borrow_mut()
+            .set_declaration(arg.to_string(), value.into());
+    }
+    Ok(child_context)
 }
