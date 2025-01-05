@@ -1,7 +1,7 @@
 use super::{parse_expressions, parse_token, InputIter};
-use crate::{evaluation::Expression, token::Token, token_type::TokenType};
+use crate::{evaluation::Expression, parser::ParseError, token::Token, token_type::TokenType};
 
-pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>, String> {
+pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>, ParseError> {
     let fn_name = input.next().unwrap();
     let left_paren = input.next().unwrap();
 
@@ -19,9 +19,10 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
                 return Err(format!(
                     "Error at '{}': Expect ')' after parameters.",
                     token.token_type.get_lexeme(),
-                ));
+                )
+                .into());
             } else {
-                return Err("Expected identifier".to_string());
+                return Err("Expected identifier".into());
             }
         }
         let Some(expr) = exprs.first() else {
@@ -32,7 +33,7 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
                 args.push(token.token_type.get_lexeme());
             }
             _ => {
-                return Err("Expected identifier".to_string());
+                return Err("Expected identifier".into());
             }
         }
         if let TokenType::RIGHT_PAREN = end_tok.token_type {
@@ -49,7 +50,8 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
             return Err(format!(
                 "Error at '{}': Expect '{{' before function body.",
                 token.token_type.get_lexeme()
-            ))
+            )
+            .into())
         }
     }
 

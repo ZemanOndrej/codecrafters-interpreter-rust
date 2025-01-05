@@ -1,12 +1,15 @@
 use super::InputIter;
 use crate::{
-    evaluation::Expression, parser::parse_expressions, token::Token, token_type::TokenType,
+    evaluation::Expression,
+    parser::{parse_expressions, ParseError},
+    token::Token,
+    token_type::TokenType,
 };
 
 pub fn handle_identifier(
     token: &Token,
     input: &mut InputIter,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     if let Some(next) = input.peek() {
         use TokenType::*;
 
@@ -17,7 +20,8 @@ pub fn handle_identifier(
 
             let function_call = Expression::FunctionCall(token.clone(), arguments);
             if let Some(next) = input.peek() {
-                if next.token_type == LEFT_PAREN {// handle function(args)(args)
+                if next.token_type == LEFT_PAREN {
+                    // handle function(args)(args)
                     let left_paren = input.next().unwrap(); // consume the left paren
 
                     let args = parse_args(input, left_paren)?;
@@ -45,7 +49,7 @@ pub fn handle_identifier(
     Ok(Some(Expression::Literal(token.clone())))
 }
 
-fn parse_args(input: &mut InputIter, left_paren: &Token) -> Result<Vec<Expression>, String> {
+fn parse_args(input: &mut InputIter, left_paren: &Token) -> Result<Vec<Expression>, ParseError> {
     use TokenType::*;
 
     let mut arguments = vec![];

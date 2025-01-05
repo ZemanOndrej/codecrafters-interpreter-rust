@@ -1,13 +1,18 @@
 use super::{parse_token, InputIter};
-use crate::{evaluation::Expression, parser::parse_expression, token::Token, token_type::TokenType};
+use crate::{
+    evaluation::Expression,
+    parser::{parse_expression, ParseError},
+    token::Token,
+    token_type::TokenType,
+};
 
 pub fn handle_for(
     expression_stack: &mut Vec<Expression>,
     for_token: &Token,
     input: &mut InputIter,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     let Some(mut next) = input.next() else {
-        return Err("Expected condition".to_string());
+        return Err("Expected condition".into());
     };
     let next_token = input.peek().unwrap();
 

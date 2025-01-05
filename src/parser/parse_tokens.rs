@@ -1,8 +1,7 @@
+use super::{parse_token, ParseError};
 use crate::{evaluation::Expression, token::Token};
 
-use super::parse_token;
-
-pub fn parse_tokens(results: Vec<Token>) -> Result<Vec<Expression>, String> {
+pub fn parse_tokens(results: Vec<Token>) -> Result<Vec<Expression>, ParseError> {
     let mut parsed_expressions = Vec::new();
 
     let mut iterator = results.iter().peekable();
@@ -37,6 +36,6 @@ mod test {
         let Err(result) = result else {
             panic!("Expected error, got {:?}", result);
         };
-        assert_eq!(result, "Error at '(': Expect ')'".to_string());
+        assert_eq!(result, "Error at '(': Expect ')'".into());
     }
 }

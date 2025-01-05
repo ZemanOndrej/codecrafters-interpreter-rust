@@ -1,7 +1,7 @@
 use super::InputIter;
 use crate::{
     evaluation::Expression,
-    parser::{create_error, parse_expression_with_stack, parse_token},
+    parser::{create_error, parse_expression_with_stack, parse_token, ParseError},
     sub_tokens::EqualType,
     token::Token,
     token_type::TokenType,
@@ -11,7 +11,7 @@ pub fn handle_assignment(
     expression_stack: &mut Vec<Expression>,
     token: &Token,
     input: &mut InputIter,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     use TokenType::*;
 
     let left = expression_stack.pop().ok_or_else(|| create_error(token))?;
@@ -44,7 +44,7 @@ fn handle_next_assignment(
     prev_right: Expression,
     expression_stack: &mut Vec<Expression>,
     prev_left: Expression,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     let token = input.next().unwrap(); // consume the equal token
     expression_stack.push(prev_right);
 

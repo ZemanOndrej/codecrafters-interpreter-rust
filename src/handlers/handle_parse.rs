@@ -1,6 +1,6 @@
 use crate::{
     evaluation::Expression,
-    parser::parse_tokens,
+    parser::{parse_tokens, ParseError},
     token::Token,
     tokenize::{tokenize, TokenError},
 };
@@ -15,17 +15,22 @@ pub fn parse(input: String) -> Vec<Expression> {
     let result = parse_internal(input);
     let result = match result {
         Ok(expr) => expr,
-        Err(e) => {
+        Err(ParseError::Default(e)) => {
             dbg!(&e);
             eprintln!("{}", e);
             exit(65);
+        }
+        Err(ParseError::Syntax(e)) => {
+            dbg!(&e);
+            eprintln!("{}", e);
+            exit(70);
         }
     };
 
     result
 }
 
-pub(super) fn parse_internal(input: String) -> Result<Vec<Expression>, String> {
+pub(super) fn parse_internal(input: String) -> Result<Vec<Expression>, ParseError> {
     let tokens = tokenize(input.as_str());
 
     let result: Result<Vec<Token>, TokenError> = tokens.into_iter().collect();
@@ -43,6 +48,13 @@ pub mod tests {
     use super::*;
     use ntest::test_case;
 
+    #[test_case("85();")]
+    pub fn test_handle_evaluate_error(input: &str) {
+        let file_contents = String::from(input);
+        let result = parse_internal(file_contents);
+        assert!(result.is_err());
+        assert!(matches!(result, Err(ParseError::Syntax(_))));
+    }
     #[test_case("(95 +)")]
     #[test_case("print;")]
     pub fn test_handle_evaluate_error(input: &str) {

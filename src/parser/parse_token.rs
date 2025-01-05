@@ -19,13 +19,15 @@ use handle_fun::*;
 use handle_identifier::*;
 use handle_while::*;
 use std::{iter::Peekable, slice::Iter};
+
+use super::ParseError;
 pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
 
 pub fn parse_token(
     token: &Token,
     input: &mut InputIter,
     expression_stack: &mut Vec<Expression>,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     use TokenType::*;
     let expr = match &token.token_type {
         SLASH(SlashType::COMMENT) => {
@@ -88,7 +90,8 @@ pub fn parse_token(
             return Err(format!(
                 "Error at '{}': Expect ';' after value.",
                 token.token_type.get_lexeme()
-            ));
+            )
+            .into());
         }
 
         PRINT => {
@@ -155,7 +158,7 @@ pub fn parse_token(
             }
             if exprs.len() > 1 {
                 dbg!(&exprs);
-                return Err("Expected single expression after return".to_string());
+                return Err("Expected single expression after return".into());
             }
             let expr = exprs.remove(0);
             Expression::Return(Box::new(expr)).into()

@@ -1,12 +1,12 @@
 use crate::{evaluation::Expression, token::Token, token_type::TokenType};
 
-use super::{parse_token, InputIter};
+use super::{parse_token, InputIter, ParseError};
 
 pub fn parse_precedence(
     starting_operator: &Token,
     input: &mut InputIter,
     stack: &mut Vec<Expression>,
-) -> Result<Option<Expression>, String> {
+) -> Result<Option<Expression>, ParseError> {
     let left = input.peek().unwrap();
 
     // dbg!(left);
