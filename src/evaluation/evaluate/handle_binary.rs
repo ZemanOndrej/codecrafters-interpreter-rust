@@ -1,45 +1,28 @@
 mod handle_bool_binary_operation;
 mod handle_number_binary_operation;
 mod handle_string_binary_operation;
+mod handle_variable_assignment;
 
 use super::{ContextRef, EvaluatedExpressionResult, Expression};
-use crate::{evaluation::ValueType, sub_tokens::EqualType, token_type::TokenType};
-
+use crate::{evaluation::ValueType, sub_tokens::EqualType, Token, TokenType};
 use handle_bool_binary_operation::*;
 use handle_number_binary_operation::*;
 use handle_string_binary_operation::*;
+use handle_variable_assignment::*;
 
 pub fn handle_binary(
     context: &mut ContextRef,
     expression: &Box<Expression>,
-    token: &crate::token::Token,
+    token: &Token,
     expression1: &Box<Expression>,
 ) -> Result<EvaluatedExpressionResult, String> {
     // dbg!(expression, token, expression1);
-    use Expression::*;
     use TokenType::*;
 
     let right = expression1.evaluate(context)?.assert_value()?;
     if token.token_type == EQUAL(EqualType::EQUAL) {
-        match &**expression {
-            Literal(t) => {
-                if let IDENTIFIER(identifier) = &t.token_type {
-                    if !context.borrow().contains_declaration(identifier) {
-                        return Err(format!(
-                            "Undefined variable '{}'.\n[line {}]",
-                            identifier, t.line_index
-                        ));
-                    }
-                    context
-                        .borrow_mut()
-                        .change_declaration(identifier, right.clone().into());
-                    return Ok(right.into());
-                }
-            }
-            Binary(e1, t, e2) => {
-                dbg!(e1, t, e2);
-            }
-            _ => (),
+        if let Some(value) = handle_variable_assignment(context, expression, &right) {
+            return value;
         }
     }
     let left = expression.evaluate(context)?.assert_value()?;

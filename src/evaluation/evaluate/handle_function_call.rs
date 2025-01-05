@@ -22,6 +22,7 @@ pub fn handle_function_call(
         let ValueType::FUNCTION {
             params: fn_args,
             body,
+            context: _,
             ..
         } = function.value_type
         else {

@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub type ContextRef = Rc<RefCell<Context>>;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct Context {
     declarations: HashMap<String, EvaluatedExpression>,
 

@@ -1,4 +1,4 @@
-use super::Expression;
+use super::{ContextRef, Expression};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EvaluatedExpressionResult {
@@ -30,6 +30,12 @@ impl std::fmt::Display for EvaluatedExpression {
     }
 }
 
+impl From<ValueType> for EvaluatedExpression {
+    fn from(value: ValueType) -> Self {
+        EvaluatedExpression { value_type: value }
+    }
+}
+
 impl EvaluatedExpression {
     pub fn to_bool(&self) -> bool {
         use ValueType::*;
@@ -57,6 +63,7 @@ pub enum ValueType {
         name: String,
         params: Vec<String>,
         body: Box<Expression>,
+        context: ContextRef,
     },
     NIL,
 }
@@ -68,11 +75,7 @@ impl std::fmt::Display for ValueType {
             NUMBER(v) => write!(f, "{}", v),
             STRING(v) => write!(f, "{}", v),
             BOOL(v) => write!(f, "{}", v),
-            FUNCTION {
-                name,
-                params,
-                body: _,
-            } => {
+            FUNCTION { name, params, .. } => {
                 write!(f, "Function {}({:?})", name, params)
             }
             NIL => write!(f, "nil"),

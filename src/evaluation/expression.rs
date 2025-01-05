@@ -12,6 +12,7 @@ pub enum Expression {
     Variable(String, Box<Expression>),
     Grouping(Box<Expression>),
     FunctionCall(Token, Vec<Expression>),
+    FunctionCallLambda(Box<Expression>, Vec<Expression>),
     FunctionDeclaration {
         name: Token,
         args: Vec<Parameter>,
@@ -60,6 +61,16 @@ impl ToString for Expression {
                 format!(
                     "function {}:{}",
                     name.to_string(),
+                    args.iter()
+                        .map(|s| s.to_string())
+                        .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
+                        .unwrap()
+                )
+            }
+            FunctionCallLambda(expr, args) => {
+                format!(
+                    "function lambda {}:{}",
+                    expr.to_string(),
                     args.iter()
                         .map(|s| s.to_string())
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))

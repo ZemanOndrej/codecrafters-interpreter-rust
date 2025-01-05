@@ -26,11 +26,17 @@ pub fn handle_literal(
         IDENTIFIER(identifier) => {
             if let Some(value) = context.borrow().get_declaration(identifier) {
                 match value.value_type {
-                    ValueType::FUNCTION { name, params, body } => Ok(EvaluatedExpression {
+                    ValueType::FUNCTION {
+                        name,
+                        params,
+                        body,
+                        context,
+                    } => Ok(EvaluatedExpression {
                         value_type: ValueType::FUNCTION {
                             name: name.to_string(),
                             params: params.iter().map(|a| a.to_string()).collect(),
                             body: body.clone(),
+                            context: context.clone(),
                         },
                     }
                     .into()),

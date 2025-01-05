@@ -3,6 +3,9 @@ pub mod evaluation;
 pub mod handlers;
 pub mod parser;
 pub mod sub_tokens;
-pub mod token;
-pub mod token_type;
+mod token;
+mod token_type;
 pub mod tokenize;
+
+pub use token::*;
+pub use token_type::*;
