@@ -609,6 +609,12 @@ mod tests {
     	print bar;
     	"#
     )]
+    #[test_case(
+        r#"
+		fun f(a, b) {}
+		f(1); // expect runtime error: Expected 2 arguments but got 1.
+	"#
+    )]
     fn test_all_handle_evaluate_error(input: &str) {
         test_error(input)
     }

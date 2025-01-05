@@ -49,6 +49,7 @@ pub mod tests {
     use ntest::test_case;
 
     #[test_case("85();")]
+    #[test_case("(true == true)();")]
     pub fn test_handle_evaluate_error(input: &str) {
         let file_contents = String::from(input);
         let result = parse_internal(file_contents);

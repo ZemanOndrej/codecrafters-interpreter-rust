@@ -59,12 +59,13 @@ pub(super) fn eval_args(
     closure: ContextRef,
     fn_name: &str,
 ) -> Result<ContextRef, String> {
+    if args.len() != fn_args.len() {
+        return Err(format!("Expected {} but got {}", args.len(), fn_name));
+    }
     let child_context = Context::new(closure.clone());
     for (i, arg) in args.iter().enumerate() {
         let value = arg.evaluate(&mut context.clone())?.assert_value()?;
-        let Some(arg) = fn_args.get(i) else {
-            return Err(format!("Bad arguments for function {fn_name}"));
-        };
+        let arg = fn_args.get(i).unwrap();
 
         child_context
             .borrow_mut()

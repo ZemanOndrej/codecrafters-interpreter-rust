@@ -5,6 +5,7 @@ mod handle_fun;
 mod handle_identifier;
 mod handle_while;
 
+use super::ParseError;
 use crate::{
     evaluation::Expression,
     parser::{create_error, parse_expression, parse_expressions, parse_precedence},
@@ -19,9 +20,28 @@ use handle_fun::*;
 use handle_identifier::*;
 use handle_while::*;
 use std::{iter::Peekable, slice::Iter};
-
-use super::ParseError;
 pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
+
+fn check_syntax_error(
+    token: &Token,
+    _input: &mut InputIter,
+    expression_stack: &mut Vec<Expression>,
+) -> Result<(), ParseError> {
+    if expression_stack.is_empty() {
+        return Ok(());
+    }
+    let last = expression_stack.last().unwrap();
+    if !(matches!(last, Expression::Literal(_)) || matches!(last, Expression::Grouping(..))) {
+        return Ok(());
+    }
+
+    if matches!(token.token_type, TokenType::LEFT_PAREN) {
+        return Err(ParseError::Syntax(
+            "Can only call functions and classes.".into(),
+        ));
+    }
+    Ok(())
+}
 
 pub fn parse_token(
     token: &Token,
@@ -29,6 +49,9 @@ pub fn parse_token(
     expression_stack: &mut Vec<Expression>,
 ) -> Result<Option<Expression>, ParseError> {
     use TokenType::*;
+
+    check_syntax_error(token, input, expression_stack)?;
+
     let expr = match &token.token_type {
         SLASH(SlashType::COMMENT) => {
             let Some(next) = input.next() else {
