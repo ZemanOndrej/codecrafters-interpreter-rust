@@ -12,7 +12,6 @@ pub struct Context {
 }
 
 impl Context {
-    
     pub fn new_root() -> ContextRef {
         Rc::new(RefCell::new(Context::default()))
     }
@@ -23,25 +22,7 @@ impl Context {
         };
         Rc::new(RefCell::new(ctx))
     }
-    pub fn merge(first: ContextRef, other: &ContextRef) -> ContextRef {
-        let mut root_other = other.borrow().get_root();
 
-        let ctx = Context {
-            parent: Some(first.clone()),
-            ..Default::default()
-        };
-        root_other.parent = Some(Rc::new(RefCell::new(ctx)));
-
-        other.clone()
-    }
-    fn get_root(&self) -> Context {
-        if let Some(parent) = &self.parent {
-            return parent.borrow().get_root();
-        }
-        self.clone()
-    }
-
-    
     pub fn get_declaration(&self, variable_name: &str) -> Option<EvaluatedExpression> {
         if let Some(value) = self.declarations.get(variable_name) {
             return Some(value.clone());
@@ -54,9 +35,9 @@ impl Context {
         None
     }
 
-    
     pub fn contains_declaration(&self, variable_name: &str) -> bool {
         if self.declarations.contains_key(variable_name) {
+            // dbg!(format!("{} is in {}", variable_name, self,));
             return true;
         }
 
