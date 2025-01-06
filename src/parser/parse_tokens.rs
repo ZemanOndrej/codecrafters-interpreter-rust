@@ -17,7 +17,7 @@ pub fn parse_tokens(results: Vec<Token>) -> Result<Vec<Expression>, ParseError> 
     Ok(parsed_expressions)
 }
 
-pub fn create_error(token: &Token) -> String {
+ pub fn create_error(token: &Token) -> String {
     format!(
         "Error at '{}': Expect expression.",
         token.token_type.get_lexeme()
@@ -34,7 +34,7 @@ mod test {
         let tokens: Result<Vec<_>, _> = tokenize(input).into_iter().collect();
         let result = parse_tokens(tokens.unwrap());
         let Err(result) = result else {
-            panic!("Expected error, got {:?}", result);
+            panic!("Expected error, got {result:?}");
         };
         assert_eq!(result, "Error at '(': Expect ')'".into());
     }

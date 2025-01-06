@@ -93,6 +93,8 @@ fn get_right_most_token_with_lowest_precedence(
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use super::*;
 
     // test get right most token with lowest precedence
@@ -122,7 +124,7 @@ mod tests {
 
         let result = get_right_most_token_with_lowest_precedence(&left, &mut input, &mut vec![]);
         let result = result
-            .evaluate(&mut Default::default())
+            .evaluate(&mut Rc::default())
             .unwrap()
             .assert_value()
             .unwrap();

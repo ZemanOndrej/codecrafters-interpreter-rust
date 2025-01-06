@@ -11,18 +11,18 @@ mod handle_unary;
 mod handle_variable;
 mod handle_while;
 
-use handle_binary::*;
-use handle_for::*;
-use handle_function_call::*;
-use handle_function_call_lambda::*;
-use handle_function_declaration::*;
-use handle_if_else::*;
-use handle_literal::*;
-use handle_return::*;
-use handle_scope::*;
-use handle_unary::*;
-use handle_variable::*;
-use handle_while::*;
+use handle_binary::handle_binary;
+use handle_for::handle_for;
+use handle_function_call::{eval_args, handle_function_call};
+use handle_function_call_lambda::handle_function_call_lambda;
+use handle_function_declaration::handle_function_declaration;
+use handle_if_else::handle_if_else;
+use handle_literal::handle_literal;
+use handle_return::handle_return;
+use handle_scope::handle_scope;
+use handle_unary::handle_unary;
+use handle_variable::handle_variable;
+use handle_while::handle_while;
 
 use super::{Context, ContextRef, EvaluatedExpressionResult, Expression};
 

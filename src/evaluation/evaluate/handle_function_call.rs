@@ -15,7 +15,7 @@ pub fn handle_function_call(
     let builtin_fns = builtin_fns::get_builtin_fns();
     let fn_name = t.token_type.get_lexeme();
     if let Some(builtin_fn) = builtin_fns.get(fn_name.as_str()) {
-        return (builtin_fn.function)(args, context).map(|v| v.into());
+        return (builtin_fn.function)(args, context).map(std::convert::Into::into);
     }
     // dbg!(&context);
     if let Some(function) = context.borrow().get_declaration(fn_name.as_str()) {
@@ -44,7 +44,7 @@ pub fn handle_function_call(
         });
     }
     match t.token_type {
-        PRINT => builtin_fns::print(args, context).map(|v| v.into()),
+        PRINT => builtin_fns::print(args, context).map(std::convert::Into::into),
         _ => Err(format!(
             "Undefined function '{}'",
             t.token_type.get_lexeme()

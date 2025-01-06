@@ -7,7 +7,7 @@ pub fn print(args: &[Expression], context: &mut ContextRef) -> Result<EvaluatedE
         .assert_value()?
         .to_string();
 
-    println!("{}", value);
+    println!("{value}");
 
     Ok(EvaluatedExpression::nil())
 }

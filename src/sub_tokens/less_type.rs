@@ -6,7 +6,7 @@ pub enum LessType {
 }
 
 impl LessType {
-    pub fn get_lexeme(&self) -> String {
+     pub fn get_lexeme(&self) -> String {
         use LessType::*;
         match self {
             LESS => "<",
@@ -25,6 +25,6 @@ impl std::fmt::Display for LessType {
             LESS_EQUAL => "LESS_EQUAL",
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

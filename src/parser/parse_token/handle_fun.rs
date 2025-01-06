@@ -42,7 +42,7 @@ pub fn handle_fun(_: &Token, input: &mut InputIter) -> Result<Option<Expression>
     }
     let token = input.next().unwrap();
 
-    let body = parse_token(token, input, &mut Default::default())?.unwrap();
+    let body = parse_token(token, input, &mut Vec::default())?.unwrap();
 
     match body {
         Expression::Scope(_, _) => {}

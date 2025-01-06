@@ -6,7 +6,7 @@ pub enum BangType {
 }
 
 impl BangType {
-    pub fn get_lexeme(&self) -> String {
+     pub fn get_lexeme(&self) -> String {
         use BangType::*;
         match self {
             BANG => "!",
@@ -24,6 +24,6 @@ impl std::fmt::Display for BangType {
             BANG => "BANG",
             BANG_EQUAL => "BANG_EQUAL",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

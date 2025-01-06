@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-#![allow(clippy::enum_glob_use)]
 pub mod builtin_fns;
 pub mod evaluation;
 pub mod handlers;

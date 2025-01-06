@@ -8,6 +8,7 @@ use crate::{
 };
 use std::{iter::Peekable, str::Chars};
 
+
 pub fn tokenize(input: &str) -> Vec<Result<Token, TokenError>> {
     let mut line_index = 0;
     let mut results = Vec::new();
@@ -53,7 +54,9 @@ fn process_chars(
             let token = match v {
                 TokenType::IDENTIFIER(v) => handle_identifier(v, chars, &mut state, *line_index),
                 TokenType::STRING(v) => handle_string_literal(v, chars, &mut state, *line_index),
-                TokenType::NUMBER(v) => handle_number_literal(v, chars, &mut state, *line_index),
+                TokenType::NUMBER(v) => {
+                    handle_number_literal(v.as_str(), chars, &mut state, *line_index)
+                }
                 _ => {
                     let next_char = chars.peek();
 
@@ -65,7 +68,7 @@ fn process_chars(
                         }
                         Some(new_char) => {
                             let parse_output =
-                                TokenType::parse_partial(&format!("{}{}", state, new_char), v);
+                                TokenType::parse_partial(&format!("{state}{new_char}"), v);
                             let token = match parse_output {
                                 PartialParseOutput::Mismatched(token) => {
                                     let token = Token::new(token, *line_index);

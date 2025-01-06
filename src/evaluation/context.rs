@@ -12,6 +12,7 @@ pub struct Context {
 }
 
 impl Context {
+    
     pub fn new_root() -> ContextRef {
         Rc::new(RefCell::new(Context::default()))
     }
@@ -40,6 +41,7 @@ impl Context {
         self.clone()
     }
 
+    
     pub fn get_declaration(&self, variable_name: &str) -> Option<EvaluatedExpression> {
         if let Some(value) = self.declarations.get(variable_name) {
             return Some(value.clone());
@@ -52,6 +54,7 @@ impl Context {
         None
     }
 
+    
     pub fn contains_declaration(&self, variable_name: &str) -> bool {
         if self.declarations.contains_key(variable_name) {
             return true;

@@ -2,7 +2,7 @@ use crate::{token::Token, token_type::TokenType};
 use std::{iter::Peekable, str::Chars};
 
 pub fn handle_number_literal(
-    number: String,
+    number: &str,
     chars: &mut Peekable<Chars<'_>>,
     input: &mut String,
     line_index: usize,

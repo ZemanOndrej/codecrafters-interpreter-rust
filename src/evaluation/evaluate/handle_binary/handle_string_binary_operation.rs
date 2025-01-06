@@ -1,6 +1,6 @@
 use crate::{
     evaluation::{EvaluatedExpression, ValueType},
-    sub_tokens::*,
+    sub_tokens::{BangType, EqualType},
     token::Token,
     token_type::TokenType,
 };
@@ -15,7 +15,7 @@ pub fn handle_string_binary_operation(
     match right.value_type {
         ValueType::STRING(value) => {
             let result = match token.token_type {
-                PLUS => format!("{}{}", left, value).into(),
+                PLUS => format!("{left}{value}").into(),
                 EQUAL(EqualType::EQUAL_EQUAL) => (left == value).into(),
                 BANG(BangType::BANG_EQUAL) => (left != value).into(),
                 _ => return Err("Invalid binary operator for string".to_string()),

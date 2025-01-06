@@ -2,13 +2,14 @@ use super::handle_parse::parse;
 use crate::evaluation::{Context, EvaluatedExpression};
 use std::process::exit;
 
-pub fn handle_evaluate(input: String) -> Vec<String> {
+
+pub fn handle_evaluate(input: &str) -> Vec<String> {
     handle_evaluate_internal(input)
         .map(|x| match x {
             Ok(x) => x.to_string(),
             Err(e) => {
                 dbg!(&e);
-                eprintln!("{}", e);
+                eprintln!("{e}");
                 exit(70);
             }
         })
@@ -16,7 +17,7 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
 }
 
 pub(super) fn handle_evaluate_internal(
-    input: String,
+    input: &str,
 ) -> impl Iterator<Item = Result<EvaluatedExpression, String>> {
     let parsed_input = parse(input);
 
@@ -29,6 +30,8 @@ pub(super) fn handle_evaluate_internal(
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use crate::evaluation::EvaluatedExpression;
 
     use super::*;
@@ -38,7 +41,7 @@ mod tests {
     #[test_case("1-(-2)", "3")]
     #[test_case("3+(2) * 2", "7")]
     fn test_handle_evaluate(input: &str, expected: &str) {
-        test(input, expected)
+        test(input, expected);
     }
 
     #[test_case("1+(2) * 3", "7")]
@@ -63,11 +66,11 @@ mod tests {
     #[test_case("\"hello world!\"", "hello world!")]
     #[test_case("true", "true")]
     fn test_all_handle_evaluate(input: &str, expected: &str) {
-        test(input, expected)
+        test(input, expected);
     }
 
     fn test(input: &str, expected: &str) {
-        let handle_evaluate_internal = handle_evaluate_internal(input.to_string())
+        let handle_evaluate_internal = handle_evaluate_internal(input)
             .collect::<Result<Vec<_>, _>>()
             .unwrap();
         let result = handle_evaluate_internal.first().unwrap();
@@ -76,19 +79,17 @@ mod tests {
     }
     #[test_case(" \"foo\" + false")]
     fn test_handle_evaluate_error(input: &str) {
-        test_error(input)
+        test_error(input);
     }
 
     #[test]
     fn test_function_with_return() {
-        let input = r#"
+        let input = r"
     	fun foo() { return 10; }
     	print foo();
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -111,9 +112,7 @@ mod tests {
     	sayHello("Bob");
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
 
         res.unwrap_or_else(|e| {
             dbg!(e);
@@ -138,9 +137,7 @@ mod tests {
     	returnFunCallWithArg(printArg, "quz");
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
 
         res.unwrap_or_else(|e| {
             dbg!(e);
@@ -185,9 +182,7 @@ mod tests {
 	
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
 
         res.unwrap_or_else(|e| {
             dbg!(e);
@@ -196,7 +191,7 @@ mod tests {
     }
     #[test]
     fn test_global_scope_change() {
-        let input = r#"
+        let input = r"
     	var count = 2;
 
 		fun tick() {
@@ -204,11 +199,9 @@ mod tests {
 			print count;
 		}
 		tick();
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
 
         res.unwrap_or_else(|e| {
             dbg!(e);
@@ -233,9 +226,7 @@ mod tests {
 		while (!tick()) {}
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
 
         res.unwrap_or_else(|e| {
             dbg!(e);
@@ -245,7 +236,7 @@ mod tests {
 
     #[test]
     fn test_return_function_with_closure() {
-        let input = r#"
+        let input = r"
     	fun outer(i) {
 			var x = 1;
 			fun inner(){
@@ -256,11 +247,9 @@ mod tests {
     		return inner;
     	}
     	print outer(1)();
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -268,7 +257,7 @@ mod tests {
     }
     #[test]
     fn test_recursive_function_with_return() {
-        let input = r#"
+        let input = r"
     	// This program computes the 35th Fibonacci number
     	fun mult(x, n) {
 
@@ -280,11 +269,9 @@ mod tests {
     	}
 
     	print mult(5, 2);
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -301,9 +288,7 @@ mod tests {
 		print f();
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -321,9 +306,7 @@ mod tests {
 		print f();
     	"#;
 
-        let file_contents = String::from(input);
-
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -332,7 +315,7 @@ mod tests {
 
     #[test]
     fn test_fibonacii_function_with_return() {
-        let input = r#"
+        let input = r"
     	// This program computes the 35th Fibonacci number
     	fun fib(n) {
     	  if (n < 2) return n;
@@ -342,10 +325,9 @@ mod tests {
     	var start = clock();
     	print fib(10) == 55;
     	print (clock() - start) < 5; // 5 seconds
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -353,14 +335,13 @@ mod tests {
     }
     #[test]
     fn test_custom_function_with_args_print() {
-        let input = r#"
+        let input = r"
 		// This function takes three arguments and prints their sum
 		fun f3(a, b, c) { print a + b + c; }
 		f3(36, 36, 36);
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -368,14 +349,13 @@ mod tests {
     }
     #[test]
     fn test_custom_function_with_arg_print() {
-        let input = r#"
+        let input = r"
 		// This is a simple function that takes one argument and prints it
 		fun f1(a) { print a; }
 		f1(43);
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -383,14 +363,13 @@ mod tests {
     }
     #[test]
     fn test_custom_function_print() {
-        let input = r#"
+        let input = r"
     	// This program should print <fn foo>
 		fun foo() {}
 		print foo;
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -398,13 +377,12 @@ mod tests {
     }
     #[test]
     fn test_custom_function() {
-        let input = r#"
+        let input = r"
     	fun bar() { print 10; }
 		bar();
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -428,8 +406,7 @@ mod tests {
 		cumulative_sum();
     	"#;
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -437,12 +414,11 @@ mod tests {
     }
     #[test]
     fn test_function_clock() {
-        let input = r#"
+        let input = r"
     	print clock() + 48;
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -456,8 +432,7 @@ mod tests {
 		print "hello world!";
     	"#;
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -471,7 +446,7 @@ mod tests {
     // 	 for (var a = 1; {}; a = a + 1) {}
     // 	"#;
 
-    //     let res: Result<Vec<_>, _> = handle_evaluate_internal(input.to_string()).collect();
+    //     let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
     //     assert!(res.is_err());
     // }
     // #[test]
@@ -480,24 +455,23 @@ mod tests {
     // 	 for ({}; a < 2; a = a + 1) {}
     // 	"#;
 
-    //     let _ = handle_evaluate(input.to_string());
+    //     let _ = handle_evaluate(input);
     // }
     // #[test]
     // fn test_invalid_for_increment() {
     //     let input = r#"
     // 	for (var a = 1; a < 2; {}) {}
     // 	"#;
-    //     let _ = handle_evaluate(input.to_string());
+    //     let _ = handle_evaluate(input);
     // }
     #[test]
     fn test_while_operator() {
-        let input = r#"
+        let input = r"
     	var foo = 0;
     	while (foo < 3) print foo = foo + 1;
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -505,12 +479,11 @@ mod tests {
     }
     #[test]
     fn test_for_operator() {
-        let input = r#"
+        let input = r"
     	for (var foo = 0; foo < 3;) print foo = foo + 1;
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -519,12 +492,11 @@ mod tests {
 
     #[test]
     fn test_for_inc_operator() {
-        let input = r#"
+        let input = r"
     	for (var foo = 0; foo < 3; foo = foo + 1) print foo;
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -533,7 +505,7 @@ mod tests {
 
     #[test]
     fn test_for_no_declaration() {
-        let input = r#"
+        let input = r"
     	var baz = 0;
 		for (; baz < 2; baz = baz + 1) print baz;
 
@@ -541,10 +513,9 @@ mod tests {
 		  print hello;
 		  hello = hello + 1;
 		}
-    	"#;
+    	";
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -562,15 +533,14 @@ mod tests {
 		print 24 and "hello" and 24;
 		"#;
 
-        let file_contents = String::from(input);
-        let _ = r#"
+        let _ = r"
 			false
 			1
 			false
 			true
 			24
-		"#;
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+		";
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -590,8 +560,7 @@ mod tests {
 		if (nil or "ok") print "foo";
 		"#;
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -609,8 +578,7 @@ mod tests {
 		print f();
 		"#;
 
-        let file_contents = String::from(input);
-        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(input).collect();
         res.unwrap_or_else(|e| {
             dbg!(e);
             panic!("Error");
@@ -620,22 +588,22 @@ mod tests {
     #[test_case(" false / false")]
     #[test_case(" \"bar\" / 47")]
     #[test_case("14 * \"bar\"")]
-    #[test_case(r#"print a;"#)]
+    #[test_case(r"print a;")]
     #[test_case(
-        r#"
+        r"
     	var quz;
     	quz = 1;
     	print quz;
     	print quz = 2;
     	print quz;
-    "#
+    "
     )]
     #[test_case(
-        r#"
+        r"
     	var world = 21;
     	var result = (world + bar) / foo;
     	print result;
-    "#
+    "
     )]
     #[test_case(
         r#"
@@ -655,20 +623,20 @@ mod tests {
     	"#
     )]
     #[test_case(
-        r#"
+        r"
 		fun f(a, b) {}
 		f(1); // expect runtime error: Expected 2 arguments but got 1.
-	"#
+	"
     )]
     fn test_all_handle_evaluate_error(input: &str) {
-        test_error(input)
+        test_error(input);
     }
 
     fn test_error(input: &str) {
-        let res = parse(input.to_string());
+        let res = parse(input);
         let res: Result<Vec<EvaluatedExpression>, String> = res
             .iter()
-            .map(|x| x.evaluate(&mut Default::default())?.assert_value())
+            .map(|x| x.evaluate(&mut Rc::default())?.assert_value())
             .collect();
         assert!(res.is_err());
     }

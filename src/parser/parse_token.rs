@@ -9,16 +9,16 @@ use super::ParseError;
 use crate::{
     evaluation::Expression,
     parser::{create_error, parse_expression, parse_expressions, parse_precedence},
-    sub_tokens::*,
+    sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
     token_type::TokenType,
 };
-use handle_assignment::*;
-use handle_conditionals::*;
-use handle_for::*;
-use handle_fun::*;
-use handle_identifier::*;
-use handle_while::*;
+use handle_assignment::handle_assignment;
+use handle_conditionals::handle_conditionals;
+use handle_for::handle_for;
+use handle_fun::handle_fun;
+use handle_identifier::handle_identifier;
+use handle_while::handle_while;
 use std::{iter::Peekable, slice::Iter};
 pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
 
@@ -70,30 +70,20 @@ pub fn parse_token(
         IDENTIFIER(_) => handle_identifier(token, input)?,
         MINUS => {
             let left = expression_stack.pop();
-            let value = match left {
-                Some(left) => {
-                    let right = parse_precedence(token, input, expression_stack)?.unwrap();
-                    Expression::Binary(Box::new(left), token.clone(), Box::new(right))
-                }
-                None => {
-                    let right =
-                        parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
-                    Expression::Unary(token.clone(), Box::new(right))
-                }
+            let value = if let Some(left) = left {
+                let right = parse_precedence(token, input, expression_stack)?.unwrap();
+                Expression::Binary(Box::new(left), token.clone(), Box::new(right))
+            } else {
+                let right =
+                    parse_token(input.next().unwrap(), input, expression_stack)?.unwrap();
+                Expression::Unary(token.clone(), Box::new(right))
             };
             value.into()
         }
 
-        PLUS
-        | GREATER(GreaterType::GREATER)
-        | SLASH(SlashType::SLASH)
-        | LESS(LessType::LESS)
-        | LESS(LessType::LESS_EQUAL)
-        | BANG(BangType::BANG_EQUAL)
-        | GREATER(GreaterType::GREATER_EQUAL)
-        | EQUAL(EqualType::EQUAL_EQUAL)
-        | OR
-        | AND => {
+        PLUS | GREATER(GreaterType::GREATER | GreaterType::GREATER_EQUAL) |
+SLASH(SlashType::SLASH) | LESS(LessType::LESS | LessType::LESS_EQUAL) |
+BANG(BangType::BANG_EQUAL) | EQUAL(EqualType::EQUAL_EQUAL) | OR | AND => {
             let left = expression_stack.pop().ok_or_else(|| create_error(token))?;
             let right = parse_precedence(token, input, expression_stack)?.unwrap();
 
@@ -189,7 +179,7 @@ pub fn parse_token(
 
         IF => handle_conditionals(expression_stack, token, input)?,
         e => {
-            panic!("Invalid token type {:?}", e);
+            panic!("Invalid token type {e:?}");
         }
     };
     Ok(expr)

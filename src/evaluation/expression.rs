@@ -52,13 +52,13 @@ impl std::fmt::Display for Expression {
             Unary(op, right) => {
                 format!("({} {})", op.token_type.get_lexeme(), right)
             }
-            Grouping(expr) => format!("(group {})", expr),
+            Grouping(expr) => format!("(group {expr})"),
             FunctionCall(name, args) => {
                 format!(
                     "function {}:{}",
                     name,
                     args.iter()
-                        .map(|s| s.to_string())
+                        .map(std::string::ToString::to_string)
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
                         .unwrap()
                 )
@@ -68,7 +68,7 @@ impl std::fmt::Display for Expression {
                     "function lambda {}:{}",
                     expr,
                     args.iter()
-                        .map(|s| s.to_string())
+                        .map(std::string::ToString::to_string)
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
                         .unwrap()
                 )
@@ -86,13 +86,13 @@ impl std::fmt::Display for Expression {
                     name,
                     exprs
                         .iter()
-                        .map(|s| s.to_string())
+                        .map(std::string::ToString::to_string)
                         .reduce(|cur: String, nxt: String| cur + &nxt)
                         .unwrap()
                 )
             }
             Variable(tok, expr) => {
-                format!("variable declaration {:?}:{}", tok, expr)
+                format!("variable declaration {tok:?}:{expr}")
             }
             IfElse {
                 condition,
@@ -100,13 +100,13 @@ impl std::fmt::Display for Expression {
                 else_expr,
             } => {
                 let else_expr = match else_expr {
-                    Some(expr) => format!("else {}", expr),
-                    None => "".to_string(),
+                    Some(expr) => format!("else {expr}"),
+                    None => String::new(),
                 };
-                format!("if {} then {} {}", condition, then, else_expr)
+                format!("if {condition} then {then} {else_expr}")
             }
             While { condition, then } => {
-                format!("while {} then {}", condition, then)
+                format!("while {condition} then {then}")
             }
             For {
                 declaration,
@@ -114,12 +114,11 @@ impl std::fmt::Display for Expression {
                 increment,
                 then,
             } => format!(
-                "for {} {} {:?} then {}",
-                declaration, condition, increment, then
+                "for {declaration} {condition} {increment:?} then {then}"
             ),
-            Return(expr) => format!("return {}", expr),
+            Return(expr) => format!("return {expr}"),
         };
-        write!(f, "{}", value)
+        write!(f, "{value}")
     }
 }
 
@@ -138,7 +137,7 @@ impl From<TokenType> for ValueType {
     }
 }
 impl Expression {
-    pub fn nil() -> Expression {
+     pub fn nil() -> Expression {
         Expression::Literal(Token::nil())
     }
 }

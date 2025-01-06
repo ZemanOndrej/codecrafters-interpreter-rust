@@ -6,7 +6,7 @@ pub enum EqualType {
 }
 
 impl EqualType {
-    pub fn get_lexeme(&self) -> String {
+     pub fn get_lexeme(&self) -> String {
         use EqualType::*;
         match self {
             EQUAL => "=",
@@ -24,6 +24,6 @@ impl std::fmt::Display for EqualType {
             EQUAL => "EQUAL",
             EQUAL_EQUAL => "EQUAL_EQUAL",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

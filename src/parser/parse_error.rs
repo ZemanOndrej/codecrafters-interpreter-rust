@@ -18,8 +18,7 @@ impl From<&str> for ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ParseError::Default(value) => write!(f, "{}", value),
-            ParseError::Syntax(value) => write!(f, "{}", value),
+            ParseError::Syntax(value) | ParseError::Default(value) => write!(f, "{value}"),
         }
     }
 }

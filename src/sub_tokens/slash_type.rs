@@ -6,7 +6,7 @@ pub enum SlashType {
 }
 
 impl SlashType {
-    pub fn get_lexeme(&self) -> String {
+     pub fn get_lexeme(&self) -> String {
         use SlashType::*;
         match self {
             SLASH => "/",
@@ -25,6 +25,6 @@ impl std::fmt::Display for SlashType {
             COMMENT => "COMMENT",
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

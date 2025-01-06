@@ -7,17 +7,17 @@ mod tests {
     #[test_case("print clock(;", "Error at ';': Expect expression.")]
     #[test_case("print clock)));", "Error at ')': Expect ';' after value.")]
     #[test_case(
-        r#"
+        r"
     	fun f() 74;
     	print f();
-    "#,
+    ",
         "Error at '74': Expect '{' before function body."
     )]
     #[test_case(
-        r#"
+        r"
     	fun foo(a, b c, d, e, f) {}
     	foo();
-    "#,
+    ",
         "Error at 'c': Expect ')' after parameters."
     )]
     fn test_handle_evaluate_error(input: &str, expected_err: &str) {
@@ -25,8 +25,7 @@ mod tests {
     }
 
     pub fn test_handle_parse_error(input: &str, expected_err: &str) {
-        let file_contents = String::from(input);
-        let result = parse_internal(file_contents);
+        let result = parse_internal(input);
         assert!(result.is_err());
         let err = result.unwrap_err();
 

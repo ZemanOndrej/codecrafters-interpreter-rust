@@ -1,7 +1,7 @@
 use super::handle_evaluate;
 
-pub fn handle_run(input: String) {
-    handle_evaluate(input);
+pub fn handle_run(input: &str) {
+    _ = handle_evaluate(input);
 }
 
 #[cfg(test)]
@@ -10,28 +10,28 @@ mod tests {
     use ntest::test_case;
 
     #[test_case(
-        r#"
+        r"
 		var fahrenheit = 0;
 		fahrenheit = 43 * 9 / 5 + 32;
 		print fahrenheit;
-		"#
+		"
     )]
     #[test_case(
-        r#"
+        r"
 		var a = 1;
 		var b = 0;
 		b = (a = 2) *2;
 		print a;
 		print b;
-    	"#
+    	"
     )]
     #[test_case(
-        r#"
+        r"
 		var a = false;
 		if (a = true) {
 		  print (a == true);
 		}
-		"#
+		"
     )]
     #[test_case(
         r#"
@@ -83,7 +83,7 @@ mod tests {
 		"#
     )]
     #[test_case(
-        r#"
+        r"
 		{
 			var quz = 29;
 			{
@@ -92,7 +92,7 @@ mod tests {
 			}
 			print quz;
 		}
-    	"#
+    	"
     )]
     #[test_case(
         r#"
@@ -109,39 +109,39 @@ mod tests {
     	"#
     )]
     #[test_case(
-        r#"
+        r"
     	var a;
     	var b;
     	a = b = 89;
-    	"#
+    	"
     )]
     fn test_handle_run(input: &str) {
-        handle_run(input.to_string());
+        handle_run(input);
     }
 
     #[test_case("28 - 84 * 67 - 54", "-5654")]
     fn test_handle_run(input: &str, expected: &str) {
-        let result = handle_evaluate(input.to_string());
+        let result = handle_evaluate(input);
         let result = result.first().unwrap().as_str();
         assert_eq!(result, expected);
     }
     #[test_case(
-        r#"
+        r"
     	var a;
     	a = 2;
-    	print a;"#
+    	print a;"
     )]
     #[test_case(
-        r#"
+        r"
     	var a;
     	var b = 2;
     	var a = b = 1;
     	print a;
-    "#
+    "
     )]
 
     fn test_handle_run(input: &str) {
-        handle_run(input.to_string());
+        handle_run(input);
     }
     #[test_case("var a;")]
     #[test_case(
@@ -151,23 +151,23 @@ mod tests {
     	print a;"#
     )]
     fn test_handle_run(input: &str) {
-        handle_run(input.to_string());
+        handle_run(input);
     }
 
     #[test_case(
-        r#"
+        r"
 		var bar;
 		print bar;
-	"#
+	"
     )]
     #[test_case(
-        r#"
+        r"
     	var bar = 49;
     	var hello = 49;
     	print bar + hello;
     	var quz = 49;
     	print bar + hello + quz;
-    "#
+    "
     )]
     #[test_case(
         r#"
@@ -175,8 +175,8 @@ mod tests {
     	print a;"#
     )]
     #[test_case("1+2*3;")]
-    #[test_case(r#"1 >= -2 + 3 ;"#)]
-    #[test_case(r#"1 >= 1 * 2 ;"#)]
+    #[test_case(r"1 >= -2 + 3 ;")]
+    #[test_case(r"1 >= 1 * 2 ;")]
     #[test_case(
         r#"
     (27 + 25 - 46) > (43 - 27) * 2;
@@ -209,13 +209,13 @@ mod tests {
     "#
     )]
     fn test_all_handle_evaluate(input: &str) {
-        handle_run(input.to_string());
+        handle_run(input);
     }
     #[test_case("print \"Hello, World!\";")]
     #[test_case("print \"world\" + \"foo\" + \"baz\";")]
     #[test_case("print false;")]
     fn test_all_handle_evaluate(input: &str) {
-        handle_run(input.to_string());
+        handle_run(input);
         // let expected = vec![expected.to_string()];
         // dbg!(result.clone());
         // dbg!(expected.clone());
@@ -235,11 +235,11 @@ mod tests {
     // "#
     // )]
     // fn test_all_handle_evaluate(input: &str) {
-    //     handle_run(input.to_string());
+    //     handle_run(input);
     // }
 
     // fn test(input: &str, expected: &str) {
-    //     let result = handle_evaluate(input.to_string());
+    //     let result = handle_evaluate(input);
     //     let expected = vec![expected.to_string()];
     //     dbg!(result.clone());
     //     dbg!(expected.clone());

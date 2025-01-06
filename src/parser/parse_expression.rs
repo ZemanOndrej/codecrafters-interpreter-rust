@@ -1,6 +1,5 @@
-use crate::{evaluation::Expression, sub_tokens::SlashType, token::Token, token_type::TokenType};
-
 use super::{parse_token::parse_token, InputIter, ParseError};
+use crate::{evaluation::Expression, sub_tokens::SlashType, token::Token, token_type::TokenType};
 
 pub fn parse_expression_with_stack(
     input: &mut InputIter,
@@ -22,13 +21,8 @@ pub fn parse_expression(
     end_tokens: &[TokenType],
     remove_end_token: bool,
 ) -> Result<(Expression, Token), ParseError> {
-    let (mut stack, next) = parse_expression_internal(
-        input,
-        token,
-        end_tokens,
-        remove_end_token,
-        Default::default(),
-    )?;
+    let (mut stack, next) =
+        parse_expression_internal(input, token, end_tokens, remove_end_token, Vec::default())?;
     let inner = stack
         .pop()
         .ok_or(generate_error_message(token, end_tokens))?;
@@ -41,13 +35,8 @@ pub fn parse_expressions(
     end_tokens: &[TokenType],
     remove_end_token: bool,
 ) -> Result<(Vec<Expression>, Token), ParseError> {
-    let (stack, next) = parse_expression_internal(
-        input,
-        token,
-        end_tokens,
-        remove_end_token,
-        Default::default(),
-    )?;
+    let (stack, next) =
+        parse_expression_internal(input, token, end_tokens, remove_end_token, Vec::default())?;
 
     Ok((stack, next.unwrap()))
 }
@@ -61,7 +50,7 @@ fn parse_expression_internal(
 ) -> Result<(Vec<Expression>, Option<Token>), ParseError> {
     let mut next: Option<&Token>;
     loop {
-        next = input.peek().cloned();
+        next = input.peek().copied();
         let Some(next) = next else {
             // dbg!(&next);
             return Err(generate_error_message(token, end_tokens));

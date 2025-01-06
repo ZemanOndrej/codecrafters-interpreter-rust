@@ -6,7 +6,7 @@ pub enum GreaterType {
 }
 
 impl GreaterType {
-    pub fn get_lexeme(&self) -> String {
+     pub fn get_lexeme(&self) -> String {
         use GreaterType::*;
         match self {
             GREATER => ">",
@@ -24,6 +24,6 @@ impl std::fmt::Display for GreaterType {
             GREATER => "GREATER",
             GREATER_EQUAL => "GREATER_EQUAL",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

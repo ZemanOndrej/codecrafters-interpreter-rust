@@ -34,7 +34,7 @@ pub fn handle_literal(
                     } => Ok(EvaluatedExpression {
                         value_type: ValueType::FUNCTION {
                             name: name.to_string(),
-                            params: params.iter().map(|a| a.to_string()).collect(),
+                            params: params.iter().map(std::string::ToString::to_string).collect(),
                             body: body.clone(),
                             context: context.clone(),
                         },

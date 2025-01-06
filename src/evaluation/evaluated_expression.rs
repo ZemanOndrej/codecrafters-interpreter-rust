@@ -39,7 +39,7 @@ impl From<ValueType> for EvaluatedExpression {
 }
 
 impl EvaluatedExpression {
-    pub fn to_bool(&self) -> bool {
+     pub fn to_bool(&self) -> bool {
         use ValueType::*;
         match self.value_type {
             BOOL(v) => v,
@@ -49,7 +49,7 @@ impl EvaluatedExpression {
             NIL => false,
         }
     }
-    pub fn nil() -> EvaluatedExpression {
+     pub fn nil() -> EvaluatedExpression {
         EvaluatedExpression {
             value_type: ValueType::NIL,
         }
@@ -74,11 +74,11 @@ impl std::fmt::Display for ValueType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use ValueType::*;
         match self {
-            NUMBER(v) => write!(f, "{}", v),
-            STRING(v) => write!(f, "{}", v),
-            BOOL(v) => write!(f, "{}", v),
+            NUMBER(v) => write!(f, "{v}"),
+            STRING(v) => write!(f, "{v}"),
+            BOOL(v) => write!(f, "{v}"),
             FUNCTION { name, .. } => {
-                write!(f, "<fn {}>", name,)
+                write!(f, "<fn {name}>",)
             }
             NIL => write!(f, "nil"),
         }
@@ -88,9 +88,9 @@ impl fmt::Debug for ValueType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use ValueType::*;
         match self {
-            NUMBER(v) => write!(f, "NUMBER({})", v),
-            STRING(v) => write!(f, "STRING({})", v),
-            BOOL(v) => write!(f, "BOOL({})", v),
+            NUMBER(v) => write!(f, "NUMBER({v})"),
+            STRING(v) => write!(f, "STRING({v})"),
+            BOOL(v) => write!(f, "BOOL({v})"),
             FUNCTION {
                 name,
                 params,

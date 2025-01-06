@@ -1,17 +1,17 @@
 use crate::{sub_tokens::SlashType, token_type::TokenType, tokenizer::tokenize};
 use std::process::exit;
 
-pub fn handle_tokenize(input: String) {
-    let tokens = tokenize(input.as_str());
+pub fn handle_tokenize(input: &str) {
+    let tokens = tokenize(input);
 
     let mut has_error = false;
-    for result in tokens.iter() {
+    for result in &tokens {
         match result {
             Ok(token) => {
                 if token.token_type == TokenType::SLASH(SlashType::COMMENT) {
                     continue;
                 }
-                println!("{}", token);
+                println!("{token}");
             }
             Err(e) => {
                 eprintln!("{}", e.message);
@@ -30,7 +30,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_multiple_identifiers() {
-        let input = r#"
+        let input = r"
 		nil 
 		IF 
 		WHILE
@@ -63,7 +63,7 @@ mod tests {
 		FALSE
 		FUN
 		or
-		"#;
+		";
 
         let expected = vec![
             "NIL nil null",

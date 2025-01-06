@@ -8,6 +8,7 @@ pub use print::*;
 
 use crate::evaluation::{ContextRef, EvaluatedExpression, Expression};
 
+
 pub fn get_builtin_fns() -> HashMap<&'static str, BuiltinFn<'static>> {
     let mut builtin_fns = HashMap::new();
 

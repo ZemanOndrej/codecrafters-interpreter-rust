@@ -1,6 +1,6 @@
 use crate::{
     evaluation::{EvaluatedExpression, ValueType},
-    sub_tokens::*,
+    sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType},
     token::Token,
     token_type::TokenType,
 };

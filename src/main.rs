@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-#![allow(clippy::enum_glob_use)]
 use codecrafters_interpreter::handlers::{
     handle_evaluate, handle_parse, handle_run, handle_tokenize, Operation,
 };
@@ -28,20 +26,20 @@ fn main() {
     });
     match command {
         Parse => {
-            let result = handle_parse(file_contents);
+            let result = handle_parse(file_contents.as_str());
             for expr in &result {
                 println!("{expr}");
             }
         }
-        Tokenize => handle_tokenize(file_contents),
+        Tokenize => handle_tokenize(file_contents.as_str()),
         Evaluate => {
-            let result = handle_evaluate(file_contents);
+            let result = handle_evaluate(file_contents.as_str());
             for expr in &result {
                 println!("{expr}");
             }
         }
         Run => {
-            handle_run(file_contents);
+            handle_run(file_contents.as_str());
         }
     }
 }

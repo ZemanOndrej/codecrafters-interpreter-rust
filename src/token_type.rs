@@ -1,4 +1,6 @@
-use crate::sub_tokens::*;
+#![allow(clippy::missing_panics_doc)]
+
+use crate::sub_tokens::{BangType, EqualType, GreaterType, LessType, SlashType};
 
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -84,16 +86,16 @@ impl TokenType {
             // TRUE | FALSE | NIL => self.get_lexeme(),
             NUMBER(value) => {
                 let value = if value.contains('.') {
-                    value.trim_end_matches("0")
+                    value.trim_end_matches('0')
                 } else {
                     value
                 };
                 let Ok(number) = value.parse::<f64>() else {
-                    panic!("Invalid TokenType number with value {}.", value)
+                    panic!("Invalid TokenType number with value {value}.")
                 };
 
                 if number.fract() == 0.0 {
-                    format!("{:.1}", number) // Format with one decimal place
+                    format!("{number:.1}") // Format with one decimal place
                 } else {
                     value.to_string() // Preserve all decimal places
                 }
@@ -111,6 +113,7 @@ impl TokenType {
         };
         value
     }
+
     pub fn get_lexeme(&self) -> String {
         use TokenType::*;
         match self {
@@ -133,8 +136,8 @@ impl TokenType {
             GREATER(n) => n.get_lexeme(),
             LESS(n) => n.get_lexeme(),
             // LESS_EQUAL => "<=".to_string(),
-            STRING(v) => format!("\"{}\"", v),
-            NUMBER(v) => v.to_string(),
+            STRING(v) => format!("\"{v}\""),
+            NUMBER(v) | IDENTIFIER(v) => v.to_string(),
             AND => "and".to_string(),
             CLASS => "class".to_string(),
             ELSE => "else".to_string(),
@@ -151,19 +154,17 @@ impl TokenType {
             TRUE => "true".to_string(),
             VAR => "var".to_string(),
             WHILE => "while".to_string(),
-            EOF => "".to_string(),
-            IDENTIFIER(v) => v.to_string(),
+            EOF => String::new(),
         }
     }
+
     pub fn get_precedence(&self) -> i32 {
         use TokenType::*;
         match self {
             STAR | SLASH(SlashType::SLASH) => 1,
             PLUS | MINUS => 2,
-            GREATER(GreaterType::GREATER)
-            | GREATER(GreaterType::GREATER_EQUAL)
-            | LESS(LessType::LESS)
-            | LESS(LessType::LESS_EQUAL)
+            GREATER(GreaterType::GREATER | GreaterType::GREATER_EQUAL)
+            | LESS(LessType::LESS | LessType::LESS_EQUAL)
             | EQUAL(EqualType::EQUAL_EQUAL)
             | BANG(BangType::BANG_EQUAL) => 3,
             _ => 4,
@@ -180,9 +181,7 @@ impl TokenType {
 
         match input {
             " " | "\r" | "\t" => Token(TokenType::EOF),
-            "$" | "#" | "@" | "%" => {
-                ParseOutput::Invalid(format!("Unexpected character: {}", input))
-            }
+            "$" | "#" | "@" | "%" => ParseOutput::Invalid(format!("Unexpected character: {input}")),
             "(" => Token(LEFT_PAREN),
             ")" => Token(RIGHT_PAREN),
             "{" => Token(LEFT_BRACE),
@@ -201,7 +200,7 @@ impl TokenType {
             ">" => Partial(GREATER(GreaterType::GREATER)),
             // ">=" => Token(GREATER(GreaterType::GREATER_EQUAL)),
             "<" => Partial(LESS(LessType::LESS)),
-            "\"" => Partial(STRING("".into())),
+            "\"" => Partial(STRING(String::new())),
             // "<=" => Token(LESS(LessType::LESS_EQUAL)),
             // "STRING" => STRING(input[1..input.len() - 1].into()),
             // "NUMBER" => NUMBER,
@@ -224,6 +223,7 @@ impl TokenType {
             _ => Partial(IDENTIFIER(input.into())),
         }
     }
+
     pub fn parse_partial(input: &str, partial: TokenType) -> PartialParseOutput {
         use PartialParseOutput::*;
         use TokenType::*;
@@ -237,6 +237,7 @@ impl TokenType {
             _ => Mismatched(partial),
         }
     }
+
     pub fn is_keyword(input: &str) -> bool {
         let lowercase = input.to_lowercase();
         matches!(
@@ -274,12 +275,12 @@ impl std::fmt::Display for TokenType {
             MINUS => "MINUS",
             PLUS => "PLUS",
             SEMICOLON => "SEMICOLON",
-            SLASH(n) => return write!(f, "{}", n),
+            SLASH(n) => return write!(f, "{n}"),
             STAR => "STAR",
-            BANG(n) => return write!(f, "{}", n),
-            EQUAL(n) => return write!(f, "{}", n),
-            GREATER(n) => return write!(f, "{}", n),
-            LESS(n) => return write!(f, "{}", n),
+            BANG(n) => return write!(f, "{n}"),
+            EQUAL(n) => return write!(f, "{n}"),
+            GREATER(n) => return write!(f, "{n}"),
+            LESS(n) => return write!(f, "{n}"),
             IDENTIFIER(_) => "IDENTIFIER",
             STRING(_) => "STRING",
             NUMBER(_) => "NUMBER",
@@ -301,6 +302,6 @@ impl std::fmt::Display for TokenType {
             WHILE => "WHILE",
             EOF => "EOF",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
