@@ -5,13 +5,13 @@ use crate::{
 
 pub fn handle_variable_assignment(
     context: &mut ContextRef,
-    expression: &Box<Expression>,
+    expression: &Expression,
     right: &EvaluatedExpression,
 ) -> Option<Result<EvaluatedExpressionResult, String>> {
     use Expression::*;
     use TokenType::*;
 
-    match &**expression {
+    match expression {
         Literal(t) => {
             if let IDENTIFIER(identifier) = &t.token_type {
                 if !context.borrow().contains_declaration(identifier) {
@@ -22,7 +22,7 @@ pub fn handle_variable_assignment(
                 }
                 context
                     .borrow_mut()
-                    .change_declaration(identifier, right.clone().into());
+                    .change_declaration(identifier, right.clone());
                 return Some(Ok(right.clone().into()));
             }
         }

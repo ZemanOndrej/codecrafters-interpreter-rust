@@ -2,7 +2,7 @@ use crate::evaluation::{ContextRef, EvaluatedExpressionResult, Expression, Value
 
 pub fn handle_return(
     context: &mut ContextRef,
-    expr: &Box<Expression>,
+    expr: &Expression,
 ) -> Result<EvaluatedExpressionResult, String> {
     // dbg!(expr);
     let res = expr.evaluate(context)?.assert_value()?;

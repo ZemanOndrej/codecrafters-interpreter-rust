@@ -3,7 +3,7 @@ use crate::evaluation::{Context, EvaluatedExpression};
 use std::process::exit;
 
 pub fn handle_evaluate(input: String) -> Vec<String> {
-    let result = handle_evaluate_internal(input)
+    handle_evaluate_internal(input)
         .map(|x| match x {
             Ok(x) => x.to_string(),
             Err(e) => {
@@ -12,9 +12,7 @@ pub fn handle_evaluate(input: String) -> Vec<String> {
                 exit(70);
             }
         })
-        .collect();
-
-    return result;
+        .collect()
 }
 
 pub(super) fn handle_evaluate_internal(
@@ -23,11 +21,10 @@ pub(super) fn handle_evaluate_internal(
     let parsed_input = parse(input);
 
     let mut context = Context::new_root();
-    let result = parsed_input
-        .into_iter()
-        .map(move |x| x.evaluate(&mut context)?.assert_value());
 
-    return result;
+    parsed_input
+        .into_iter()
+        .map(move |x| x.evaluate(&mut context)?.assert_value())
 }
 
 #[cfg(test)]
@@ -186,6 +183,54 @@ mod tests {
 		applyToNumbers(greaterThanY, 93 + 6);
 		
 	
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
+    #[test]
+    fn test_global_scope_change() {
+        let input = r#"
+    	var count = 2;
+
+		fun tick() {
+			count = count - 1;
+			print count;
+		}
+		tick();
+    	"#;
+
+        let file_contents = String::from(input);
+
+        let res: Result<Vec<_>, _> = handle_evaluate_internal(file_contents).collect();
+
+        res.unwrap_or_else(|e| {
+            dbg!(e);
+            panic!("Error");
+        });
+    }
+    #[test]
+    fn test_global_scope() {
+        let input = r#"
+    	var count = 3;
+
+		fun tick() {
+			if (count > 0) {
+				print count;
+				count = count - 1;
+				return false;
+			}
+			print "Blast off!";
+			return true;
+		}
+
+		while (!tick()) {}
     	"#;
 
         let file_contents = String::from(input);
@@ -518,7 +563,7 @@ mod tests {
 		"#;
 
         let file_contents = String::from(input);
-        r#"
+        let _ = r#"
 			false
 			1
 			false

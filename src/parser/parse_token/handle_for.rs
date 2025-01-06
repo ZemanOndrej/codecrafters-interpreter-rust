@@ -50,5 +50,5 @@ pub fn handle_for(
         parse_token(token, input, expression_stack)?.unwrap(),
     )?;
 
-    return Ok(Some(result));
+    Ok(Some(result))
 }

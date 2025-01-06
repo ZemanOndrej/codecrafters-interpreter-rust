@@ -16,14 +16,15 @@ impl LessType {
     }
 }
 
-impl ToString for LessType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for LessType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use LessType::*;
 
-        match self {
+        let s = match self {
             LESS => "LESS",
             LESS_EQUAL => "LESS_EQUAL",
-        }
-        .into()
+        };
+
+        write!(f, "{}", s)
     }
 }

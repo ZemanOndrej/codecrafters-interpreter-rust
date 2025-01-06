@@ -12,9 +12,9 @@ use handle_variable_assignment::*;
 
 pub fn handle_binary(
     context: &mut ContextRef,
-    expression: &Box<Expression>,
+    expression: &Expression,
     token: &Token,
-    expression1: &Box<Expression>,
+    expression1: &Expression,
 ) -> Result<EvaluatedExpressionResult, String> {
     // dbg!(expression, token, expression1);
     use TokenType::*;

@@ -25,13 +25,13 @@ pub fn tokenize(input: &str) -> Vec<Result<Token, TokenError>> {
 }
 
 fn process_chars(
-    mut chars: &mut Peekable<Chars<'_>>,
-    mut line_index: &mut usize,
+    chars: &mut Peekable<Chars<'_>>,
+    line_index: &mut usize,
 ) -> Result<Token, TokenError> {
     let mut state = String::new();
 
-    if state.len() == 0 {
-        let Some(c) = find_first_non_whitespace(&mut chars, line_index) else {
+    if state.is_empty() {
+        let Some(c) = find_first_non_whitespace(chars, line_index) else {
             return Ok(Token::new(TokenType::EOF, *line_index));
         };
         state.push(c);
@@ -40,26 +40,20 @@ fn process_chars(
     match parse_output {
         ParseOutput::Invalid(e) => {
             eprintln!("[line {}] Error: {}", *line_index + 1, e);
-            return Err(TokenError {
+            Err(TokenError {
                 line_index: *line_index,
                 message: e,
-            });
+            })
         }
         ParseOutput::Token(t) => {
             let token = Token::new(t, *line_index);
-            return Ok(token);
+            Ok(token)
         }
         ParseOutput::Partial(v) => {
             let token = match v {
-                TokenType::IDENTIFIER(v) => {
-                    handle_identifier(v, &mut chars, &mut state, *line_index)
-                }
-                TokenType::STRING(v) => {
-                    handle_string_literal(v, &mut chars, &mut state, *line_index)
-                }
-                TokenType::NUMBER(v) => {
-                    handle_number_literal(v, &mut chars, &mut state, *line_index)
-                }
+                TokenType::IDENTIFIER(v) => handle_identifier(v, chars, &mut state, *line_index),
+                TokenType::STRING(v) => handle_string_literal(v, chars, &mut state, *line_index),
+                TokenType::NUMBER(v) => handle_number_literal(v, chars, &mut state, *line_index),
                 _ => {
                     let next_char = chars.peek();
 
@@ -99,23 +93,23 @@ fn process_chars(
             match token {
                 Err(e) => {
                     eprintln!("[line {}] Error: {}", *line_index + 1, e);
-                    go_to_next_line(&mut chars, &mut line_index);
-                    return Err(TokenError {
+                    go_to_next_line(chars, line_index);
+                    Err(TokenError {
                         line_index: *line_index,
                         message: e,
-                    });
+                    })
                 }
                 Ok(token) => {
                     let token = match token.token_type {
                         TokenType::SLASH(SlashType::COMMENT) => {
-                            go_to_next_line(&mut chars, line_index);
+                            go_to_next_line(chars, line_index);
                             token
                         }
                         TokenType::IDENTIFIER(_) => handle_keyword(token, *line_index),
                         _ => token,
                     };
 
-                    return Ok(token);
+                    Ok(token)
                 }
             }
         }
@@ -124,7 +118,7 @@ fn process_chars(
     // (is_error, result)
 }
 fn go_to_next_line(chars: &mut Peekable<Chars<'_>>, line_index: &mut usize) {
-    while let Some(c) = chars.next() {
+    for c in chars.by_ref() {
         if c == '\n' {
             *line_index += 1;
             break;
@@ -136,7 +130,7 @@ fn find_first_non_whitespace(
     chars: &mut Peekable<Chars<'_>>,
     line_count: &mut usize,
 ) -> Option<char> {
-    while let Some(c) = chars.next() {
+    for c in chars.by_ref() {
         if c == '\n' {
             *line_count += 1;
         }

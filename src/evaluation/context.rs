@@ -77,12 +77,10 @@ impl Context {
             self.declarations
                 .insert(variable_name.to_string(), value.clone());
             return Some(value);
-        } else {
-            if let Some(parent) = &mut self.parent {
-                return parent.borrow_mut().change_declaration(variable_name, value);
-            }
+        } else if let Some(parent) = &mut self.parent {
+            return parent.borrow_mut().change_declaration(variable_name, value);
         }
-        return None;
+        None
     }
 }
 

@@ -110,33 +110,33 @@ impl fmt::Debug for ValueType {
     }
 }
 
-impl Into<EvaluatedExpression> for f64 {
-    fn into(self) -> EvaluatedExpression {
+impl From<f64> for EvaluatedExpression {
+    fn from(val: f64) -> Self {
         EvaluatedExpression {
-            value_type: ValueType::NUMBER(self),
+            value_type: ValueType::NUMBER(val),
         }
     }
 }
 
-impl Into<EvaluatedExpression> for bool {
-    fn into(self) -> EvaluatedExpression {
+impl From<bool> for EvaluatedExpression {
+    fn from(val: bool) -> Self {
         EvaluatedExpression {
-            value_type: ValueType::BOOL(self),
+            value_type: ValueType::BOOL(val),
         }
     }
 }
 
-impl Into<EvaluatedExpression> for String {
-    fn into(self) -> EvaluatedExpression {
+impl From<String> for EvaluatedExpression {
+    fn from(val: String) -> Self {
         EvaluatedExpression {
-            value_type: ValueType::STRING(self),
+            value_type: ValueType::STRING(val),
         }
     }
 }
-impl Into<EvaluatedExpression> for &str {
-    fn into(self) -> EvaluatedExpression {
+impl From<&str> for EvaluatedExpression {
+    fn from(val: &str) -> Self {
         EvaluatedExpression {
-            value_type: ValueType::STRING(self.to_string()),
+            value_type: ValueType::STRING(val.to_string()),
         }
     }
 }

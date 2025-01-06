@@ -4,22 +4,20 @@ use crate::evaluation::{
 
 pub fn handle_if_else(
     context: &mut ContextRef,
-    condition: &Box<Expression>,
-    then: &Box<Expression>,
+    condition: &Expression,
+    then: &Expression,
     else_expr: &Option<Box<Expression>>,
 ) -> Result<EvaluatedExpressionResult, String> {
     let condition = condition.evaluate(context)?.assert_value()?;
     if condition.to_bool() {
         then.evaluate(context)
+    } else if let Some(expr) = else_expr {
+        expr.evaluate(context)
     } else {
-        if let Some(expr) = else_expr {
-            expr.evaluate(context)
-        } else {
-            Ok(EvaluatedExpression {
-                // value: "".to_string(),
-                value_type: ValueType::NIL,
-            }
-            .into())
+        Ok(EvaluatedExpression {
+            // value: "".to_string(),
+            value_type: ValueType::NIL,
         }
+        .into())
     }
 }

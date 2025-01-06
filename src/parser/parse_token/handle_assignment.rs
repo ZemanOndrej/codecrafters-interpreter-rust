@@ -50,9 +50,9 @@ fn handle_next_assignment(
 
     let new_right = handle_assignment(expression_stack, token, input)?.unwrap();
 
-    return Ok(Some(Expression::Binary(
+    Ok(Some(Expression::Binary(
         Box::new(prev_left),
         token.clone(),
         Box::new(new_right),
-    )));
+    )))
 }

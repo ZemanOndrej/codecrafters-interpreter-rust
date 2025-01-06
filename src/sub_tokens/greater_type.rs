@@ -11,19 +11,19 @@ impl GreaterType {
         match self {
             GREATER => ">",
             GREATER_EQUAL => ">=",
-        }.into()
+        }
+        .into()
     }
 }
 
-impl ToString for GreaterType {
-	fn to_string(&self) -> String {
+impl std::fmt::Display for GreaterType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use GreaterType::*;
 
-		match self {
-			GREATER => "GREATER",
-			GREATER_EQUAL => "GREATER_EQUAL",
-			
-		}.into()
-
-	}
+        let s = match self {
+            GREATER => "GREATER",
+            GREATER_EQUAL => "GREATER_EQUAL",
+        };
+        write!(f, "{}", s)
+    }
 }

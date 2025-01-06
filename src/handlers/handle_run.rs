@@ -116,7 +116,7 @@ mod tests {
     	"#
     )]
     fn test_handle_run(input: &str) {
-        let _ = handle_run(input.to_string());
+        handle_run(input.to_string());
     }
 
     #[test_case("28 - 84 * 67 - 54", "-5654")]
@@ -141,7 +141,7 @@ mod tests {
     )]
 
     fn test_handle_run(input: &str) {
-        let _ = handle_run(input.to_string());
+        handle_run(input.to_string());
     }
     #[test_case("var a;")]
     #[test_case(
@@ -151,7 +151,7 @@ mod tests {
     	print a;"#
     )]
     fn test_handle_run(input: &str) {
-        let _ = handle_run(input.to_string());
+        handle_run(input.to_string());
     }
 
     #[test_case(
@@ -209,13 +209,13 @@ mod tests {
     "#
     )]
     fn test_all_handle_evaluate(input: &str) {
-        let _ = handle_run(input.to_string());
+        handle_run(input.to_string());
     }
     #[test_case("print \"Hello, World!\";")]
     #[test_case("print \"world\" + \"foo\" + \"baz\";")]
     #[test_case("print false;")]
     fn test_all_handle_evaluate(input: &str) {
-        let _ = handle_run(input.to_string());
+        handle_run(input.to_string());
         // let expected = vec![expected.to_string()];
         // dbg!(result.clone());
         // dbg!(expected.clone());
@@ -235,7 +235,7 @@ mod tests {
     // "#
     // )]
     // fn test_all_handle_evaluate(input: &str) {
-    //     let _ = handle_run(input.to_string());
+    //     handle_run(input.to_string());
     // }
 
     // fn test(input: &str, expected: &str) {

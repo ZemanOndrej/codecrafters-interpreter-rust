@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 #[derive(Debug)]
 pub enum Operation {
     Tokenize,
@@ -17,14 +19,20 @@ impl std::fmt::Display for Operation {
     }
 }
 
-impl Operation {
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s.to_lowercase().as_str() {
+impl FromStr for Operation {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let matched = match s.to_lowercase().as_str() {
             "tokenize" => Some(Self::Tokenize),
             "parse" => Some(Self::Parse),
             "evaluate" => Some(Self::Evaluate),
             "run" => Some(Self::Run),
             _ => None,
+        };
+        match matched {
+            Some(op) => Ok(op),
+            None => Err(()),
         }
     }
 }

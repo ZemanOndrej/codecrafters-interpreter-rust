@@ -16,14 +16,14 @@ impl BangType {
     }
 }
 
-impl ToString for BangType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for BangType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use BangType::*;
 
-        match self {
+        let s = match self {
             BANG => "BANG",
             BANG_EQUAL => "BANG_EQUAL",
-        }
-        .into()
+        };
+        write!(f, "{}", s)
     }
 }

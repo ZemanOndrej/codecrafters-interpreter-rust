@@ -16,14 +16,14 @@ impl EqualType {
     }
 }
 
-impl ToString for EqualType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for EqualType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use EqualType::*;
 
-        match self {
+        let s = match self {
             EQUAL => "EQUAL",
             EQUAL_EQUAL => "EQUAL_EQUAL",
-        }
-        .into()
+        };
+        write!(f, "{}", s)
     }
 }

@@ -54,7 +54,7 @@ pub fn handle_function_call(
 
 pub(super) fn eval_args(
     context: &mut ContextRef,
-    args: &Vec<Expression>,
+    args: &[Expression],
     fn_args: Vec<String>,
     closure: ContextRef,
     fn_name: &str,
@@ -69,7 +69,7 @@ pub(super) fn eval_args(
 
         child_context
             .borrow_mut()
-            .set_declaration(arg.to_string(), value.into());
+            .set_declaration(arg.to_string(), value);
     }
     Ok(child_context)
 }

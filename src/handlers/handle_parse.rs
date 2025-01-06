@@ -2,18 +2,19 @@ use crate::{
     evaluation::Expression,
     parser::{parse_tokens, ParseError},
     token::Token,
-    tokenize::{tokenize, TokenError},
+    tokenizer::{tokenize, TokenError},
 };
 use std::process::exit;
 
 pub fn handle_parse(input: String) -> Vec<String> {
     let result = parse(input);
-    return result.iter().map(|x| x.to_string()).collect();
+    result.iter().map(|x| x.to_string()).collect()
 }
 
 pub fn parse(input: String) -> Vec<Expression> {
     let result = parse_internal(input);
-    let result = match result {
+
+    match result {
         Ok(expr) => expr,
         Err(ParseError::Default(e)) => {
             dbg!(&e);
@@ -25,9 +26,7 @@ pub fn parse(input: String) -> Vec<Expression> {
             eprintln!("{}", e);
             exit(70);
         }
-    };
-
-    result
+    }
 }
 
 pub(super) fn parse_internal(input: String) -> Result<Vec<Expression>, ParseError> {
@@ -39,8 +38,7 @@ pub(super) fn parse_internal(input: String) -> Result<Vec<Expression>, ParseErro
         exit(65);
     };
 
-    let result = parse_tokens(tokens);
-    result
+    parse_tokens(tokens)
 }
 
 #[cfg(test)]

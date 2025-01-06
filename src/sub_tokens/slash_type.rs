@@ -1,4 +1,3 @@
-
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum SlashType {
@@ -17,14 +16,15 @@ impl SlashType {
     }
 }
 
-impl ToString for SlashType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for SlashType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use SlashType::*;
 
-        match self {
+        let s = match self {
             SLASH => "SLASH",
             COMMENT => "COMMENT",
-        }
-        .into()
+        };
+
+        write!(f, "{}", s)
     }
 }

@@ -9,7 +9,7 @@ use super::{Context, EvaluatedExpressionResult, Expression};
 pub fn handle_unary(
     context: &mut std::rc::Rc<std::cell::RefCell<Context>>,
     token: &crate::token::Token,
-    expression: &Box<Expression>,
+    expression: &Expression,
 ) -> Result<EvaluatedExpressionResult, String> {
     use TokenType::*;
     let evalueated_expr = expression.evaluate(context)?.assert_value()?;
@@ -29,11 +29,7 @@ pub fn handle_unary(
             } else if let ValueType::BOOL(value) = evalueated_expr.value_type {
                 value
             } else if let ValueType::NUMBER(number) = evalueated_expr.value_type {
-                if number != 0.0 {
-                    true
-                } else {
-                    false
-                }
+                number != 0.0
             } else {
                 true
             };

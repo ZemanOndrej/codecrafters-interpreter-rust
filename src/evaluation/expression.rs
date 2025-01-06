@@ -36,31 +36,27 @@ pub enum Expression {
     },
     Return(Box<Expression>),
 }
-
-impl ToString for Expression {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for Expression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Expression::*;
         use TokenType::*;
-        match self {
+        let value = match self {
             Literal(v) => match &v.token_type {
                 TRUE | FALSE | NIL => v.token_type.get_lexeme(),
                 NUMBER(_) => v.token_type.get_value(),
                 t => t.get_value(),
             },
-            Binary(left, op, right) => format!(
-                "({} {} {})",
-                op.token_type.get_lexeme(),
-                left.to_string(),
-                right.to_string()
-            ),
-            Unary(op, right) => {
-                format!("({} {})", op.token_type.get_lexeme(), right.to_string())
+            Binary(left, op, right) => {
+                format!("({} {} {})", op.token_type.get_lexeme(), left, right)
             }
-            Grouping(expr) => format!("(group {})", expr.to_string()),
+            Unary(op, right) => {
+                format!("({} {})", op.token_type.get_lexeme(), right)
+            }
+            Grouping(expr) => format!("(group {})", expr),
             FunctionCall(name, args) => {
                 format!(
                     "function {}:{}",
-                    name.to_string(),
+                    name,
                     args.iter()
                         .map(|s| s.to_string())
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
@@ -70,7 +66,7 @@ impl ToString for Expression {
             FunctionCallLambda(expr, args) => {
                 format!(
                     "function lambda {}:{}",
-                    expr.to_string(),
+                    expr,
                     args.iter()
                         .map(|s| s.to_string())
                         .reduce(|cur: String, nxt: String| format!("{}, {}", cur, &nxt))
@@ -87,7 +83,7 @@ impl ToString for Expression {
             Scope(name, exprs) => {
                 format!(
                     "scope {}:{}",
-                    name.to_string(),
+                    name,
                     exprs
                         .iter()
                         .map(|s| s.to_string())
@@ -96,7 +92,7 @@ impl ToString for Expression {
                 )
             }
             Variable(tok, expr) => {
-                format!("variable declaration {:?}:{}", tok, expr.to_string())
+                format!("variable declaration {:?}:{}", tok, expr)
             }
             IfElse {
                 condition,
@@ -104,18 +100,13 @@ impl ToString for Expression {
                 else_expr,
             } => {
                 let else_expr = match else_expr {
-                    Some(expr) => format!("else {}", expr.to_string()),
+                    Some(expr) => format!("else {}", expr),
                     None => "".to_string(),
                 };
-                format!(
-                    "if {} then {} {}",
-                    condition.to_string(),
-                    then.to_string(),
-                    else_expr
-                )
+                format!("if {} then {} {}", condition, then, else_expr)
             }
             While { condition, then } => {
-                format!("while {} then {}", condition.to_string(), then.to_string())
+                format!("while {} then {}", condition, then)
             }
             For {
                 declaration,
@@ -124,20 +115,18 @@ impl ToString for Expression {
                 then,
             } => format!(
                 "for {} {} {:?} then {}",
-                declaration.to_string(),
-                condition.to_string(),
-                increment,
-                then.to_string()
+                declaration, condition, increment, then
             ),
-            Return(expr) => format!("return {}", expr.to_string()),
-        }
+            Return(expr) => format!("return {}", expr),
+        };
+        write!(f, "{}", value)
     }
 }
 
-impl Into<ValueType> for TokenType {
-    fn into(self) -> ValueType {
+impl From<TokenType> for ValueType {
+    fn from(val: TokenType) -> Self {
         use TokenType::*;
-        match self {
+        match val {
             NUMBER(v) => ValueType::NUMBER(v.parse().unwrap()),
             STRING(v) => ValueType::STRING(v),
             TRUE => ValueType::BOOL(true),

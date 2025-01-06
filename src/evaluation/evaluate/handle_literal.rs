@@ -19,7 +19,7 @@ pub fn handle_literal(
         NUMBER(_) => {
             let value = t.token_type.get_value().parse::<f64>().unwrap();
             Ok(EvaluatedExpression {
-                value_type: ValueType::NUMBER(value).into(),
+                value_type: ValueType::NUMBER(value),
             }
             .into())
         }

@@ -1,4 +1,4 @@
-use crate::{sub_tokens::SlashType, token_type::TokenType, tokenize::tokenize};
+use crate::{sub_tokens::SlashType, token_type::TokenType, tokenizer::tokenize};
 use std::process::exit;
 
 pub fn handle_tokenize(input: String) {
@@ -11,7 +11,7 @@ pub fn handle_tokenize(input: String) {
                 if token.token_type == TokenType::SLASH(SlashType::COMMENT) {
                     continue;
                 }
-                println!("{}", token.to_string());
+                println!("{}", token);
             }
             Err(e) => {
                 eprintln!("{}", e.message);
@@ -115,7 +115,7 @@ mod tests {
         dbg!(&result);
 
         assert_eq!(result.len(), 3);
-        let first = result.get(0).unwrap().as_ref().unwrap();
+        let first = result.first().unwrap().as_ref().unwrap();
         let err = result.get(1).unwrap().as_ref();
         let second = result.get(2).unwrap().as_ref().unwrap();
         assert!(matches!(first.token_type, TokenType::STRING(_)));

@@ -69,18 +69,12 @@ pub enum PartialParseOutput {
 impl TokenType {
     pub fn is_bool_logic_operator(&self) -> bool {
         use TokenType::*;
-        match self {
-            AND | OR => true,
-            _ => false,
-        }
+        matches!(self, AND | OR)
     }
 
     pub fn is_ignored(&self) -> bool {
         use TokenType::*;
-        match self {
-            SLASH(SlashType::COMMENT) => true,
-            _ => false,
-        }
+        matches!(self, SLASH(SlashType::COMMENT))
     }
 
     pub fn get_value(&self) -> String {
@@ -180,14 +174,14 @@ impl TokenType {
         use ParseOutput::*;
         use TokenType::*;
 
-        if let Ok(_) = input.parse::<f64>() {
+        if input.parse::<f64>().is_ok() {
             return Partial(NUMBER(input.to_string()));
         }
 
         match input {
-            " " | "\r" | "\t" => return Token(TokenType::EOF),
+            " " | "\r" | "\t" => Token(TokenType::EOF),
             "$" | "#" | "@" | "%" => {
-                return ParseOutput::Invalid(format!("Unexpected character: {}", input))
+                ParseOutput::Invalid(format!("Unexpected character: {}", input))
             }
             "(" => Token(LEFT_PAREN),
             ")" => Token(RIGHT_PAREN),
@@ -245,56 +239,68 @@ impl TokenType {
     }
     pub fn is_keyword(input: &str) -> bool {
         let lowercase = input.to_lowercase();
-        match lowercase.as_str() {
-            "and" | "class" | "else" | "false" | "fun" | "for" | "if" | "nil" | "or" | "print"
-            | "return" | "super" | "this" | "true" | "var" | "while" => true,
-            _ => false,
-        }
+        matches!(
+            lowercase.as_str(),
+            "and"
+                | "class"
+                | "else"
+                | "false"
+                | "fun"
+                | "for"
+                | "if"
+                | "nil"
+                | "or"
+                | "print"
+                | "return"
+                | "super"
+                | "this"
+                | "true"
+                | "var"
+                | "while"
+        )
     }
 }
 
-impl ToString for TokenType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for TokenType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use TokenType::*;
-        match self {
-            LEFT_PAREN => "LEFT_PAREN".to_string(),
-            RIGHT_PAREN => "RIGHT_PAREN".to_string(),
-            LEFT_BRACE => "LEFT_BRACE".to_string(),
-            RIGHT_BRACE => "RIGHT_BRACE".to_string(),
-            COMMA => "COMMA".to_string(),
-            DOT => "DOT".to_string(),
-            MINUS => "MINUS".to_string(),
-            PLUS => "PLUS".to_string(),
-            SEMICOLON => "SEMICOLON".to_string(),
-            SLASH(n) => n.to_string(),
-            STAR => "STAR".to_string(),
-            BANG(n) => n.to_string(),
-            // BANG_EQUAL => "BANG_EQUAL".to_string(),
-            EQUAL(n) => n.to_string(),
-            // EQUAL_EQUAL => "EQUAL_EQUAL".to_string(),
-            GREATER(n) => n.to_string(),
-            LESS(n) => n.to_string(),
-            // LESS_EQUAL => "LESS_EQUAL".to_string(),
-            IDENTIFIER(_) => "IDENTIFIER".to_string(),
-            STRING(_) => "STRING".to_string(),
-            NUMBER(_) => "NUMBER".to_string(),
-            AND => "AND".to_string(),
-            CLASS => "CLASS".to_string(),
-            ELSE => "ELSE".to_string(),
-            FALSE => "FALSE".to_string(),
-            FUN => "FUN".to_string(),
-            FOR => "FOR".to_string(),
-            IF => "IF".to_string(),
-            NIL => "NIL".to_string(),
-            OR => "OR".to_string(),
-            PRINT => "PRINT".to_string(),
-            RETURN => "RETURN".to_string(),
-            SUPER => "SUPER".to_string(),
-            THIS => "THIS".to_string(),
-            TRUE => "TRUE".to_string(),
-            VAR => "VAR".to_string(),
-            WHILE => "WHILE".to_string(),
-            EOF => "EOF".to_string(),
-        }
+        let s = match self {
+            LEFT_PAREN => "LEFT_PAREN",
+            RIGHT_PAREN => "RIGHT_PAREN",
+            LEFT_BRACE => "LEFT_BRACE",
+            RIGHT_BRACE => "RIGHT_BRACE",
+            COMMA => "COMMA",
+            DOT => "DOT",
+            MINUS => "MINUS",
+            PLUS => "PLUS",
+            SEMICOLON => "SEMICOLON",
+            SLASH(n) => return write!(f, "{}", n),
+            STAR => "STAR",
+            BANG(n) => return write!(f, "{}", n),
+            EQUAL(n) => return write!(f, "{}", n),
+            GREATER(n) => return write!(f, "{}", n),
+            LESS(n) => return write!(f, "{}", n),
+            IDENTIFIER(_) => "IDENTIFIER",
+            STRING(_) => "STRING",
+            NUMBER(_) => "NUMBER",
+            AND => "AND",
+            CLASS => "CLASS",
+            ELSE => "ELSE",
+            FALSE => "FALSE",
+            FUN => "FUN",
+            FOR => "FOR",
+            IF => "IF",
+            NIL => "NIL",
+            OR => "OR",
+            PRINT => "PRINT",
+            RETURN => "RETURN",
+            SUPER => "SUPER",
+            THIS => "THIS",
+            TRUE => "TRUE",
+            VAR => "VAR",
+            WHILE => "WHILE",
+            EOF => "EOF",
+        };
+        write!(f, "{}", s)
     }
 }

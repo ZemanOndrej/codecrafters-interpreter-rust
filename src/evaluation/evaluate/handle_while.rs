@@ -2,8 +2,8 @@ use crate::evaluation::{ContextRef, EvaluatedExpression, EvaluatedExpressionResu
 
 pub fn handle_while(
     context: &mut ContextRef,
-    condition: &Box<Expression>,
-    then: &Box<Expression>,
+    condition: &Expression,
+    then: &Expression,
 ) -> Result<EvaluatedExpressionResult, String> {
     loop {
         let condition = condition.evaluate(context)?.assert_value()?;

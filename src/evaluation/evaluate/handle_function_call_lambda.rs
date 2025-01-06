@@ -5,7 +5,7 @@ use super::eval_args;
 pub fn handle_function_call_lambda(
     context: &mut ContextRef,
     expr: &Expression,
-    args: &Vec<Expression>,
+    args: &[Expression],
 ) -> Result<EvaluatedExpressionResult, String> {
     let function = expr.evaluate(context)?.assert_value()?;
 
@@ -16,7 +16,7 @@ pub fn handle_function_call_lambda(
         ..
     } = function.value_type
     else {
-        return Err(format!("Not a function type."));
+        return Err("Not a function type.".to_string());
     };
 
     let mut child_context = eval_args(context, args, fn_args, closure, "lambda")?;
@@ -24,8 +24,8 @@ pub fn handle_function_call_lambda(
     // dbg!(closure.borrow());
 
     let result = body.evaluate(&mut child_context);
-    return result.map(|v| match v {
+    result.map(|v| match v {
         EvaluatedExpressionResult::FunctionReturn(value) => value.into(),
         r => r,
-    });
+    })
 }

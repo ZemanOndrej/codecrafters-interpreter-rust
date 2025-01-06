@@ -14,15 +14,11 @@ pub fn handle_number_literal(
             input.clear();
             break;
         };
-        if let Some(_) = char.to_digit(10) {
+        if char.is_ascii_digit() || char == &'.' {
             number.push(chars.next().unwrap());
         } else {
-            if char == &'.' {
-                number.push(chars.next().unwrap());
-            } else {
-                input.clear();
-                break;
-            }
+            input.clear();
+            break;
         }
     }
 

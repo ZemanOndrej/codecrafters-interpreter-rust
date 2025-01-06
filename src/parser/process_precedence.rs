@@ -57,7 +57,7 @@ fn get_right_most_token_with_lowest_precedence(
         }
     }
 
-    if operators.len() == 0 {
+    if operators.is_empty() {
         return expressions.pop().unwrap();
     }
 
@@ -67,7 +67,7 @@ fn get_right_most_token_with_lowest_precedence(
     let mut operators = operators.into_iter().rev().collect::<Vec<_>>();
     let mut left: Option<Expression> = None;
 
-    while expressions.len() > 0 && operators.len() > 0 {
+    while !expressions.is_empty() && !operators.is_empty() {
         left = if let Some(right) = left {
             let operator = operators.pop().unwrap();
             let left = expressions.pop().unwrap();
@@ -100,7 +100,7 @@ mod tests {
     fn test_get_right_most_token_with_lowest_precedence_2_times_3() {
         // "1 + 2 * 3";
 
-        let input = vec![
+        let input = [
             Token {
                 token_type: TokenType::NUMBER("2.0".into()),
                 ..Default::default()

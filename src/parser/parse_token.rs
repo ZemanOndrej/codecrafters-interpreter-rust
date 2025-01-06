@@ -22,10 +22,11 @@ use handle_while::*;
 use std::{iter::Peekable, slice::Iter};
 pub type InputIter<'a> = Peekable<Iter<'a, Token>>;
 
+// TODO this might be runtime/evaluation error
 fn check_syntax_error(
     token: &Token,
     _input: &mut InputIter,
-    expression_stack: &mut Vec<Expression>,
+    expression_stack: &mut [Expression],
 ) -> Result<(), ParseError> {
     if expression_stack.is_empty() {
         return Ok(());
@@ -106,8 +107,8 @@ pub fn parse_token(
 
         LEFT_PAREN => {
             let (inner, _) = parse_expression(input, token, &[RIGHT_PAREN], true)?;
-            let r = Expression::Grouping(Box::new(inner)).into();
-            r
+
+            Expression::Grouping(Box::new(inner)).into()
         }
         RIGHT_PAREN => {
             return Err(format!(
@@ -163,8 +164,7 @@ pub fn parse_token(
                     Box::new(Expression::Literal(Token::new(
                         TokenType::NIL,
                         token.line_index,
-                    )))
-                    .into(),
+                    ))),
                 )
                 .into()
             }

@@ -26,7 +26,7 @@ pub fn create_error(token: &Token) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::{parser::parse_tokens, tokenize::tokenize};
+    use crate::{parser::parse_tokens, tokenizer::tokenize};
 
     #[test]
     fn test_invalid_braces() {

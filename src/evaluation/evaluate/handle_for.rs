@@ -2,10 +2,10 @@ use crate::evaluation::{ContextRef, EvaluatedExpression, EvaluatedExpressionResu
 
 pub fn handle_for(
     context: &mut ContextRef,
-    declaration: &Box<Expression>,
-    condition: &Box<Expression>,
-    increment: &Box<Expression>,
-    then: &Box<Expression>,
+    declaration: &Expression,
+    condition: &Expression,
+    increment: &Expression,
+    then: &Expression,
 ) -> Result<EvaluatedExpressionResult, String> {
     declaration.evaluate(context)?;
     loop {
